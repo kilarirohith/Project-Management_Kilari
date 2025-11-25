@@ -1,0 +1,223 @@
+<!-- src/app/task-tracker/task-tracker.html -->
+<div class="space-y-6 p-4">
+  <h1 class="text-2xl font-bold">Issue & Requirement Tracker</h1>
+
+  <!-- Stats -->
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="bg-gray-200 shadow-sm rounded-lg p-4 text-center">
+      <p class="text-sm text-gray-500">Total Tasks</p>
+      <p class="text-2xl font-bold">{{ totalTasks }}</p>
+    </div>
+    <div class="bg-yellow-200 shadow-sm rounded-lg p-4 text-center">
+      <p class="text-sm text-yellow-700">Open</p>
+      <p class="text-2xl font-bold text-yellow-700">{{ openTasks }}</p>
+    </div>
+    <div class="bg-blue-200 shadow-sm rounded-lg p-4 text-center">
+      <p class="text-sm text-blue-700">In Progress</p>
+      <p class="text-2xl font-bold text-blue-700">{{ inProgressTasks }}</p>
+    </div>
+    <div class="bg-green-200 shadow-sm rounded-lg p-4 text-center">
+      <p class="text-sm text-green-700">Closed</p>
+      <p class="text-2xl font-bold text-green-700">{{ closedTasks }}</p>
+    </div>
+  </div>
+
+  <button (click)="onAddNew()"
+          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+    + Add New Entry
+  </button>
+
+  <!-- Add/Edit Form -->
+  <div *ngIf="showForm" class="p-8 bg-white rounded-xl shadow-lg max-w-4xl mx-auto">
+    <h2 class="text-xl font-semibold mb-6 text-gray-800">
+      {{ form.id ? 'Edit Task' : 'Add Task' }}
+    </h2>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Title -->
+      <div class="flex flex-col">
+        <label class="mb-2 text-sm font-medium text-gray-700">Title</label>
+        <input
+          type="text"
+          [value]="form.title"
+          (input)="onFieldChange('title', $any($event.target).value)"
+          class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+        />
+      </div>
+
+      <!-- Project Id -->
+      <div class="flex flex-col">
+        <label class="mb-2 text-sm font-medium text-gray-700">Project Id</label>
+        <input
+          type="number"
+          [value]="form.projectId"
+          (input)="onFieldChange('projectId', +$any($event.target).value)"
+          class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+        />
+      </div>
+
+      <!-- Assigned To User Id -->
+      <div class="flex flex-col">
+        <label class="mb-2 text-sm font-medium text-gray-700">Assigned To (User Id)</label>
+        <input
+          type="number"
+          [value]="form.assignedToUserId"
+          (input)="onFieldChange('assignedToUserId', $any($event.target).value ? +$any($event.target).value : null)"
+          class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+        />
+      </div>
+
+      <!-- Priority -->
+      <div class="flex flex-col">
+        <label class="mb-2 text-sm font-medium text-gray-700">Priority</label>
+        <select
+          [value]="form.priority"
+          (change)="onFieldChange('priority', $any($event.target).value)"
+          class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+        >
+          <option value="Low">Low</option>
+          <option value="Normal">Normal</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+
+      <!-- Status -->
+      <div class="flex flex-col">
+        <label class="mb-2 text-sm font-medium text-gray-700">Status</label>
+        <select
+          [value]="form.status"
+          (change)="onFieldChange('status', $any($event.target).value)"
+          class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+        >
+          <option value="Open">Open</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Closed">Closed</option>
+        </select>
+      </div>
+
+      <!-- Due Date -->
+      <div class="flex flex-col">
+        <label class="mb-2 text-sm font-medium text-gray-700">Expected Closure Date</label>
+        <input
+          type="date"
+          [value]="form.dueDate"
+          (input)="onFieldChange('dueDate', $any($event.target).value)"
+          class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+        />
+      </div>
+
+      <!-- Description -->
+      <div class="flex flex-col md:col-span-2">
+        <label class="mb-2 text-sm font-medium text-gray-700">Description</label>
+        <textarea
+          rows="3"
+          [value]="form.description"
+          (input)="onFieldChange('description', $any($event.target).value)"
+          class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+        ></textarea>
+      </div>
+
+      <!-- Progress -->
+      <div class="flex flex-col md:col-span-2">
+        <label class="mb-2 text-sm font-medium text-gray-700">Progress (%)</label>
+        <input
+          type="range"
+          min="0"
+          max="100"
+          [value]="form.progress || 0"
+          (input)="onFieldChange('progress', +$any($event.target).value)"
+          class="w-full"
+        />
+        <div class="text-right text-sm text-gray-600 mt-1">
+          {{ form.progress || 0 }}%
+        </div>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-4 mt-8">
+      <button
+        (click)="onSave()"
+        [disabled]="saving"
+        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+      >
+        {{ saving ? 'Saving...' : 'Save' }}
+      </button>
+      <button
+        (click)="onCancel()"
+        class="px-6 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition"
+      >
+        Cancel
+      </button>
+    </div>
+  </div>
+
+  <!-- Task Table -->
+  <div class="bg-white rounded-lg shadow overflow-hidden">
+    <div class="overflow-x-auto">
+      <table class="w-full border-collapse">
+        <thead>
+          <tr class="bg-gray-100">
+            <th class="p-3 text-left border-b font-semibold text-gray-700">RAISED DATE</th>
+            <th class="p-3 text-left border-b font-semibold text-gray-700">TITLE</th>
+            <th class="p-3 text-left border-b font-semibold text-gray-700">PROJECT</th>
+            <th class="p-3 text-left border-b font-semibold text-gray-700">ASSIGNED TO</th>
+            <th class="p-3 text-left border-b font-semibold text-gray-700">PRIORITY</th>
+            <th class="p-3 text-left border-b font-semibold text-gray-700">STATUS</th>
+            <th class="p-3 text-left border-b font-semibold text-gray-700">EXPECTED CLOSURE DATE</th>
+            <th class="p-3 text-left border-b font-semibold text-gray-700">PROGRESS</th>
+            <th class="p-3 text-left border-b font-semibold text-gray-700">ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let task of tasks" class="border-b hover:bg-gray-50">
+            <td class="p-3">{{ formatDate(task.createdAt) }}</td>
+            <td class="p-3">{{ task.title }}</td>
+            <td class="p-3">{{ task.projectName }}</td>
+            <td class="p-3">{{ task.assignedUserName || task.assignedToUserId }}</td>
+            <td class="p-3">{{ task.priority }}</td>
+            <td class="p-3">{{ task.status }}</td>
+            <td class="p-3">{{ formatDate(task.dueDate || '') }}</td>
+            <td class="p-3">
+              <div class="w-24 bg-gray-200 rounded-full h-2">
+                <div
+                  class="h-2 rounded-full bg-green-500"
+                  [style.width.%]="task.progress || 0">
+                </div>
+              </div>
+              <span class="text-xs text-gray-600 ml-1">
+                {{ task.progress || 0 }}%
+              </span>
+            </td>
+            <td class="p-3">
+              <div class="flex gap-2">
+                <button
+                  (click)="onEdit(task)"
+                  class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-100 transition"
+                >
+                  Edit
+                </button>
+                <button
+                  (click)="onDelete(task.id)"
+                  class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition"
+                >
+                  Delete
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <tr *ngIf="!loading && tasks.length === 0">
+            <td colspan="9" class="p-4 text-center text-gray-500">
+              No tasks found.
+            </td>
+          </tr>
+          <tr *ngIf="loading">
+            <td colspan="9" class="p-4 text-center text-gray-500">
+              Loading tasks...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

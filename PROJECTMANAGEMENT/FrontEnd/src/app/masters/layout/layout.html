@@ -1,0 +1,147 @@
+<nav class="navbar">
+  <div class="navbar-content">
+    <!-- Sidebar toggle -->
+    <button class="sidebar-toggle" (click)="toggleSidebar()">
+      <i class="bi bi-list"></i>
+    </button>
+
+    <!-- Brand -->
+    <a class="navbar-brand" routerLink="/layout/dashboard">PPTPL</a>
+
+    <!-- User info -->
+    <div class="navbar-right user-section">
+      <span class="user-info hidden-mobile">
+        Hello, <strong>{{ username }}</strong>
+      </span>
+      <div class="avatar-container">
+        <img *ngIf="userAvatar" [src]="userAvatar" class="user-avatar" />
+        <div *ngIf="!userAvatar" class="avatar-fallback">
+          {{ getInitials() }}
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="layout-body">
+  <!-- Overlay (Mobile) -->
+  <div
+    class="sidebar-overlay"
+    [class.active]="sidebarOpen"
+    (click)="closeSidebar()"
+  ></div>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" [class.open]="sidebarOpen">
+    <div class="sidebar-header">
+      <h3>Menu</h3>
+      <button class="close-sidebar" (click)="closeSidebar()">×</button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            routerLink="/layout/dashboard"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
+            <i class="bi bi-speedometer2"></i> Dashboard
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            routerLink="/layout/projects"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
+            <i class="bi bi-kanban"></i> Projects
+          </a>
+        </li>
+
+        <!-- Ticket Tracker -->
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            routerLink="/layout/ticketing-system"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
+            <i class="bi bi-ticket-detailed"></i> Ticket Tracker
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            routerLink="/layout/task-tracker"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
+            <i class="bi bi-check-square"></i> Task Tracker
+          </a>
+        </li>
+
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            routerLink="/layout/masters"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
+            <i class="bi bi-grid-fill"></i> Masters
+          </a>
+        </li>
+
+        <!-- Vendor Work -->
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            routerLink="/layout/vendor-work"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
+            <i class="bi bi-truck"></i> Vendor Work
+          </a>
+        </li>
+
+        <!-- Approval Desk -->
+        <li class="nav-item">
+          <a
+            class="nav-link"
+            routerLink="/layout/approval-desk"
+            routerLinkActive="active"
+            (click)="closeSidebar()"
+          >
+            <i class="bi bi-clipboard-check"></i> Approval Desk
+          </a>
+        </li>
+      </ul>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-profile">
+        <div class="avatar-container small">
+          <div class="avatar-fallback">{{ getInitials() }}</div>
+        </div>
+        <div class="user-details">
+          <span class="user-name">{{ username }}</span>
+          <span class="user-role">{{ role }}</span>
+        </div>
+      </div>
+      <button class="signout-btn" (click)="signOut()">
+        <i class="bi bi-box-arrow-right"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="content-wrapper">
+      <router-outlet></router-outlet>
+    </div>
+  </main>
+</div>

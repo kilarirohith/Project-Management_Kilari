@@ -1,0 +1,144 @@
+<div class="space-y-6 p-4">
+  <h1 class="text-2xl font-bold">Client Master</h1>
+  <button class="btn btn-primary" (click)="showForm = true; resetForm()">
+    + Add New Client
+  </button>
+
+  <!-- FORM SECTION -->
+  <div *ngIf="showForm" class="card">
+    <div class="card-header">
+      <!-- ✅ FIXED: Changed form._id to form.id -->
+      <h2 class="card-title">{{ form.id ? 'Edit Client' : 'Add New Client' }}</h2>
+    </div>
+    <div class="card-content space-y-4">
+      <input
+        type="text"
+        class="form-input"
+        placeholder="Client Name"
+        [value]="form.clientName"
+        (input)="handleChange('clientName', $any($event.target).value)"
+        required
+      />
+      <input
+        type="text"
+        class="form-input"
+        placeholder="GST"
+        [value]="form.gst"
+        (input)="handleChange('gst', $any($event.target).value)"
+      />
+      <input
+        type="email"
+        class="form-input"
+        placeholder="Email"
+        [value]="form.email"
+        (input)="handleChange('email', $any($event.target).value)"
+      />
+
+      <h3 class="font-semibold">Locations & Units</h3>
+      
+      <!-- Locations Loop -->
+      <div *ngFor="let loc of form.locations; let locIndex = index" class="border p-2 rounded-md mb-2">
+        <input
+          type="text"
+          class="form-input mb-2"
+          placeholder="Location Name"
+          [value]="loc.locationName"
+          (input)="handleLocationChange(locIndex, 'locationName', $any($event.target).value)"
+        />
+        <input
+          type="text"
+          class="form-input mb-2"
+          placeholder="SPOC"
+          [value]="loc.spoc"
+          (input)="handleLocationChange(locIndex, 'spoc', $any($event.target).value)"
+        />
+        
+        <!-- Units Loop -->
+        <div *ngFor="let unit of loc.units; let unitIndex = index" class="mb-1">
+          <input
+            type="text"
+            class="form-input"
+            placeholder="Unit Name"
+            [value]="unit.unitName"
+            (input)="handleUnitChange(locIndex, unitIndex, $any($event.target).value)"
+          />
+        </div>
+        
+        <button class="btn btn-sm" (click)="addUnit(locIndex)">+ Add Unit</button>
+      </div>
+      
+      <button class="btn btn-secondary btn-sm" (click)="addLocation()">+ Add Location</button>
+
+      <div class="flex space-x-2 mt-4">
+        <button class="btn btn-primary" (click)="handleSave()">Save</button>
+        <button class="btn btn-secondary" (click)="cancelForm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE SECTION -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Clients List</h2>
+    </div>
+    <div class="card-content">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>GST</th>
+            <th>Email</th>
+            <th>Locations</th>
+            <th>SPOCs</th>
+            <th>Units</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let client of getSortedClients()">
+            <td>{{ client.clientName }}</td>
+            <td>{{ client.gst }}</td>
+            <td>{{ client.email }}</td>
+            <td>{{ getLocationNames(client.locations) }}</td>
+            <td>{{ getSPOCs(client.locations) }}</td>
+            <td>{{ getUnitNames(client.locations) }}</td>
+            <td class="space-x-2">
+              
+              <!-- ✅ FIXED: Passed client.id (number) instead of client._id -->
+              <button class="btn btn-sm" (click)="handleEdit(client.id!)">
+                Edit
+              </button>
+              
+              <!-- ✅ FIXED: Passed client.id (number) -->
+              <button 
+                class="btn btn-sm btn-destructive" 
+                (click)="setDeleteId(client.id!)"
+              >
+                Delete
+              </button>
+              
+              <!-- ✅ FIXED: Compared deleteId === client.id -->
+              <div *ngIf="deleteId === client.id" class="modal-overlay">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h3 class="modal-title">Are you sure?</h3>
+                  </div>
+                  <div class="modal-body">
+                    <p>This action cannot be undone.</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button class="btn btn-secondary" (click)="deleteId = null">Cancel</button>
+                    <button class="btn btn-destructive" (click)="confirmDelete()">Delete</button>
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="clients.length === 0">
+            <td colspan="7" class="text-center">No clients found</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

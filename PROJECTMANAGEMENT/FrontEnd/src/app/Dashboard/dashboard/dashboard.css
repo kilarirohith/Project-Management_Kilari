@@ -1,0 +1,136 @@
+.dashboard-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  font-family: Helvetica, Arial, sans-serif;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* 4 cards on desktop */
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+.chart-wrapper {
+  max-width: 400px;
+  margin: 0 auto;
+}
+.loading {
+  margin-top: 1rem;
+}
+.error {
+  margin-top: 1rem;
+  color: #b91c1c;
+}
+
+.stat-card {
+  background-color: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  border: 2px solid #cecece;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  background-color: #ecf2fd;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.15);
+}
+
+.stat-card:active {
+  background-color: #d1e0fe;
+}
+
+.gradient-bg {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+}
+
+.gradient-bg:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+}
+
+.card-content {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.card-icon {
+  font-size: 2.5rem;
+  padding: 0.5rem;
+}
+
+.card-text {
+  flex: 1;
+}
+
+.card-title {
+  font-size: 0.9rem;
+  font-weight: bold;
+  margin: 0 0 0.5rem 0;
+  color: inherit;
+  opacity: 0.9;
+}
+
+.card-value {
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0;
+  color: inherit;
+}
+
+.charts-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 2rem;
+  margin-top: 3rem;
+}
+
+.chart-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.1);
+  border: 2px solid #cecece;
+}
+
+.chart-section h2 {
+  margin-top: 0;
+  color: #333;
+  font-size: 1.3rem;
+}
+
+.chart-placeholder {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+  .dashboard-container {
+    padding: 1rem;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+  
+  .charts-container {
+    grid-template-columns: 1fr;
+  }
+  
+  .card-value {
+    font-size: 1.8rem;
+  }
+}

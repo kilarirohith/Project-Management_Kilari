@@ -1,0 +1,90 @@
+/* Full-page center layout */
+.login-wrapper {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #007bff, #6610f2);
+  font-family: "Poppins", sans-serif;
+}
+
+/* Glassmorphic card */
+.login-card {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  padding: 40px 30px;
+  width: 90%;
+  max-width: 400px;
+  color: #fff;
+  text-align: center;
+}
+
+/* Title and subtitle */
+.login-card h2 {
+  margin-bottom: 10px;
+  font-size: 2rem;
+  font-weight: 600;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: #ddd;
+  margin-bottom: 30px;
+}
+
+/* Input fields */
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  border: none;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 1rem;
+  outline: none;
+}
+
+.form-group input::placeholder {
+  color: #eee;
+}
+
+/* Button styling */
+.login-btn {
+  width: 100%;
+  background: #fff;
+  color: #333;
+  border: none;
+  padding: 12px 0;
+  border-radius: 10px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.login-btn:hover {
+  background: #f8f9fa;
+  transform: translateY(-2px);
+}
+
+/* Error message */
+.error {
+  margin-top: 10px;
+  color: #ff6b6b;
+  font-size: 0.9rem;
+}
+
+/* Footer text */
+.footer-text {
+  margin-top: 20px;
+  font-size: 0.9rem;
+}
+
+.footer-text a {
+  color: #fff;
+  text-decoration: underline;
+  font-weight: 500;
+}

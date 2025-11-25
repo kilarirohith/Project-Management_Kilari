@@ -1,0 +1,337 @@
+/* project-master.component.css */
+
+/* Main Container */
+.project-master-container {
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  min-height: 100vh;
+  padding: 2rem;
+}
+
+/* Header Styles */
+.project-header {
+  color: #1a202c;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  position: relative;
+  display: inline-block;
+}
+
+.project-header::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(90deg, #3f51b5 0%, #2196f3 100%);
+  border-radius: 2px;
+}
+
+/* Add New Project Button */
+.add-project-btn {
+  margin-bottom: 1.5rem !important;
+  border-radius: 8px !important;
+  padding: 12px 24px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  box-shadow: 0 4px 6px rgba(63, 81, 181, 0.2) !important;
+  transition: all 0.3s ease !important;
+}
+
+.add-project-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(63, 81, 181, 0.3) !important;
+}
+
+/* Form Container */
+.form-container {
+  background: white;
+  border-radius: 12px;
+  padding: 2rem;
+  margin-top: 1rem;
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+  animation: slideDown 0.3s ease-out;
+}
+
+.form-title {
+  color: #2d3748;
+  font-weight: 600;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #f7fafc;
+}
+
+/* Material Form Fields Customization */
+.custom-form-field {
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+::ng-deep .custom-form-field .mat-form-field-outline {
+  background-color: #f8fafc;
+  border-radius: 8px;
+}
+
+::ng-deep .custom-form-field .mat-form-field-outline-thick {
+  border-color: #3f51b5 !important;
+}
+
+::ng-deep .custom-form-field .mat-form-field-label {
+  color: #64748b !important;
+  font-weight: 500;
+}
+
+::ng-deep .custom-form-field .mat-input-element {
+  color: #1a202c;
+  font-size: 14px;
+  padding: 8px 0;
+}
+
+::ng-deep .custom-form-field.mat-form-field-appearance-outline .mat-form-field-outline-start,
+::ng-deep .custom-form-field.mat-form-field-appearance-outline .mat-form-field-outline-end,
+::ng-deep .custom-form-field.mat-form-field-appearance-outline .mat-form-field-outline-gap {
+  border-width: 2px !important;
+  border-color: #cbd5e0;
+}
+
+::ng-deep .custom-form-field.mat-form-field-appearance-outline.mat-focused .mat-form-field-outline-thick {
+  border-color: #3f51b5 !important;
+}
+
+/* Form Actions */
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.save-btn, .cancel-btn {
+  border-radius: 8px !important;
+  padding: 10px 24px !important;
+  font-weight: 600 !important;
+  text-transform: none !important;
+  transition: all 0.3s ease !important;
+}
+
+.save-btn {
+  box-shadow: 0 4px 6px rgba(63, 81, 181, 0.2) !important;
+}
+
+.save-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(63, 81, 181, 0.3) !important;
+}
+
+.cancel-btn:hover {
+  transform: translateY(-1px);
+}
+
+/* Table Styles */
+.table-container {
+  margin-top: 2rem;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 
+    0 4px 6px rgba(0, 0, 0, 0.05),
+    0 1px 3px rgba(0, 0, 0, 0.1) !important;
+}
+
+::ng-deep .custom-table {
+  width: 100%;
+  background: white;
+}
+
+::ng-deep .custom-table .mat-header-cell {
+  background: linear-gradient(135deg, #3f51b5 0%, #2196f3 100%);
+  color: white;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 16px;
+  border-bottom: none;
+}
+
+::ng-deep .custom-table .mat-cell {
+  padding: 16px;
+  color: #4a5568;
+  font-size: 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+::ng-deep .custom-table .mat-row {
+  transition: all 0.2s ease;
+  background: white;
+}
+
+::ng-deep .custom-table .mat-row:hover {
+  background: #f7fafc;
+  transform: scale(1.01);
+}
+
+::ng-deep .custom-table .mat-row:nth-child(even) {
+  background: #f8fafc;
+}
+
+::ng-deep .custom-table .mat-row:nth-child(even):hover {
+  background: #f1f5f9;
+}
+
+/* Action Buttons */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-btn, .delete-btn {
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  font-size: 12px !important;
+  padding: 6px 12px !important;
+  min-width: auto !important;
+  transition: all 0.2s ease !important;
+}
+
+.edit-btn:hover {
+  background-color: rgba(63, 81, 181, 0.1) !important;
+  transform: translateY(-1px);
+}
+
+.delete-btn:hover {
+  background-color: rgba(244, 67, 54, 0.1) !important;
+  transform: translateY(-1px);
+}
+
+/* Empty State */
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #64748b;
+  font-style: italic;
+}
+
+.empty-state::before {
+  content: "📋";
+  font-size: 3rem;
+  display: block;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* Animations */
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Loading State */
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: loading 1.5s infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .project-master-container {
+    padding: 1rem;
+  }
+
+  .form-container {
+    padding: 1.5rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+
+  ::ng-deep .custom-table .mat-header-cell,
+  ::ng-deep .custom-table .mat-cell {
+    padding: 12px 8px;
+    font-size: 12px;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .table-container {
+    overflow-x: auto;
+  }
+
+  ::ng-deep .custom-table {
+    min-width: 600px;
+  }
+}
+
+@media (max-width: 480px) {
+  .project-header {
+    font-size: 1.5rem;
+  }
+
+  .add-project-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .form-container {
+    padding: 1rem;
+  }
+}
+
+/* Focus States for Accessibility */
+button:focus, 
+::ng-deep .mat-form-field .mat-input-element:focus {
+  outline: 2px solid #3f51b5;
+  outline-offset: 2px;
+}
+
+/* Custom scrollbar for table container */
+.table-container::-webkit-scrollbar {
+  height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}

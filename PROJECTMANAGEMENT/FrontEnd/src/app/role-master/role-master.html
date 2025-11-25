@@ -1,0 +1,104 @@
+<div class="p-6 bg-gray-50 min-h-screen">
+  <h1 class="text-3xl font-bold mb-6">Role Master</h1>
+
+  <!-- Hide 'Add Role' button if form is open -->
+  @if (!showForm && isAdmin) {
+    <button class="btn-primary mb-4" (click)="showForm = true; editingIndex = null; form = {name:'', permissions:[]}">
+      + Add Role
+    </button>
+  }
+
+  <!-- Add/Edit Role Form -->
+  @if (showForm) {
+    <div class="card">
+      <h2 class="card-title">{{ editingIndex !== null ? 'Edit Role' : 'Add New Role' }}</h2>
+
+      <div class="mb-3">
+        <label class="label">Role Name</label>
+        <input
+          [(ngModel)]="form.name"
+          placeholder="Enter Role Name"
+          class="input"
+        />
+        </div>
+        <div class="mb-3">
+  <label class="label">Description</label>
+  <textarea
+    [(ngModel)]="form.description"
+    placeholder="Enter Role Description (Optional)"
+    class="input"
+    rows="2"
+  ></textarea>
+</div>
+      
+
+      <!-- Permissions Table -->
+      <div class="permissions mb-4">
+        <h3 class="font-semibold mb-2 text-gray-700">Permissions</h3>
+        
+        @for (m of modules; track m) {
+          <div class="mb-3 border-b pb-2 border-gray-100">
+            <h4 class="font-semibold mb-2 text-sm text-gray-900">{{ m }}</h4>
+            <div class="flex gap-4 flex-wrap">
+              @for (a of actions; track a) {
+                <label class="flex items-center gap-1 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    [checked]="isChecked(m, a)"
+                    (change)="togglePermission(m, a)"
+                    class="cursor-pointer"
+                  />
+                  <span class="capitalize text-sm text-gray-600">{{ a }}</span>
+                </label>
+              }
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="flex gap-2">
+        <button class="btn-primary" (click)="saveRole()">Save</button>
+        <button class="btn-secondary" (click)="resetForm()">Cancel</button>
+      </div>
+    </div>
+  }
+
+  <!-- Roles List -->
+  <div class="mt-6">
+    <h2 class="text-2xl font-semibold mb-4">Roles List</h2>
+
+    @if (roles.length === 0) {
+      <div class="text-gray-500 italic">No roles created yet.</div>
+    }
+
+    @for (role of roles; track role.name; let i = $index) {
+      <div class="card mb-3">
+        <div class="flex justify-between items-start">
+          <div>
+            <b class="text-lg text-blue-700 block mb-1">{{ role.name }}</b>
+            
+            <!-- Display Permissions -->
+            <div class="mt-2 space-y-1">
+              @for (p of role.permissions; track p.module) {
+                <!-- Only show module if at least one action is allowed -->
+                @if (getActionsList(p).length > 0) {
+                  <div class="text-sm text-gray-700">
+                    <span class="font-semibold text-gray-900">{{ p.module }}:</span> 
+                    <i class="text-gray-500">{{ getActionsList(p).join(', ') }}</i>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+
+          <div class="flex gap-2">
+             @if (isAdmin) {
+             <button class="btn-small" (click)="editRole(i)">Edit</button>
+             <button class="btn-danger" (click)="deleteRole(i)">Delete</button>
+              }
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,63 @@
+<div class="dashboard-container">
+  <h1>Project Dashboard</h1>
+
+  <!-- LOADING / ERROR STATES -->
+  <div *ngIf="loading" class="loading">
+    Loading dashboard...
+  </div>
+  <div *ngIf="!loading && errorMessage" class="error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- STATS CARDS -->
+  <div class="stats-grid" *ngIf="!loading && !errorMessage">
+    <div
+      *ngFor="let card of statCards"
+      class="stat-card"
+      [class.gradient-bg]="card.gradient"
+    >
+      <div class="card-content">
+        <div class="card-icon">{{ card.icon }}</div>
+        <div class="card-text">
+          <h3 class="card-title">{{ card.title }}</h3>
+          <p class="card-value">{{ card.value }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="charts-container" *ngIf="!loading && !errorMessage">
+    <!-- Project Distribution Chart -->
+    <div class="chart-section">
+      <h2>Project Distribution</h2>
+      <div class="chart-wrapper">
+        <ngx-charts-pie-chart
+          [results]="projectPieData"
+          [legend]="showLegend"
+          [labels]="showLabels"
+          [explodeSlices]="explodeSlices"
+          [doughnut]="doughnut"
+          [gradient]="gradient"
+          [view]="view">
+        </ngx-charts-pie-chart>
+      </div>
+    </div>
+
+    <!-- Ticket Status Chart -->
+    <div class="chart-section">
+      <h2>Ticket Status</h2>
+      <div class="chart-wrapper">
+        <ngx-charts-pie-chart
+          [results]="ticketPieData"
+          [legend]="showLegend"
+          [labels]="showLabels"
+          [explodeSlices]="explodeSlices"
+          [doughnut]="doughnut"
+          [gradient]="gradient"
+          [view]="view">
+        </ngx-charts-pie-chart>
+      </div>
+    </div>
+  </div>
+</div>

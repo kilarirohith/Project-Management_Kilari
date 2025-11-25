@@ -1,0 +1,70 @@
+<!-- Overlay -->
+<div
+  class="sidebar-overlay"
+  [class.active]="sidebarOpen"
+  (click)="closeSidebar()"
+></div>
+
+<!-- Sidebar -->
+<aside class="sidebar" [class.open]="sidebarOpen">
+  <div class="sidebar-header">
+    <h3>Menu</h3>
+    <button class="close-sidebar" (click)="closeSidebar()">&times;</button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <ul class="nav-menu">
+      <!-- ✅ FIXED: Added '/layout/' prefix to all links -->
+      <li>
+        <a routerLink="/layout/dashboard" routerLinkActive="active" (click)="closeSidebar()">
+          Dashboard
+        </a>
+      </li>
+      <li>
+        <a routerLink="/layout/projects" routerLinkActive="active" (click)="closeSidebar()">
+          Projects
+        </a>
+      </li>
+      <!-- Note: You need to uncomment 'ticketing-system' in routes.ts for this to work -->
+      <li>
+        <a routerLink="/layout/ticketing-system" routerLinkActive="active" (click)="closeSidebar()">
+          Ticket Tracker
+        </a>
+      </li>
+      <li>
+        <a routerLink="/layout/task-tracker" routerLinkActive="active" (click)="closeSidebar()">
+          Task Tracker
+        </a>
+      </li>
+      <li>
+        <a routerLink="/layout/masters" routerLinkActive="active" (click)="closeSidebar()">
+          Master
+        </a>
+      </li>
+      <li>
+        <a routerLink="/layout/vendor-work" routerLinkActive="active" (click)="closeSidebar()">
+          Vendor Work
+        </a>
+      </li>
+      <!-- Added Approval Desk from previous step -->
+      <li>
+        <a routerLink="/layout/approval-desk" routerLinkActive="active" (click)="closeSidebar()">
+          Approval Desk
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+ <div class="sidebar-footer">
+    <div class="user-profile">
+      <div class="avatar-container small">
+        <div class="avatar-fallback">{{ getInitials() }}</div>
+      </div>
+      <div class="user-details">
+        <span class="user-name">{{ username }}</span>
+        <span class="user-role">{{ role }}</span>
+      </div>
+    </div>
+    <button class="signout-btn-text" (click)="logout()">Sign Out</button>
+  </div>
+</aside>

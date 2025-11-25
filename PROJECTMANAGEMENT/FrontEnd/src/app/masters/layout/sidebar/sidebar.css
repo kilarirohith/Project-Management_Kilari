@@ -1,0 +1,128 @@
+/* Sidebar overlay (dark transparent background) */
+.sidebar-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease-in-out;
+  z-index: 99;
+}
+
+.sidebar-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Sidebar drawer */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -260px;
+  width: 250px;
+  height: 100vh;
+  background-color: #1f1f1f;
+  color: white;
+  padding: 15px;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  transition: left 0.3s ease-in-out;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.close-sidebar {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.nav-menu {
+  list-style: none;
+  padding: 0;
+  margin: 20px 0;
+}
+
+.nav-menu li {
+  margin: 10px 0;
+}
+
+.nav-menu a {
+  color: #ccc;
+  text-decoration: none;
+  font-size: 15px;
+  display: block;
+  padding: 8px 10px;
+  border-radius: 5px;
+  transition: 0.3s;
+}
+
+.nav-menu a:hover,
+.nav-menu a.active {
+  background: #00bcd4;
+  color: white;
+}
+
+/* Footer Section */
+.sidebar-footer {
+  margin-top: auto;
+  border-top: 1px solid #333;
+  padding-top: 15px;
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.signout-btn {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.signout-btn:hover {
+  background-color: #c9302c;
+}
+
+.avatar-container {
+  position: relative;
+  width: 35px;
+  height: 35px;
+}
+
+.user-avatar {
+  width: 100%;
+  border-radius: 50%;
+}
+
+.avatar-fallback {
+  width: 35px;
+  height: 35px;
+  background: #00bcd4;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}

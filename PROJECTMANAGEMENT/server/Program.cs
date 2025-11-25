@@ -1,0 +1,194 @@
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using System.Text;
+using server.Data;
+using server.Services.Interfaces;
+using server.Services.Implementations;
+using server.Models;
+using server.Utils;
+
+var builder = WebApplication.CreateBuilder(args);
+
+// ---------------------- CONFIGURATION ----------------------
+var configuration = builder.Configuration;
+
+// ---------------------- DATABASE ----------------------------
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+
+// ---------------------- DEPENDENCY INJECTION ----------------------------
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+builder.Services.AddScoped<IClientService, ClientService>();
+builder.Services.AddScoped<IVendorService, VendorService>();
+builder.Services.AddScoped<IMilestoneMasterService, MilestoneMasterService>();
+
+builder.Services.AddScoped<IProjectService, ProjectService>();
+builder.Services.AddScoped<IProjectMasterService, ProjectMasterService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<ITaskTrackerService, TaskTrackerService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
+
+builder.Services.AddScoped<IVendorWorkService, VendorWorkService>();
+builder.Services.AddScoped<IApprovalDeskService, ApprovalDeskService>();
+
+builder.Services.AddControllers();
+
+// ---------------------- CORS -------------------------------
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy => policy
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
+// ---------------------- JWT AUTH ----------------------------
+var jwtKey = configuration["Jwt:Key"]
+    ?? throw new InvalidOperationException("JWT Key not configured in appsettings.json!");
+
+var issuer = configuration["Jwt:Issuer"];
+var audience = configuration["Jwt:Audience"];
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+
+        ValidIssuer = issuer,
+        ValidAudience = audience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+    };
+
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine("JWT auth failed: " + context.Exception.Message);
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            Console.WriteLine("JWT token validated for: " + context.Principal?.Identity?.Name);
+            return Task.CompletedTask;
+        }
+    };
+});
+
+builder.Services.AddAuthorization();
+
+// ---------------------- SWAGGER -----------------------------
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "PMS System API",
+        Version = "v1",
+        Description = "Backend API for Project Management System"
+    });
+
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "Enter JWT token in the format: Bearer {token}",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            Array.Empty<string>()
+        }
+    });
+});
+
+// ---------------------- APP PIPELINE -------------------------
+var app = builder.Build();
+
+// --- DATABASE MIGRATION & SEEDING ---
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+
+    if (!db.Roles.Any())
+    {
+        db.Roles.AddRange(
+            new Role { Name = "Admin", Description = "System Administrator" },
+            new Role { Name = "User", Description = "Standard User" },
+            new Role { Name = "Manager", Description = "Project Manager" }
+        );
+        db.SaveChanges();
+    }
+
+    if (!db.Users.Any(u => u.Email == "admin@admin.com"))
+    {
+        var adminRole = db.Roles.First(r => r.Name == "Admin");
+
+        var adminUser = new User
+        {
+            FullName = "System Admin",
+            Username = "admin",
+            Email = "admin@admin.com",
+            PasswordHash = AuthHelper.HashPassword("admin123"),
+            RoleId = adminRole.Id,
+            Role = adminRole
+        };
+
+        db.Users.Add(adminUser);
+        db.SaveChanges();
+    }
+}
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
+
+app.UseHttpsRedirection();
+app.UseCors("AllowAll");
+
+app.Use(async (ctx, next) =>
+{
+    if (ctx.Request.Headers.ContainsKey("Authorization"))
+    {
+        Console.WriteLine("AUTH HEADER: " + ctx.Request.Headers["Authorization"].ToString());
+    }
+    await next();
+});
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();

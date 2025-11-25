@@ -1,0 +1,65 @@
+<!-- vendor-master.component.html -->
+<div class="space-y-6 p-4">
+  <h1 class="text-2xl font-bold">Vendor Master</h1>
+
+   <button class="btn btn-primary" (click)="showAddForm()">
+    + Add New Vendor
+  </button>
+
+  <div *ngIf="showForm" class="card">
+    <div class="card-header">
+      <h2 class="card-title">{{ form.id ? 'Edit Vendor' : 'Add New Vendor' }}</h2>
+    </div>
+    <div class="card-content space-y-4">
+      <!-- Simplified Inputs -->
+      <input class="form-input" placeholder="Vendor Name" [(ngModel)]="form.vendorName" required />
+      <input class="form-input" placeholder="Vendor Location" [(ngModel)]="form.vendorLocation" />
+      <input class="form-input" placeholder="Vendor GST" [(ngModel)]="form.vendorGst" />
+      <input class="form-input" type="email" placeholder="Email" [(ngModel)]="form.email" />
+      <input class="form-input" placeholder="SPOC" [(ngModel)]="form.spoc" />
+
+      <div class="flex space-x-2">
+        <button class="btn btn-primary" (click)="handleSave()">Save</button>
+        <button class="btn btn-secondary" (click)="cancelForm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Vendors List</h2>
+    </div>
+    <div class="card-content">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Location</th>
+            <th>GST</th>
+            <th>Email</th>
+            <th>SPOC</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+       <tbody>
+  <tr *ngFor="let vendor of vendors">
+    <td>{{ vendor.vendorName }}</td>
+    <td>{{ vendor.vendorLocation }}</td>
+    <td>{{ vendor.vendorGst }}</td>
+    <td>{{ vendor.email }}</td>
+    <td>{{ vendor.spoc }}</td>
+    <td class="space-x-2">
+      <button class="btn btn-sm" (click)="handleEdit(vendor.id!)">Edit</button>
+<button class="btn btn-sm btn-destructive" (click)="handleDelete(vendor.id!)">
+  Delete
+</button>
+    </td>
+  </tr>
+  <tr *ngIf="vendors.length === 0">
+    <td colspan="6" class="text-center">No vendors found</td>
+  </tr>
+</tbody>
+      </table>
+    </div>
+  </div>
+</div>

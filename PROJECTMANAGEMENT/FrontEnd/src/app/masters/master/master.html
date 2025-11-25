@@ -1,0 +1,35 @@
+<div class="p-10">
+  <div class="mb-10">
+    <h1>Masters</h1>
+    <p>Manage master data and configurations</p>
+  </div>
+
+  <!-- Responsive Card Grid -->
+  <div class="grid">
+    <div
+      class="master-card"
+      *ngFor="let card of masterCards; let i = index"
+    >
+      <div class="p-6">
+        <div>
+          <!-- 
+            Dynamic Icon Wrapper: 
+            Uses 'icon-1', 'icon-2' etc based on index to apply CSS gradients 
+          -->
+          <div class="icon-wrapper" [ngClass]="'icon-' + (i + 1)">
+            <i class="bi" [class]="card.icon"></i>
+          </div>
+
+          <!-- Card Content -->
+          <h2>{{ card.title }}</h2>
+          <p>{{ card.description }}</p>
+        </div>
+
+        <!-- Navigation -->
+        <button (click)="navigateTo(card.route)">
+          {{ card.buttonText }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,41 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #1f2937;
+  color: #fff;
+  padding: 0.5rem 1rem;
+}
+
+.navbar-brand {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: white;
+  text-decoration: none;
+}
+
+.sidebar-toggle {
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 1.4rem;
+  cursor: pointer;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logout-btn {
+  background: #ef4444;
+  border: none;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+.logout-btn:hover {
+  background: #dc2626;
+}

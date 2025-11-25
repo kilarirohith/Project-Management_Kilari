@@ -1,0 +1,193 @@
+/* client-master.component.css */
+.space-y-6 > * + * {
+  margin-top: 1.5rem;
+}
+
+.space-y-4 > * + * {
+  margin-top: 1rem;
+}
+
+.p-4 {
+  padding: 1rem;
+}
+
+.text-2xl {
+  font-size: 1.5rem;
+}
+
+.font-bold {
+  font-weight: bold;
+}
+
+.font-semibold {
+  font-weight: 600;
+}
+
+.card {
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  background: white;
+}
+
+.card-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.card-content {
+  padding: 1.5rem;
+}
+
+.mb-2 {
+  margin-bottom: 0.5rem;
+}
+
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
+
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.flex {
+  display: flex;
+}
+
+.space-x-2 {
+  gap: 0.5rem;
+}
+
+.border {
+  border: 1px solid #e5e7eb;
+}
+
+.rounded-md {
+  border-radius: 0.375rem;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.table th,
+.table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.table th {
+  font-weight: 600;
+  background: #f9fafb;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+.btn-secondary {
+  background: #6b7280;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #4b5563;
+}
+
+.btn-destructive {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-destructive:hover {
+  background: #dc2626;
+}
+
+.btn-sm {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  box-sizing: border-box;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: white;
+  padding: 0;
+  border-radius: 0.5rem;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modal-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+.modal-body {
+  padding: 1rem 1.5rem;
+}
+
+.modal-footer {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}

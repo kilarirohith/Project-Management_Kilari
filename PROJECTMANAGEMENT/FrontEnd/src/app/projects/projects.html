@@ -1,0 +1,225 @@
+<div class="projects-container p-0 min-h-screen">
+
+  <!-- Header -->
+  <div class="projects-header flex justify-between items-center p-4">
+    <div>
+      <h1 class="projects-title text-2xl font-semibold">Projects</h1>
+      <p class="projects-subtitle text-gray-500">Manage and track all your projects</p>
+    </div>
+    <button class="btn-primary px-4 py-2 rounded-lg text-white bg-blue-600 hover:bg-blue-700"
+            (click)="openModal()">
+      + Create Project
+    </button>
+  </div>
+
+  <!-- Modal -->
+  <div *ngIf="isModalOpen" class="modal fixed inset-0 flex items-center justify-center z-50">
+    <div class="modal-backdrop absolute inset-0 bg-black opacity-50" (click)="onCancel()"></div>
+
+    <div class="modal-dialog bg-white rounded-lg shadow-lg w-11/12 md:w-3/4 lg:w-1/2 relative z-10 p-6">
+      <div class="modal-header flex justify-between items-center border-b pb-2">
+        <h2 class="modal-title text-xl font-semibold">
+          {{ isEditing ? 'Edit Project' : 'Create Project' }}
+        </h2>
+        <span class="close-button text-2xl cursor-pointer" (click)="onCancel()">&times;</span>
+      </div>
+
+      <form [formGroup]="projectForm" (ngSubmit)="onSubmit()" class="modal-body space-y-4 mt-4">
+
+        <!-- Row 1 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label for="project" class="block text-sm font-medium mb-1">Project</label>
+            <input id="project" type="text" formControlName="project"
+                   class="input-field w-full border rounded px-3 py-2"
+                   placeholder="Enter project name">
+            <div *ngIf="f['project'].invalid && f['project'].touched" class="text-red-600 text-sm mt-1">
+              Project name is required.
+            </div>
+          </div>
+
+          <div>
+            <label for="projectType" class="block text-sm font-medium mb-1">Project Type</label>
+            <select id="projectType" formControlName="projectType"
+                    class="input-field w-full border rounded px-3 py-2">
+              <option value="" disabled>Select Project Type</option>
+              <option *ngFor="let type of projectTypes" [value]="type">{{ type }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="client" class="block text-sm font-medium mb-1">Client</label>
+            <select id="client" formControlName="clientId"
+                    (change)="onClientChange()"
+                    class="input-field w-full border rounded px-3 py-2">
+              <option value="" disabled>Select Client</option>
+              <option *ngFor="let c of clients" [value]="c.id">
+                {{ c.clientName }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label for="location" class="block text-sm font-medium mb-1">Location</label>
+            <select id="location" formControlName="location"
+                    (change)="onLocationChange()"
+                    class="w-full border rounded px-3 py-2">
+              <option value="" disabled>Select Location</option>
+              <option *ngFor="let loc of locations" [value]="loc">{{ loc }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="unit" class="block text-sm font-medium mb-1">Unit</label>
+            <select id="unit" formControlName="unit" class="w-full border rounded px-3 py-2">
+              <option value="" disabled>Select Unit</option>
+              <option *ngFor="let u of units" [value]="u">{{ u }}</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="milestone" class="block text-sm font-medium mb-1">Milestone</label>
+            <select id="milestone" formControlName="milestone" class="w-full border rounded px-3 py-2">
+              <option value="" disabled>Select Milestone</option>
+              <option *ngFor="let m of milestones" [value]="m">{{ m }}</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Row 3: Dates -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="planStart" class="block text-sm font-medium mb-1">Plan Start</label>
+            <input id="planStart" type="date" formControlName="planStart"
+                   class="w-full border rounded px-3 py-2">
+          </div>
+          <div>
+            <label for="planClose" class="block text-sm font-medium mb-1">Plan Close</label>
+            <input id="planClose" type="date" formControlName="planClose"
+                   class="w-full border rounded px-3 py-2">
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="modal-footer flex justify-end gap-3 mt-4">
+          <button type="button" class="btn-cancel border px-4 py-2 rounded" (click)="onCancel()">Cancel</button>
+          <button type="submit" class="btn-primary bg-blue-600 text-white px-4 py-2 rounded"
+                  [disabled]="projectForm.invalid || isSubmitting">
+            {{ isSubmitting ? (isEditing ? 'Updating...' : 'Creating...') : (isEditing ? 'Update Project' : 'Create Project') }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- Dashboard Cards -->
+  <div class="stats-grid grid grid-cols-2 md:grid-cols-5 gap-4 p-4">
+    <div class="stat-card total p-4 bg-white rounded shadow">
+      <p class="stat-label text-sm text-gray-500">TOTAL</p>
+      <p class="stat-value text-2xl font-bold">{{totalProjects}}</p>
+      <div class="progress-bar bg-gray-2 00 rounded h-2 mt-2">
+        <div class="progress-fill h-2 rounded"
+             [style.width.%]="100"
+             [style.background]="'var(--primary-blue)'"></div>
+      </div>
+    </div>
+
+    <div class="stat-card running p-4 bg-white rounded shadow">
+      <p class="stat-label text-sm text-gray-500">RUNNING</p>
+      <p class="stat-value text-2xl font-bold">{{running}}</p>
+      <div class="progress-bar bg-gray-200 rounded h-2 mt-2">
+        <div class="progress-fill h-2 rounded"
+             [style.width.%]="totalProjects ? (running/totalProjects)*100 : 0"
+             [style.background]="'var(--warning-yellow)'"></div>
+      </div>
+    </div>
+
+    <div class="stat-card completed p-4 bg-white rounded shadow">
+      <p class="stat-label text-sm text-gray-500">COMPLETED</p>
+      <p class="stat-value text-2xl font-bold">{{completed}}</p>
+      <div class="progress-bar bg-gray-200 rounded h-2 mt-2">
+        <div class="progress-fill h-2 rounded"
+             [style.width.%]="totalProjects ? (completed/totalProjects)*100 : 0"
+             [style.background]="'var(--success-green)'"></div>
+      </div>
+    </div>
+
+    <div class="stat-card delayed p-4 bg-white rounded shadow">
+      <p class="stat-label text-sm text-gray-500">DELAYED</p>
+      <p class="stat-value text-2xl font-bold">{{delayed}}</p>
+      <div class="progress-bar bg-gray-200 rounded h-2 mt-2">
+        <div class="progress-fill h-2 rounded"
+             [style.width.%]="totalProjects ? (delayed/totalProjects)*100 : 0"
+             [style.background]="'var(--error-red)'"></div>
+      </div>
+    </div>
+
+    <div class="stat-card onhold p-4 bg-white rounded shadow">
+      <p class="stat-label text-sm text-gray-500">ON HOLD</p>
+      <p class="stat-value text-2xl font-bold">{{onHold}}</p>
+      <div class="progress-bar bg-gray-200 rounded h-2 mt-2">
+        <div class="progress-fill h-2 rounded"
+             [style.width.%]="totalProjects ? (onHold/totalProjects)*100 : 0"
+             [style.background]="'var(--info-purple)'"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs-container border-b border-gray-200 px-4">
+    <div class="tabs-scroll flex space-x-4 overflow-x-auto py-2">
+      <div *ngFor="let tab of ['All','Project Delayed','Milestone Delayed','On Hold','Running','Completed']"
+           (click)="setTab(tab)"
+           [class.active]="activeTab===tab"
+           class="tab cursor-pointer px-3 py-2 rounded-lg hover:bg-gray-100"
+           [ngClass]="{'bg-blue-600 text-white': activeTab===tab}">
+        {{tab}}
+      </div>
+    </div>
+  </div>
+
+  <!-- Projects Table -->
+  <div class="table-container p-4 overflow-x-auto">
+    <table class="projects-table min-w-full border-collapse border border-gray-200">
+      <thead class="bg-gray-100 text-sm text-gray-700">
+        <tr>
+          <th class="p-2 border">PROJECT CODE</th>
+          <th class="p-2 border">PROJECT</th>
+          <th class="p-2 border">PROJECT TYPE</th>
+          <th class="p-2 border">CLIENT</th>
+          <th class="p-2 border">CLIENT LOCATION</th>
+          <th class="p-2 border">UNIT</th>
+          <th class="p-2 border">MILESTONE</th>
+          <th class="p-2 border">PLAN START DATE</th>
+          <th class="p-2 border">PLAN END DATE</th>
+          <th class="p-2 border">ACTUAL START DATE</th>
+          <th class="p-2 border">ACTIONS</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let project of filteredProjects" class="hover:bg-gray-50">
+          <td class="p-2 border">{{project.code}}</td>
+          <td class="p-2 border font-medium">{{project.name}}</td>
+          <td class="p-2 border">{{project.type}}</td>
+          <td class="p-2 border">{{project.client}}</td>
+          <td class="p-2 border">{{project.location}}</td>
+          <td class="p-2 border">{{project.unit}}</td>
+          <td class="p-2 border">{{project.milestone}}</td>
+          <td class="p-2 border">{{project.planStart}}</td>
+          <td class="p-2 border">{{project.planEnd}}</td>
+          <td class="p-2 border">{{project.actualStart}}</td>
+          <td class="p-2 border space-x-2">
+  <button class="btn btn-sm" (click)="openModal(project)">Edit</button>
+  <button class="btn btn-sm btn-destructive" (click)="deleteProject(project)">Delete</button>
+</td>
+
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

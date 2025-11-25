@@ -1,0 +1,132 @@
+<div class="space-y-6 p-4">
+  <h1 class="text-2xl font-bold">Vendor Work Management</h1>
+
+  <button class="btn btn-primary" (click)="showAddForm()">
+    + Assign New Work
+  </button>
+
+  <!-- FORM SECTION -->
+  <div *ngIf="showForm" class="card">
+    <div class="card-header">
+      <h2 class="card-title">{{ editingId ? 'Edit Assignment' : 'New Assignment' }}</h2>
+    </div>
+    <div class="card-content grid grid-cols-1 md:grid-cols-2 gap-4">
+      
+      <!-- Vendor Dropdown -->
+         <div class="col-span-1">
+         <label class="block text-sm font-medium mb-1">Select Vendor</label>
+         <select
+          class="form-input w-full"
+          [value]="form.vendorId"
+         (change)="handleChange('vendorId', $any($event.target).value)">
+         <option [value]="0" disabled>Select Vendor</option>
+         <option *ngFor="let v of vendors" [value]="v.id">{{ v.vendorName }}</option>
+         </select>
+
+      </div>
+
+      <!-- Project Name -->
+      <div class="col-span-1">
+        <label class="block text-sm font-medium mb-1">Project Name</label>
+        <input
+          type="text" class="form-input" placeholder="Project / Task Name"
+          [value]="form.projectName"
+          (input)="handleChange('projectName', $any($event.target).value)"
+        />
+      </div>
+
+      <!-- Dates -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Start Date</label>
+        <input
+          type="date" class="form-input"
+          [value]="form.startDate"
+          (input)="handleChange('startDate', $any($event.target).value)"
+        />
+      </div>
+
+      <div>
+        <label class="block text-sm font-medium mb-1">End Date</label>
+        <input
+          type="date" class="form-input"
+          [value]="form.endDate"
+          (input)="handleChange('endDate', $any($event.target).value)"
+        />
+      </div>
+
+      <!-- Status -->
+      <div>
+        <label class="block text-sm font-medium mb-1">Status</label>
+        <select 
+          class="form-input"
+          [value]="form.status"
+          (change)="handleChange('status', $any($event.target).value)">
+          <option value="Pending">Pending</option>
+          <option value="In Progress">In Progress</option>
+          <option value="Completed">Completed</option>
+        </select>
+      </div>
+
+      <!-- Description -->
+      <div class="col-span-1 md:col-span-2">
+        <label class="block text-sm font-medium mb-1">Description</label>
+        <textarea 
+          class="form-input" rows="2" placeholder="Work Description..."
+          [value]="form.workDescription"
+          (input)="handleChange('workDescription', $any($event.target).value)">
+        </textarea>
+      </div>
+
+      <div class="col-span-1 md:col-span-2 flex space-x-2 mt-2">
+        <button class="btn btn-primary" (click)="handleSave()">Save</button>
+        <button class="btn btn-secondary" (click)="cancelForm()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE SECTION -->
+  <div class="card">
+    <div class="card-header">
+      <h2 class="card-title">Assigned Works</h2>
+    </div>
+    <div class="card-content overflow-x-auto">
+      <table class="table w-full">
+        <thead>
+          <tr>
+            <th>Vendor</th>
+            <th>Project</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let work of works">
+            <td class="font-medium">{{ work.vendorName }}</td>
+            <td>{{ work.projectName }}</td>
+            <td>{{ work.startDate | date:'mediumDate' }}</td>
+            <td>{{ work.endDate | date:'mediumDate' }}</td>
+            <td>
+              <span class="px-2 py-1 rounded text-xs"
+                [ngClass]="{
+                  'bg-yellow-100 text-yellow-800': work.status === 'Pending',
+                  'bg-blue-100 text-blue-800': work.status === 'In Progress',
+                  'bg-green-100 text-green-800': work.status === 'Completed'
+                }">
+                {{ work.status }}
+              </span>
+            </td>
+            <td class="space-x-2">
+              <button class="btn btn-sm" (click)="handleEdit(work.id!)">Edit</button>
+              <button class="btn btn-sm btn-destructive" (click)="handleDelete(work.id!)">Delete</button>
+            </td>
+          </tr>
+          <tr *ngIf="works.length === 0">
+            <td colspan="6" class="text-center py-4 text-gray-500">No work assignments found</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
