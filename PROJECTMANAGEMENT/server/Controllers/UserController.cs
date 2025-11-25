@@ -26,10 +26,10 @@ namespace server.Controllers
             if (result.User == null || result.Token == null)
                 return Unauthorized(new { message = "Invalid credentials" });
 
-            return Ok(new 
-            { 
-                token = result.Token, 
-                user = new 
+            return Ok(new
+            {
+                token = result.Token,
+                user = new
                 {
                     id = result.User.Id,
                     fullName = result.User.FullName,
@@ -64,7 +64,7 @@ namespace server.Controllers
         {
             var users = await _userService.GetAllUsersAsync();
 
-            var response = users.Select(u => new 
+            var response = users.Select(u => new
             {
                 id = u.Id,
                 fullName = u.FullName,
@@ -75,6 +75,24 @@ namespace server.Controllers
             return Ok(response);
         }
 
+        // ✅ NEW: SIMPLE USERS LIST (any authenticated user)
+        // GET api/User/simple
+        [HttpGet("simple")]
+        [Authorize] // no roles restriction – anyone logged in can see dropdown
+        public async Task<IActionResult> GetSimpleUsers()
+        {
+            var users = await _userService.GetAllUsersAsync();
+
+            var result = users.Select(u => new SimpleUserDTO
+            {
+                Id = u.Id,
+                Username = u.Username,
+                FullName = u.FullName
+            }).ToList();
+
+            return Ok(result);
+        }
+
         // 4. GET BY ID (Admin Only)
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin")]
@@ -83,26 +101,25 @@ namespace server.Controllers
             var user = await _userService.GetUserByIdAsync(id);
             if (user == null) return NotFound(new { message = "User not found" });
 
-            return Ok(new 
+            return Ok(new
             {
                 id = user.Id,
                 fullName = user.FullName,
                 email = user.Email,
-                // ✅ Corrected: uses 'user' variable, not 'u'
                 role = user.Role == null ? null : new { id = user.Role.Id, name = user.Role.Name }
             });
         }
 
-        // 5. UPDATE (Admin Only) - ✅ Added
+        // 5. UPDATE (Admin Only)
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDTO dto)
         {
-            try 
+            try
             {
                 var updatedUser = await _userService.UpdateUserAsync(id, dto);
                 if (updatedUser == null) return NotFound(new { message = "User not found" });
-                
+
                 return Ok(new { message = "User updated successfully" });
             }
             catch (Exception ex)

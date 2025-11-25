@@ -21,11 +21,20 @@ namespace server.DTOs
         public string Email { get; set; } = null!;
         public string Password { get; set; } = null!;
     }
-     public class UpdateUserDTO
+
+    public class UpdateUserDTO
     {
         public string FullName { get; set; } = null!;
         public string Email { get; set; } = null!;
         public int RoleId { get; set; }
         public string? Password { get; set; } // Optional: Only send if changing password
+    }
+
+    // ✅ NEW: simple user DTO for dropdowns
+    public class SimpleUserDTO
+    {
+        public int Id { get; set; }
+        public string Username { get; set; } = string.Empty;
+        public string FullName { get; set; } = string.Empty;
     }
 }

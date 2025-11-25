@@ -9,6 +9,11 @@ export interface User {
   email: string;
   role?: { id: number; name: string };
 }
+export interface SimpleUser {
+  id: number;
+  username: string;
+  fullName: string;
+}
 
 // src/app/services/user.service.ts
 
@@ -28,6 +33,10 @@ export class UserService {
         'Content-Type': 'application/json'
       })
     };
+  }
+
+  getSimpleUsers(): Observable<SimpleUser[]> {
+    return this.http.get<SimpleUser[]>(this.apiUrl, this.getOptions());
   }
 
   getAllUsers(): Observable<User[]> {

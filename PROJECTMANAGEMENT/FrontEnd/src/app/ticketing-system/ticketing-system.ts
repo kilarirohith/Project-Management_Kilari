@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
 import { TicketService } from '../services/ticket.service';
-import { Ticket ,NotificationConfig} from '../models/ticket.model';
-
+import { Ticket, NotificationConfig } from '../models/ticket.model';
 import { NotificationComponent } from '../components/notification.component';
-
+import { UserService, SimpleUser } from '../services/user.service';
+import { AuthService } from '../auth/auth.service';
 
 @Component({
   selector: 'app-ticketing-system',
@@ -18,7 +18,7 @@ import { NotificationComponent } from '../components/notification.component';
 export class TicketingSystemComponent implements OnInit {
   tickets: Ticket[] = [];
 
-  // Simple form model
+  // Form model
   form: Ticket = {
     title: '',
     description: '',
@@ -31,17 +31,52 @@ export class TicketingSystemComponent implements OnInit {
   isSaving = false;
   loading = false;
 
-  // ✅ Notification state
+  // Users for dropdown
+  users: SimpleUser[] = [];
+  currentUserId: number | null = null;
+
+  // Notification state
   notification: NotificationConfig = {
     show: false,
     type: 'success',
     message: ''
   };
 
-  constructor(private ticketService: TicketService) {}
+  constructor(
+    private ticketService: TicketService,
+    private userService: UserService,
+    private authService: AuthService
+  ) {}
 
   ngOnInit(): void {
+    this.loadCurrentUser();
+    this.loadUsers();
     this.loadTickets();
+  }
+
+  // ------------------------------
+  // AUTH HELPERS
+  // ------------------------------
+  loadCurrentUser() {
+    const user = this.authService.getUser?.(); // your existing implementation
+    if (user && user.id) {
+      this.currentUserId = user.id;
+      this.form.createdByUserId = user.id;
+    }
+  }
+
+  // ------------------------------
+  // LOAD USERS FOR DROPDOWN
+  // ------------------------------
+  loadUsers() {
+    this.userService.getSimpleUsers().subscribe({
+      next: (data) => {
+        this.users = data;
+      },
+      error: () => {
+        this.showError('Failed to load users');
+      }
+    });
   }
 
   // ------------------------------
@@ -70,7 +105,7 @@ export class TicketingSystemComponent implements OnInit {
       title: '',
       description: '',
       priority: 'Medium',
-      createdByUserId: 1, // TODO: replace with logged-in user ID
+      createdByUserId: this.currentUserId ?? 0,
       assignedToUserId: null
     };
   }
@@ -79,7 +114,8 @@ export class TicketingSystemComponent implements OnInit {
     this.editingId = ticket.id ?? null;
     this.form = {
       ...ticket,
-      createdByUserId: ticket.createdByUserId ?? 1
+      createdByUserId: ticket.createdByUserId ?? (this.currentUserId ?? 0),
+      assignedToUserId: ticket.assignedToUserId ?? null
     };
   }
 
@@ -89,9 +125,18 @@ export class TicketingSystemComponent implements OnInit {
       title: '',
       description: '',
       priority: 'Medium',
-      createdByUserId: 1,
+      createdByUserId: this.currentUserId ?? 0,
       assignedToUserId: null
     };
+  }
+
+  // Assign to current user
+  assignToMe() {
+    if (this.currentUserId != null) {
+      this.form.assignedToUserId = this.currentUserId;
+    } else {
+      this.showError('Could not detect current user from login');
+    }
   }
 
   // ------------------------------
@@ -103,10 +148,15 @@ export class TicketingSystemComponent implements OnInit {
       return;
     }
 
+    // 👇 Ensure createdByUserId is always set
+    if (!this.form.createdByUserId && this.currentUserId) {
+      this.form.createdByUserId = this.currentUserId;
+    }
+
     this.isSaving = true;
 
     if (this.editingId) {
-      // ✅ UPDATE
+      // UPDATE
       this.ticketService.update(this.editingId, this.form).subscribe({
         next: () => {
           this.isSaving = false;
@@ -120,7 +170,7 @@ export class TicketingSystemComponent implements OnInit {
         }
       });
     } else {
-      // ✅ CREATE
+      // CREATE
       this.ticketService.create(this.form).subscribe({
         next: () => {
           this.isSaving = false;

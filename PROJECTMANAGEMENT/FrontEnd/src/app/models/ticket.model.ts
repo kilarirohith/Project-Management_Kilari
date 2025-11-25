@@ -1,3 +1,4 @@
+// src/app/models/ticket.model.ts
 export interface Ticket {
   id?: number;
 
@@ -16,14 +17,26 @@ export interface Ticket {
   status?: string;
   resolution?: string;
 
-  dateRaised?: string;   // 👈 instead of createdAt
+  dateRaised?: string;
   timeRaised?: string;
 
   createdByName?: string;
   assignedToName?: string;
 
-  createdByUserId: number;
+  createdByUserId?: number;          // ✅ now optional (or you can remove it)
   assignedToUserId?: number | null;
+}
+
+export interface NotificationConfig {
+  show: boolean;
+  type: 'success' | 'error';
+  message: string;
+}
+
+export interface FilterConfig {
+  status: string;
+  clientName: string;
+  priority: string;
 }
 
 
@@ -37,15 +50,3 @@ export interface CreateTicketPayload {
 }
 
 
-export interface NotificationConfig {
-  show: boolean;
-  type: 'success' | 'error';
-  message: string;
-}
-
-
-export interface FilterConfig {
-  status: string;
-  clientName: string;
-  priority: string;
-}

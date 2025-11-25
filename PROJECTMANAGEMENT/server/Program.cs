@@ -138,19 +138,32 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 
-    if (!db.Roles.Any())
+    // 🔹 Ensure roles exist (Admin, User, Manager) even if the table is partially filled
+    Role? adminRole = db.Roles.FirstOrDefault(r => r.Name == "Admin");
+
+    if (adminRole == null)
     {
-        db.Roles.AddRange(
-            new Role { Name = "Admin", Description = "System Administrator" },
-            new Role { Name = "User", Description = "Standard User" },
-            new Role { Name = "Manager", Description = "Project Manager" }
-        );
-        db.SaveChanges();
+        adminRole = new Role { Name = "Admin", Description = "System Administrator" };
+        db.Roles.Add(adminRole);
     }
 
+    if (!db.Roles.Any(r => r.Name == "User"))
+    {
+        db.Roles.Add(new Role { Name = "User", Description = "Standard User" });
+    }
+
+    if (!db.Roles.Any(r => r.Name == "Manager"))
+    {
+        db.Roles.Add(new Role { Name = "Manager", Description = "Project Manager" });
+    }
+
+    db.SaveChanges(); // ✅ Make sure roles are in DB and Admin has an Id
+
+    // 🔹 Ensure default admin user exists
     if (!db.Users.Any(u => u.Email == "admin@admin.com"))
     {
-        var adminRole = db.Roles.First(r => r.Name == "Admin");
+        // Fetch Admin role again (now guaranteed to exist)
+        adminRole = db.Roles.First(r => r.Name == "Admin");
 
         var adminUser = new User
         {
@@ -166,6 +179,7 @@ using (var scope = app.Services.CreateScope())
         db.SaveChanges();
     }
 }
+
 
 if (app.Environment.IsDevelopment())
 {

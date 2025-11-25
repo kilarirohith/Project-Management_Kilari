@@ -14,51 +14,51 @@ export class MastersComponent {
 
   masterCards = [
     { 
-  title: 'Project Master', 
-  description: 'Manage projects', 
-  buttonText: 'Manage Project Master', 
-  route: '/layout/project-master',
-  icon: 'bi-folder-fill'
-},
-
+      title: 'Project Master', 
+      description: 'Manage projects', 
+      buttonText: 'Manage Project Master', 
+      route: 'project-master',      // ✅ child path only
+      icon: 'bi-folder-fill'
+    },
     { 
       title: 'Milestone Master', 
       description: 'Manage milestones', 
       buttonText: 'Manage Milestone Master', 
-      route: '/layout/milestone-master',
+      route: 'milestone-master',
       icon: 'bi-flag-fill'
     },
     { 
       title: 'Client Master', 
       description: 'Manage clients', 
       buttonText: 'Manage Client Master', 
-      route: '/layout/client-master',
+      route: 'client-master',
       icon: 'bi-briefcase-fill'
     },
     { 
       title: 'Vendor Master', 
       description: 'Manage vendors', 
       buttonText: 'Manage Vendor Master', 
-      route: '/layout/vendor-master',
+      route: 'vendor-master',
       icon: 'bi-shop'
     },
     { 
       title: 'User Master', 
       description: 'Manage users', 
       buttonText: 'Manage User Master', 
-      route: '/layout/user',
+      route: 'user',
       icon: 'bi-people-fill'
     },
     { 
       title: 'Role Master', 
       description: 'Manage roles', 
       buttonText: 'Manage Role Master', 
-      route: '/layout/role-master',
+      route: 'role-master',
       icon: 'bi-shield-lock-fill'
     }
   ];
 
   navigateTo(route: string) {
-    this.router.navigate([route]);
+    // ✅ always builds /layout/<child>
+    this.router.navigate(['/layout', route]);
   }
 }

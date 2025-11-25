@@ -12,20 +12,15 @@
     >
       <div class="p-6">
         <div>
-          <!-- 
-            Dynamic Icon Wrapper: 
-            Uses 'icon-1', 'icon-2' etc based on index to apply CSS gradients 
-          -->
           <div class="icon-wrapper" [ngClass]="'icon-' + (i + 1)">
             <i class="bi" [class]="card.icon"></i>
           </div>
 
-          <!-- Card Content -->
           <h2>{{ card.title }}</h2>
           <p>{{ card.description }}</p>
         </div>
 
-        <!-- Navigation -->
+        <!-- ✅ use click, not routerLink here -->
         <button (click)="navigateTo(card.route)">
           {{ card.buttonText }}
         </button>

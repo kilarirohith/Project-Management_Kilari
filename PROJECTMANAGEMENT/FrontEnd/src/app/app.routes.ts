@@ -38,7 +38,8 @@ export const routes: Routes = [
       { path: 'vendor-work', component: VendorWorkComponent },
       { path: 'projects', component: ProjectsComponent },
       { path: 'task-tracker', component: TaskTrackerComponent },
-      { path: 'approval-desk', component: ApprovalDeskComponent }
+      { path: 'approval-desk', component: ApprovalDeskComponent },
+      { path: 'ticketing-system', component: TicketingSystemComponent }
     ]
   },
   { path: '**', redirectTo: 'login' }
