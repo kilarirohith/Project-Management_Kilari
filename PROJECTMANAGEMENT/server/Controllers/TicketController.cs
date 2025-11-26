@@ -1,14 +1,14 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using server.DTOs;
 using server.Services.Interfaces;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Authorization;
 
 namespace server.Controllers
 {
-    [ApiController]
     [Route("api/[controller]")]
-    [Authorize] // ✅ Require auth so we always have a user
+    [ApiController]
+    [Authorize] // if you want auth, otherwise you can comment this temporarily
     public class TicketController : ControllerBase
     {
         private readonly ITicketService _ticketService;
@@ -18,70 +18,62 @@ namespace server.Controllers
             _ticketService = ticketService;
         }
 
+        // GET: api/Ticket
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<ActionResult<IEnumerable<TicketDTO>>> GetAll()
         {
             var tickets = await _ticketService.GetAllAsync();
             return Ok(tickets);
         }
 
+        // GET: api/Ticket/5
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(int id)
+        public async Task<ActionResult<TicketDTO>> GetById(int id)
         {
             var ticket = await _ticketService.GetByIdAsync(id);
-            if (ticket == null) return NotFound(new { message = "Ticket not found" });
+            if (ticket == null) return NotFound();
             return Ok(ticket);
         }
 
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreateTicketDTO dto)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+        // POST: api/Ticket
+// POST: api/Ticket
+[HttpPost]
+public async Task<ActionResult<TicketDTO>> Create([FromBody] CreateTicketDTO dto)
+{
+    // ✅ Get user id from JWT
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(userIdClaim))
+        return Unauthorized("User id not found in token.");
 
-            // ✅ Get user id from JWT (we set this as ClaimTypes.NameIdentifier in AuthHelper)
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim))
-            {
-                return Unauthorized(new { message = "User id not found in token" });
-            }
+    int currentUserId = int.Parse(userIdClaim);
 
-            // ✅ Force CreatedByUserId from token, ignore whatever frontend sends
-            dto.CreatedByUserId = int.Parse(userIdClaim);
+    var created = await _ticketService.CreateAsync(dto, currentUserId);
+    return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
+}
 
-            // Optional: auto-fill RaisedBy from username/email if empty
-            if (string.IsNullOrWhiteSpace(dto.RaisedBy))
-            {
-                dto.RaisedBy = User.Identity?.Name ?? "Unknown";
-            }
+// PUT: api/Ticket/5
+[HttpPut("{id}")]
+public async Task<ActionResult<TicketDTO>> Update(int id, [FromBody] CreateTicketDTO dto)
+{
+    var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    if (string.IsNullOrEmpty(userIdClaim))
+        return Unauthorized("User id not found in token.");
 
-            // Optional: set TimeRaised if client did not
-            if (string.IsNullOrWhiteSpace(dto.TimeRaised))
-            {
-                dto.TimeRaised = DateTime.Now.ToString("HH:mm");
-            }
+    int currentUserId = int.Parse(userIdClaim);
 
-            var created = await _ticketService.CreateAsync(dto);
-            return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
-        }
+    var updated = await _ticketService.UpdateAsync(id, dto, currentUserId);
+    if (updated == null) return NotFound();
 
-        [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] CreateTicketDTO dto)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+    return Ok(updated);
+}
 
-            // We do NOT change CreatedByUserId on update
-            var updated = await _ticketService.UpdateAsync(id, dto);
-            if (updated == null) return NotFound(new { message = "Ticket not found" });
 
-            return Ok(updated);
-        }
-
+        // DELETE: api/Ticket/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
             var ok = await _ticketService.DeleteAsync(id);
-            if (!ok) return NotFound(new { message = "Ticket not found" });
-
+            if (!ok) return NotFound();
             return NoContent();
         }
     }

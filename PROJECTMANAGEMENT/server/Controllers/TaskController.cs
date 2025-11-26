@@ -1,65 +1,28 @@
+// server/Controllers/TaskController.cs
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using server.DTOs;
 using server.Services.Interfaces;
+using server.Models;   // ProjectTask
 
 namespace server.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/[controller]")]   // -> /api/Task
+    [Authorize]
     public class TaskController : ControllerBase
     {
         private readonly ITaskService _taskService;
-        private readonly ITaskTrackerService _taskTrackerService;
 
-        public TaskController(ITaskService taskService, ITaskTrackerService taskTrackerService)
+        public TaskController(ITaskService taskService)
         {
             _taskService = taskService;
-            _taskTrackerService = taskTrackerService;
         }
 
-        // GET: api/task
-        [HttpGet]
-        public async Task<IActionResult> GetTasks()
+        // ---------- helper mapper ----------
+        private static TaskDTO MapToDto(ProjectTask t)
         {
-            var tasks = await _taskService.GetAllAsync();
-            var trackers = await _taskTrackerService.GetAllAsync();
-
-            var trackerDict = trackers.ToDictionary(t => t.TaskId, t => t);
-
-            var dtos = tasks.Select(t =>
-            {
-                trackerDict.TryGetValue(t.Id, out var tracker);
-                return new TaskDTO
-                {
-                    Id = t.Id,
-                    Title = t.Title,
-                    Description = t.Description,
-                    Status = t.Status,
-                    Priority = t.Priority,
-                    ProjectId = t.ProjectId,
-                    ProjectName = t.Project.ProjectName,
-                    AssignedToUserId = t.AssignedToUserId,
-                    AssignedUserName = t.AssignedToUser != null ? t.AssignedToUser.FullName : null,
-                    CreatedAt = t.CreatedAt,
-                    DueDate = t.DueDate,
-                    Progress = tracker?.Progress
-                };
-            });
-
-            return Ok(dtos);
-        }
-
-        // GET: api/task/{id}
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetTask(int id)
-        {
-            var t = await _taskService.GetByIdAsync(id);
-            if (t == null) return NotFound("Task not found");
-
-            var trackers = await _taskTrackerService.GetAllAsync();
-            var tracker = trackers.FirstOrDefault(x => x.TaskId == t.Id);
-
-            var dto = new TaskDTO
+            return new TaskDTO
             {
                 Id = t.Id,
                 Title = t.Title,
@@ -69,43 +32,75 @@ namespace server.Controllers
                 ProjectId = t.ProjectId,
                 ProjectName = t.Project.ProjectName,
                 AssignedToUserId = t.AssignedToUserId,
-                AssignedUserName = t.AssignedToUser?.FullName,
+                AssignedUserName = t.AssignedToUser != null ? t.AssignedToUser.FullName : null,
                 CreatedAt = t.CreatedAt,
                 DueDate = t.DueDate,
-                Progress = tracker?.Progress
+                ActualClosureDate = t.ActualClosureDate,
+                Type = t.Type,
+                ProduceStep = t.ProduceStep,
+                SampleData = t.SampleData,
+                AcceptanceCriteria = t.AcceptanceCriteria,
+                TestingStatus = t.TestingStatus,
+                TestingDoneBy = t.TestingDoneBy
             };
-
-            return Ok(dto);
         }
 
-        // POST: api/task
+        // ---------- GET: api/Task ----------
+        [HttpGet]
+        public async Task<IActionResult> GetTasks()
+        {
+            var tasks = await _taskService.GetAllAsync();
+            var dtos = tasks.Select(MapToDto);
+            return Ok(dtos);
+        }
+
+        // ---------- GET: api/Task/{id} ----------
+        [HttpGet("{id:int}")]
+        public async Task<IActionResult> GetTask(int id)
+        {
+            var t = await _taskService.GetByIdAsync(id);
+            if (t == null) return NotFound("Task not found");
+
+            return Ok(MapToDto(t));
+        }
+
+        // ---------- POST: api/Task ----------
         [HttpPost]
         public async Task<IActionResult> CreateTask([FromBody] CreateTaskDTO dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            var task = await _taskService.CreateAsync(dto);
-            return Ok(new { message = "Task created successfully", taskId = task.Id });
+            // Angular sends ISO date strings -> model binder will map to DateTime? automatically
+            var created = await _taskService.CreateAsync(dto);
+
+            var resultDto = MapToDto(created);
+            return CreatedAtAction(nameof(GetTask), new { id = resultDto.Id }, resultDto);
         }
 
-        // PUT: api/task/{id}
-        [HttpPut("{id}")]
+        // ---------- PUT: api/Task/{id} ----------
+        [HttpPut("{id:int}")]
         public async Task<IActionResult> UpdateTask(int id, [FromBody] CreateTaskDTO dto)
         {
-            var updated = await _taskService.UpdateAsync(id, dto);
-            if (updated == null) return NotFound("Task not found");
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
 
-            return Ok(new { message = "Task updated successfully" });
+            var updated = await _taskService.UpdateAsync(id, dto);
+            if (updated == null)
+                return NotFound("Task not found");
+
+            return Ok(MapToDto(updated));
         }
 
-        // DELETE: api/task/{id}
-        [HttpDelete("{id}")]
+        // ---------- DELETE: api/Task/{id} ----------
+        [HttpDelete("{id:int}")]
         public async Task<IActionResult> DeleteTask(int id)
         {
             var ok = await _taskService.DeleteAsync(id);
-            if (!ok) return NotFound("Task not found");
+            if (!ok)
+                return NotFound("Task not found");
 
-            return Ok(new { message = "Task deleted successfully" });
+            return NoContent();
         }
     }
 }

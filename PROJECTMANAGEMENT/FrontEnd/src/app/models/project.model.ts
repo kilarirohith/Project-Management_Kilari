@@ -1,30 +1,46 @@
 // src/app/models/project.model.ts
 
-export type ProjectStatus = 'Running' | 'Completed' | 'Delayed' | 'OnHold' | 'Pending';
+export type ProjectStatus = 'Running' | 'Completed' | 'Delayed' | 'OnHold';
 
 export interface ProjectDTO {
   id: number;
-  projectName: string;
   projectCode: string;
-  projectType?: string;
+  projectName: string;
+  projectType: string;
+  clientName: string;
+  clientLocation?: string | null;
+  unit?: string | null;
+  milestone?: string | null;
+  planStartDate?: string | null;
+  planEndDate?: string | null;
+  actualStartDate?: string | null;
+  actualEndDate?: string | null;
+  elapsedDays?: number | null;
 
+  status: ProjectStatus; 
+}
+
+export interface CreateProjectPayload {
+  projectCode: string;
+  projectName: string;
+  projectType: string;
   clientId: number;
-  clientName?: string;
+  clientLocation?: string | null;
+  unit?: string | null;
+  milestone?: string | null;
+  planStartDate?: string | null;
+  planEndDate?: string | null;
+  status: ProjectStatus;  // 👈
+}
 
-  clientLocation?: string;
-  unit?: string;
-  milestone?: string;
-
-  planStartDate?: string;
-  planEndDate?: string;
-  actualStartDate?: string;
-  actualEndDate?: string;
-
-  status: string;
+export interface UpdateProjectPayload extends CreateProjectPayload {
+  actualStartDate?: string | null;
+  actualEndDate?: string | null;
+  elapsedDays?: number | null;
 }
 
 export interface DashboardProject {
-  id: number;          // used for edit/delete
+  id: number;
   code: string;
   name: string;
   type: string;
@@ -35,10 +51,11 @@ export interface DashboardProject {
   planStart: string;
   planEnd: string;
   actualStart: string;
+  actualEnd: string;
+  elapsedDays: number | '-';
   status: ProjectStatus;
 }
 
-// Optional helpers (for milestone/project master lists)
 export interface ProjectType {
   id: number;
   projectName: string;

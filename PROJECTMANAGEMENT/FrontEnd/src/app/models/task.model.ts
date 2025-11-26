@@ -18,7 +18,14 @@ export interface Task {
   createdAt?: string;      // Raised Date
   dueDate?: string | null; // Expected Closure Date
 
-  progress?: number | null; // 0–100
+  // Issue & Requirement fields
+  type?: string | null;              // Issue / Requirement
+  produceStep?: string | null;
+  sampleData?: string | null;
+  acceptanceCriteria?: string | null;
+  actualClosureDate?: string | null;
+  testingStatus?: string | null;
+  testingDoneBy?: string | null;
 }
 
 export interface CreateTaskPayload {
@@ -29,10 +36,12 @@ export interface CreateTaskPayload {
   projectId: number;
   assignedToUserId?: number | null;
   dueDate?: string | null;
-}
 
-export interface TaskTrackerPayload {
-  taskId: number;
-  progress: number;
-  remarks?: string;
+  type?: string | null;
+  produceStep?: string | null;
+  sampleData?: string | null;
+  acceptanceCriteria?: string | null;
+  actualClosureDate?: string | null;
+  testingStatus?: string | null;
+  testingDoneBy?: string | null;
 }

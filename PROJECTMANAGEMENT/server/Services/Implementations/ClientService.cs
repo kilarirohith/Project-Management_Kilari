@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using server.Data;
 using server.DTOs;
@@ -36,6 +39,28 @@ namespace server.Services.Implementations
             return client == null ? null : MapToDTO(client);
         }
 
+        public async Task<List<LocationDTO>> GetLocationsByClientAsync(int clientId)
+        {
+            var client = await _context.Clients
+                .Include(c => c.Locations)
+                .ThenInclude(l => l.Units)
+                .FirstOrDefaultAsync(c => c.Id == clientId);
+
+            if (client == null) return new List<LocationDTO>();
+
+            return client.Locations.Select(l => new LocationDTO
+            {
+                Id = l.Id,
+                LocationName = l.LocationName,
+                Spoc = l.Spoc,
+                Units = l.Units.Select(u => new UnitDTO
+                {
+                    Id = u.Id,
+                    UnitName = u.UnitName
+                }).ToList()
+            }).ToList();
+        }
+
         public async Task<ClientDTO> CreateAsync(ClientDTO dto)
         {
             var client = new Client
@@ -69,15 +94,15 @@ namespace server.Services.Implementations
 
             if (client == null) return null;
 
-            // 1. Update Basic Info
             client.ClientName = dto.ClientName;
             client.Gst = dto.Gst;
             client.Email = dto.Email;
 
-            // 2. Handle Nested Data (Strategy: Clear old, Add new)
-            // Note: For high-performance apps, you would diff/merge, but this is safer for simple logic
-            _context.ClientUnits.RemoveRange(client.Locations.SelectMany(l => l.Units));
-            _context.ClientLocations.RemoveRange(client.Locations);
+            var locations = _context.ClientLocations.Where(l => l.ClientId == id).ToList();
+            var units = _context.ClientUnits.Where(u => locations.Select(l => l.Id).Contains(u.ClientLocationId)).ToList();
+
+            _context.ClientUnits.RemoveRange(units);
+            _context.ClientLocations.RemoveRange(locations);
 
             client.Locations = dto.Locations.Select(l => new ClientLocation
             {
@@ -98,8 +123,6 @@ namespace server.Services.Implementations
             var client = await _context.Clients.FindAsync(id);
             if (client == null) return false;
 
-            // Cascading delete should handle children if DB is configured, 
-            // but explicit removal ensures safety in code.
             var locations = _context.ClientLocations.Where(l => l.ClientId == id).ToList();
             var units = _context.ClientUnits.Where(u => locations.Select(l => l.Id).Contains(u.ClientLocationId)).ToList();
 

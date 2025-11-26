@@ -14,24 +14,28 @@ namespace server.Models
 
         public string Description { get; set; } = string.Empty;
 
-        // Foreign key for Project
         public int ProjectId { get; set; }
-
         [ForeignKey("ProjectId")]
         public Project Project { get; set; } = null!;
 
-        // Assigned user
         public int? AssignedToUserId { get; set; }
-
         [ForeignKey("AssignedToUserId")]
         public User? AssignedToUser { get; set; }
 
-        public string Priority { get; set; } = "Normal"; // Low, Normal, High
-        public string Status { get; set; } = "Open";     // Open, In Progress, Closed
+        public string Priority { get; set; } = "Normal";
+        public string Status { get; set; } = "Open";
 
-        public DateTime? DueDate { get; set; }
+        public DateTime? DueDate { get; set; }              // Expected Closure
+        public DateTime? ActualClosureDate { get; set; }    // Actual Closure
 
-        // When created (used as "Raised Date" in UI)
+        // Issue & Requirement fields
+        public string? Type { get; set; }                   // Issue / Requirement
+        public string? ProduceStep { get; set; }
+        public string? SampleData { get; set; }
+        public string? AcceptanceCriteria { get; set; }
+        public string? TestingStatus { get; set; }
+        public string? TestingDoneBy { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.Now;
     }
 }

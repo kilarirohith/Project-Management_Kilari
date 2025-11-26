@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using server.DTOs;
@@ -29,6 +30,15 @@ namespace server.Controllers
         {
             var client = await _clientService.GetByIdAsync(id);
             return client == null ? NotFound() : Ok(client);
+        }
+
+        [HttpGet("{clientId}/locations")]
+        [Authorize]
+        public async Task<IActionResult> GetLocationsByClient(int clientId)
+        {
+            var locations = await _clientService.GetLocationsByClientAsync(clientId);
+            if (locations.Count == 0) return NotFound(new { message = "Client not found or no locations" });
+            return Ok(locations);
         }
 
         [HttpPost]

@@ -1,62 +1,302 @@
-<div class="dashboard-container">
-  <h1>Project Dashboard</h1>
-
-  <!-- LOADING / ERROR STATES -->
-  <div *ngIf="loading" class="loading">
-    Loading dashboard...
+<div class="dashboard-container dashboard-page">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div>
+      <h1 class="dashboard-title">Dashboard</h1>
+      <p class="dashboard-subtitle">
+        Project and Ticket Tracker Overview
+      </p>
+    </div>
   </div>
-  <div *ngIf="!loading && errorMessage" class="error">
-    {{ errorMessage }}
+
+  <!-- Loading / Error -->
+  <div *ngIf="loading" class="loading">Loading dashboard…</div>
+  <div *ngIf="errorMessage" class="error">{{ errorMessage }}</div>
+
+  <!-- ===== TOP STAT CARDS (4 Project + 4 Ticket) ===== -->
+  <div class="cards-grid">
+    <!-- Total Projects (gradient) -->
+    <div class="dash-card dash-card-gradient">
+      <div class="dash-card-text">
+        <p class="dash-card-label">Total Projects</p>
+        <p class="dash-card-value">{{ projectStats.total }}</p>
+      </div>
+      <div class="dash-card-icon soft-bg">
+        <!-- folder / project icon -->
+        <svg class="icon" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M4 6h5l2 2h9v10H4V6z"
+            stroke="white"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Running Projects -->
+    <div class="dash-card">
+      <div class="dash-card-text">
+        <p class="dash-card-label">Running Projects</p>
+        <p class="dash-card-value">{{ projectStats.running }}</p>
+      </div>
+      <div class="dash-card-icon badge-running">
+        <!-- chart / trend icon -->
+        <svg class="icon" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M4 18l5-6 4 3 5-7"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M4 5v13h16"
+            stroke="currentColor"
+            stroke-width="1.4"
+            stroke-linecap="round"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Completed Projects -->
+    <div class="dash-card">
+      <div class="dash-card-text">
+        <p class="dash-card-label">Completed Projects</p>
+        <p class="dash-card-value">{{ projectStats.completed }}</p>
+      </div>
+      <div class="dash-card-icon badge-completed">
+        <!-- check icon -->
+        <svg class="icon" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M5 13l4 4 10-10"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Delayed Projects -->
+    <div class="dash-card">
+      <div class="dash-card-text">
+        <p class="dash-card-label">Delayed Projects</p>
+        <p class="dash-card-value">{{ projectStats.delayed }}</p>
+      </div>
+      <div class="dash-card-icon badge-delayed">
+        <!-- alert / warning icon -->
+        <svg class="icon" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M12 4l8 14H4l8-14z"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M12 10v4"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+          />
+          <circle cx="12" cy="16.5" r="1" fill="currentColor" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Total Tickets (gradient) -->
+    <div class="dash-card dash-card-gradient">
+      <div class="dash-card-text">
+        <p class="dash-card-label">Total Tickets</p>
+        <p class="dash-card-value">{{ ticketStats.total }}</p>
+      </div>
+      <div class="dash-card-icon soft-bg">
+        <!-- ticket icon -->
+        <svg class="icon" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M5 7h14v4a2 2 0 010 4v4H5v-4a2 2 0 010-4V7z"
+            stroke="white"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M10 9h4"
+            stroke="white"
+            stroke-width="1.4"
+            stroke-linecap="round"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Open Tickets -->
+    <div class="dash-card">
+      <div class="dash-card-text">
+        <p class="dash-card-label">Open Tickets</p>
+        <p class="dash-card-value">{{ ticketStats.open }}</p>
+      </div>
+      <div class="dash-card-icon badge-open">
+        <!-- clock / pending icon -->
+        <svg class="icon" viewBox="0 0 24 24" fill="none">
+          <circle
+            cx="12"
+            cy="12"
+            r="7"
+            stroke="currentColor"
+            stroke-width="1.6"
+          />
+          <path
+            d="M12 9v4l2 2"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Closed Tickets -->
+    <div class="dash-card">
+      <div class="dash-card-text">
+        <p class="dash-card-label">Closed Tickets</p>
+        <p class="dash-card-value">{{ ticketStats.closed }}</p>
+      </div>
+      <div class="dash-card-icon badge-closed">
+        <!-- shield / done icon -->
+        <svg class="icon" viewBox="0 0 24 24" fill="none">
+          <path
+            d="M12 4l7 3v5c0 3.5-2.3 6.5-7 8-4.7-1.5-7-4.5-7-8V7l7-3z"
+            stroke="currentColor"
+            stroke-width="1.6"
+            stroke-linejoin="round"
+          />
+          <path
+            d="M9 12.5l2.2 2 3.8-4"
+            stroke="currentColor"
+            stroke-width="1.5"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          />
+        </svg>
+      </div>
+    </div>
+
+    <!-- On Hold Tickets -->
+    <div class="dash-card">
+      <div class="dash-card-text">
+        <p class="dash-card-label">On Hold Tickets</p>
+        <p class="dash-card-value">{{ ticketStats.hold }}</p>
+      </div>
+      <div class="dash-card-icon badge-hold">
+        <!-- pause icon -->
+        <svg class="icon" viewBox="0 0 24 24" fill="none">
+          <rect
+            x="8"
+            y="6"
+            width="2.6"
+            height="12"
+            rx="1"
+            ry="1"
+            fill="currentColor"
+          />
+          <rect
+            x="13.4"
+            y="6"
+            width="2.6"
+            height="12"
+            rx="1"
+            ry="1"
+            fill="currentColor"
+          />
+        </svg>
+      </div>
+    </div>
   </div>
 
-  <!-- STATS CARDS -->
-  <div class="stats-grid" *ngIf="!loading && !errorMessage">
-    <div
-      *ngFor="let card of statCards"
-      class="stat-card"
-      [class.gradient-bg]="card.gradient"
-    >
-      <div class="card-content">
-        <div class="card-icon">{{ card.icon }}</div>
-        <div class="card-text">
-          <h3 class="card-title">{{ card.title }}</h3>
-          <p class="card-value">{{ card.value }}</p>
+  <!-- ===== CHARTS ===== -->
+  <div class="charts-row">
+    <!-- Project Status Pie -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <h2>Project Status Distribution</h2>
+      </div>
+      <div class="chart-body">
+        <ngx-charts-pie-chart
+          [view]="view"
+          [results]="projectPieData"
+          [scheme]="projectColorScheme"
+          [legend]="false"
+          [labels]="true"
+          [explodeSlices]="explodeSlices"
+          [doughnut]="doughnut"
+          [labelFormatting]="formatProjectLabel">
+        </ngx-charts-pie-chart>
+
+        <!-- Custom legend with colors + percentage -->
+        <div class="custom-legend">
+          <div
+            class="legend-item legend-running"
+            *ngFor="let item of projectPieData; let i = index">
+            <span
+              class="legend-dot"
+              [style.background]="projectColorScheme.domain[i]">
+            </span>
+            <span class="legend-text">
+              {{ item.name }}
+              {{
+                projectPieTotal
+                  ? (item.value * 100 / projectPieTotal | number:'1.0-0')
+                  : 0
+              }}%
+            </span>
+          </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- CHARTS -->
-  <div class="charts-container" *ngIf="!loading && !errorMessage">
-    <!-- Project Distribution Chart -->
-    <div class="chart-section">
-      <h2>Project Distribution</h2>
-      <div class="chart-wrapper">
-        <ngx-charts-pie-chart
-          [results]="projectPieData"
-          [legend]="showLegend"
-          [labels]="showLabels"
-          [explodeSlices]="explodeSlices"
-          [doughnut]="doughnut"
-          [gradient]="gradient"
-          [view]="view">
-        </ngx-charts-pie-chart>
+    <!-- Ticket Status Pie -->
+    <div class="chart-card">
+      <div class="chart-header">
+        <h2>Ticket Status Distribution</h2>
       </div>
-    </div>
-
-    <!-- Ticket Status Chart -->
-    <div class="chart-section">
-      <h2>Ticket Status</h2>
-      <div class="chart-wrapper">
+      <div class="chart-body">
         <ngx-charts-pie-chart
+          [view]="view"
           [results]="ticketPieData"
-          [legend]="showLegend"
-          [labels]="showLabels"
+          [scheme]="ticketColorScheme"
+          [legend]="false"
+          [labels]="true"
           [explodeSlices]="explodeSlices"
           [doughnut]="doughnut"
-          [gradient]="gradient"
-          [view]="view">
+          [labelFormatting]="formatTicketLabel">
         </ngx-charts-pie-chart>
+
+        <div class="custom-legend">
+          <div
+            class="legend-item"
+            *ngFor="let item of ticketPieData; let i = index"
+            [ngClass]="{
+              'legend-open': item.name === 'Open',
+              'legend-closed': item.name === 'Closed',
+              'legend-hold': item.name === 'On Hold'
+            }">
+            <span
+              class="legend-dot"
+              [style.background]="ticketColorScheme.domain[i]">
+            </span>
+            <span class="legend-text">
+              {{ item.name }}
+              {{
+                ticketPieTotal
+                  ? (item.value * 100 / ticketPieTotal | number:'1.0-0')
+                  : 0
+              }}%
+            </span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

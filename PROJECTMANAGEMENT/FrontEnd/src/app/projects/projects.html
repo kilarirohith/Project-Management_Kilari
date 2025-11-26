@@ -1,272 +1,310 @@
-<div class="projects-container p-0 min-h-screen">
+<!-- src/app/projects/projects.html -->
 
-  <!-- Header with title + Create Project button -->
+<div class="projects-container">
+
+  <!-- HEADER -->
   <div class="projects-header">
     <div>
       <h1 class="projects-title">Projects</h1>
       <p class="projects-subtitle">Manage and track all your projects</p>
     </div>
 
-    <button 
+    <button
       type="button"
       class="new-project-btn"
-      (click)="openModal()"
-    >
-      + Create Project
+      (click)="openModal()">
+      + New Project
     </button>
   </div>
 
-  <!-- Inline Add/Edit Project Form (below header, button stays above) -->
-  <div *ngIf="isModalOpen" class="project-form-card">
-
-    <!-- Form Header -->
-    <div class="project-form-card-header">
-      <h2>
-        {{ isEditing ? 'Edit Project' : 'Create Project' }}
-      </h2>
-      <button type="button" (click)="onCancel()">
-        ✕ Close
-      </button>
-    </div>
-
-    <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
-
-      <!-- Row 1 -->
-      <div class="form-row">
-        <div>
-          <label for="project">Project</label>
-          <input
-            id="project"
-            type="text"
-            formControlName="project"
-            class="input-field"
-            placeholder="Enter project name"
-          />
-          <div
-            *ngIf="f['project'].invalid && f['project'].touched"
-            class="text-red-600"
-          >
-            Project name is required.
-          </div>
-        </div>
-
-        <div>
-          <label for="projectType">Project Type</label>
-          <select
-            id="projectType"
-            formControlName="projectType"
-            class="input-field"
-          >
-            <option value="" disabled>Select Project Type</option>
-            <option *ngFor="let type of projectTypes" [value]="type">
-              {{ type }}
-            </option>
-          </select>
-        </div>
-
-        <div>
-          <label for="client">Client</label>
-          <select
-            id="client"
-            formControlName="clientId"
-            (change)="onClientChange()"
-            class="input-field"
-          >
-            <option value="" disabled>Select Client</option>
-            <option *ngFor="let c of clients" [value]="c.id">
-              {{ c.clientName }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Row 2 -->
-      <div class="form-row">
-        <div>
-          <label for="location">Location</label>
-          <select
-            id="location"
-            formControlName="location"
-            (change)="onLocationChange()"
-            class="input-field"
-          >
-            <option value="" disabled>Select Location</option>
-            <option *ngFor="let loc of locations" [value]="loc">
-              {{ loc }}
-            </option>
-          </select>
-        </div>
-
-        <div>
-          <label for="unit">Unit</label>
-          <select
-            id="unit"
-            formControlName="unit"
-            class="input-field"
-          >
-            <option value="" disabled>Select Unit</option>
-            <option *ngFor="let u of units" [value]="u">
-              {{ u }}
-            </option>
-          </select>
-        </div>
-
-        <div>
-          <label for="milestone">Milestone</label>
-          <select
-            id="milestone"
-            formControlName="milestone"
-            class="input-field"
-          >
-            <option value="" disabled>Select Milestone</option>
-            <option *ngFor="let m of milestones" [value]="m">
-              {{ m }}
-            </option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Row 3: Dates -->
-      <div class="form-row-2">
-        <div>
-          <label for="planStart">Plan Start</label>
-          <input
-            id="planStart"
-            type="date"
-            formControlName="planStart"
-            class="input-field"
-          />
-        </div>
-        <div>
-          <label for="planClose">Plan Close</label>
-          <input
-            id="planClose"
-            type="date"
-            formControlName="planClose"
-            class="input-field"
-          />
-        </div>
-      </div>
-
-    <div class="form-actions">
-  <button type="button" class="btn btn-secondary" (click)="onCancel()">
-    Cancel
-  </button>
-
-  <button
-    type="submit"
-    class="btn btn-primary"
-    [disabled]="projectForm.invalid || isSubmitting">
-    {{ isSubmitting ? (isEditing ? 'Updating…' : 'Creating…') : (isEditing ? 'Update Project' : 'Create Project') }}
-  </button>
-</div>
-
-    </form>
-  </div>
-
-  <!-- Dashboard Cards -->
-  <div class="stats-grid grid grid-cols-2 md:grid-cols-5 gap-4 p-4">
-    <div class="stat-card total p-4 bg-white rounded shadow">
-      <p class="stat-label text-sm text-gray-500">TOTAL</p>
-      <p class="stat-value text-2xl font-bold">{{totalProjects}}</p>
-      <div class="progress-bar bg-gray-200 rounded h-2 mt-2">
-        <div class="progress-fill h-2 rounded"
-             [style.width.%]="100"
-             [style.background]="'var(--primary-blue)'"></div>
+  <!-- STATS CARDS -->
+  <div class="stats-grid">
+    <!-- TOTAL -->
+    <div class="stat-card total">
+      <p class="stat-label">TOTAL</p>
+      <p class="stat-value">{{ totalProjects }}</p>
+      <div class="progress-outer">
+        <div class="progress-inner" style="width: 100%"></div>
       </div>
     </div>
 
-    <div class="stat-card running p-4 bg-white rounded shadow">
-      <p class="stat-label text-sm text-gray-500">RUNNING</p>
-      <p class="stat-value text-2xl font-bold">{{running}}</p>
-      <div class="progress-bar bg-gray-200 rounded h-2 mt-2">
-        <div class="progress-fill h-2 rounded"
-             [style.width.%]="totalProjects ? (running/totalProjects)*100 : 0"
-             [style.background]="'var(--warning-yellow)'"></div>
+    <!-- RUNNING -->
+    <div class="stat-card running">
+      <p class="stat-label">RUNNING</p>
+      <p class="stat-value">{{ running }}</p>
+      <div class="progress-outer">
+        <div class="progress-inner running"
+             [style.width.%]="totalProjects ? (running/totalProjects)*100 : 0"></div>
       </div>
     </div>
 
-    <div class="stat-card completed p-4 bg-white rounded shadow">
-      <p class="stat-label text-sm text-gray-500">COMPLETED</p>
-      <p class="stat-value text-2xl font-bold">{{completed}}</p>
-      <div class="progress-bar bg-gray-200 rounded h-2 mt-2">
-        <div class="progress-fill h-2 rounded"
-             [style.width.%]="totalProjects ? (completed/totalProjects)*100 : 0"
-             [style.background]="'var(--success-green)'"></div>
+    <!-- COMPLETED -->
+    <div class="stat-card completed">
+      <p class="stat-label">COMPLETED</p>
+      <p class="stat-value">{{ completed }}</p>
+      <div class="progress-outer">
+        <div class="progress-inner completed"
+             [style.width.%]="totalProjects ? (completed/totalProjects)*100 : 0"></div>
       </div>
     </div>
 
-    <div class="stat-card delayed p-4 bg-white rounded shadow">
-      <p class="stat-label text-sm text-gray-500">DELAYED</p>
-      <p class="stat-value text-2xl font-bold">{{delayed}}</p>
-      <div class="progress-bar bg-gray-200 rounded h-2 mt-2">
-        <div class="progress-fill h-2 rounded"
-             [style.width.%]="totalProjects ? (delayed/totalProjects)*100 : 0"
-             [style.background]="'var(--error-red)'"></div>
+    <!-- DELAYED -->
+    <div class="stat-card delayed">
+      <p class="stat-label">DELAYED</p>
+      <p class="stat-value">{{ delayed }}</p>
+      <div class="progress-outer">
+        <div class="progress-inner delayed"
+             [style.width.%]="totalProjects ? (delayed/totalProjects)*100 : 0"></div>
       </div>
     </div>
 
-    <div class="stat-card onhold p-4 bg-white rounded shadow">
-      <p class="stat-label text-sm text-gray-500">ON HOLD</p>
-      <p class="stat-value text-2xl font-bold">{{onHold}}</p>
-      <div class="progress-bar bg-gray-200 rounded h-2 mt-2">
-        <div class="progress-fill h-2 rounded"
-             [style.width.%]="totalProjects ? (onHold/totalProjects)*100 : 0"
-             [style.background]="'var(--info-purple)'"></div>
+    <!-- ON HOLD -->
+    <div class="stat-card onhold">
+      <p class="stat-label">ON HOLD</p>
+      <p class="stat-value">{{ onHold }}</p>
+      <div class="progress-outer">
+        <div class="progress-inner onhold"
+             [style.width.%]="totalProjects ? (onHold/totalProjects)*100 : 0"></div>
       </div>
     </div>
   </div>
 
-  <!-- Tabs -->
-  <div class="tabs-container border-b border-gray-200 px-4">
-    <div class="tabs-scroll flex space-x-4 overflow-x-auto py-2">
-      <div *ngFor="let tab of ['All','Project Delayed','Milestone Delayed','On Hold','Running','Completed']"
-           (click)="setTab(tab)"
-           [class.active]="activeTab===tab"
-           class="tab cursor-pointer px-3 py-2 rounded-lg hover:bg-gray-100"
-           [ngClass]="{'bg-blue-600 text-white': activeTab===tab}">
-        {{tab}}
+  <!-- PROJECTS SECTION TITLE -->
+  <div class="projects-box-header">
+    <h2>PROJECTS</h2>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs-container">
+    <div class="tabs-scroll">
+      <div
+        *ngFor="let tab of ['All','Project Delayed','Milestone Delayed','On Hold','Running','Completed']"
+        (click)="setTab(tab)"
+        class="tab"
+        [ngClass]="{'tab-active': activeTab===tab}">
+        {{ tab }}
       </div>
     </div>
   </div>
 
-  <!-- Projects Table -->
-  <div class="table-container p-4 overflow-x-auto">
-    <table class="projects-table min-w-full border-collapse border border-gray-200">
-      <thead class="bg-gray-100 text-sm text-gray-700">
+  <!-- TABLE -->
+  <div class="table-wrapper">
+    <table class="projects-table">
+      <thead>
         <tr>
-          <th class="p-2 border">PROJECT CODE</th>
-          <th class="p-2 border">PROJECT</th>
-          <th class="p-2 border">PROJECT TYPE</th>
-          <th class="p-2 border">CLIENT</th>
-          <th class="p-2 border">CLIENT LOCATION</th>
-          <th class="p-2 border">UNIT</th>
-          <th class="p-2 border">MILESTONE</th>
-          <th class="p-2 border">PLAN START DATE</th>
-          <th class="p-2 border">PLAN END DATE</th>
-          <th class="p-2 border">ACTUAL START DATE</th>
-          <th class="p-2 border">ACTIONS</th>
+          <th>PROJECT CODE</th>
+          <th>PROJECT</th>
+          <th>PROJECT TYPE</th>
+          <th>CLIENT</th>
+          <th>CLIENT LOCATION</th>
+          <th>UNIT</th>
+          <th>MILESTONE</th>
+          <th>PLAN START DATE</th>
+          <th>PLAN END DATE</th>
+          <th>ACTUAL START DATE</th>
+          <th>ACTUAL END DATE</th>
+          <th>ELAPSED DAYS</th>
+          <th>STATUS</th>
+          <th>ACTIONS</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let project of filteredProjects" class="hover:bg-gray-50">
-          <td class="p-2 border">{{project.code}}</td>
-          <td class="p-2 border font-medium">{{project.name}}</td>
-          <td class="p-2 border">{{project.type}}</td>
-          <td class="p-2 border">{{project.client}}</td>
-          <td class="p-2 border">{{project.location}}</td>
-          <td class="p-2 border">{{project.unit}}</td>
-          <td class="p-2 border">{{project.milestone}}</td>
-          <td class="p-2 border">{{project.planStart}}</td>
-          <td class="p-2 border">{{project.planEnd}}</td>
-          <td class="p-2 border">{{project.actualStart}}</td>
-          <td class="p-2 border space-x-2">
-            <button class="btn btn-sm" (click)="openModal(project)">Edit</button>
-            <button class="btn btn-sm btn-destructive" (click)="deleteProject(project)">Delete</button>
+        <tr *ngFor="let project of paginatedProjects" class="table-row">
+          <td>{{ project.code }}</td>
+          <td class="bold-cell">{{ project.name }}</td>
+          <td>{{ project.type }}</td>
+          <td>{{ project.client }}</td>
+          <td>{{ project.location }}</td>
+          <td>{{ project.unit }}</td>
+          <td>{{ project.milestone }}</td>
+          <td>{{ project.planStart }}</td>
+          <td>{{ project.planEnd }}</td>
+          <td>{{ project.actualStart }}</td>
+          <td>{{ project.actualEnd }}</td>
+          <td>{{ project.elapsedDays }}</td>
+          <td>
+            <span class="status-pill"
+                  [ngClass]="{
+                    'status-running': project.status === 'Running',
+                    'status-completed': project.status === 'Completed',
+                    'status-delayed': project.status === 'Delayed',
+                    'status-onhold': project.status === 'OnHold'
+                  }">
+              {{ project.status }}
+            </span>
+          </td>
+          <td>
+            <button class="action-btn" (click)="openModal(project)">Edit</button>
+            <button class="action-btn delete" (click)="deleteProject(project)">Delete</button>
           </td>
         </tr>
       </tbody>
     </table>
+
+    <!-- FOOTER: Showing / Rows per page / Page X of Y -->
+    <div class="table-footer">
+      <div class="table-info">
+        Showing {{ showingFrom }} to {{ showingTo }} of {{ totalFiltered }} entries
+      </div>
+
+      <div class="table-pagination">
+        <span>Rows per page:</span>
+        <select
+          class="rows-select"
+          [value]="pageSize"
+          (change)="onPageSizeChange($event)">
+          <option *ngFor="let size of pageSizeOptions" [value]="size">{{ size }}</option>
+        </select>
+
+        <span class="page-info">
+          Page {{ pageIndex + 1 }} of {{ totalPages }}
+        </span>
+
+        <button
+          type="button"
+          class="pager-btn"
+          (click)="prevPage()"
+          [disabled]="pageIndex === 0">
+          ‹
+        </button>
+
+        <button
+          type="button"
+          class="pager-btn"
+          (click)="nextPage()"
+          [disabled]="pageIndex + 1 >= totalPages">
+          ›
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL OVERLAY: CREATE / EDIT -->
+  <div class="modal-backdrop" *ngIf="isModalOpen">
+    <div class="modal-card">
+
+      <div class="modal-header">
+        <h3>{{ isEditing ? 'Edit Project' : 'Create Project' }}</h3>
+        <button class="modal-close" type="button" (click)="onCancel()">×</button>
+      </div>
+
+      <form [formGroup]="projectForm" (ngSubmit)="onSubmit()">
+        <!-- ROW 1 -->
+        <div class="modal-row">
+          <div class="modal-field" *ngIf="isEditing">
+            <label>Project Code</label>
+            <input type="text" class="modal-input" formControlName="projectCode" />
+          </div>
+
+          <div class="modal-field">
+            <label>Project</label>
+            <input
+              type="text"
+              class="modal-input"
+              placeholder="Enter Project Name"
+              formControlName="project" />
+          </div>
+
+          <div class="modal-field">
+            <label>Project Type</label>
+            <select class="modal-input" formControlName="projectType">
+              <option value="" disabled>Select Project Type</option>
+              <option *ngFor="let type of projectTypes" [value]="type">
+                {{ type }}
+              </option>
+            </select>
+          </div>
+
+          <div class="modal-field">
+            <label>Client</label>
+            <select
+              class="modal-input"
+              formControlName="clientId"
+              (change)="onClientChange()">
+              <option value="" disabled>Select Client</option>
+              <option *ngFor="let c of clients" [value]="c.id">
+                {{ c.clientName }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+     <!-- ROW 2 -->
+<div class="modal-row">
+  <div class="modal-field">
+    <label>Location</label>
+    <select class="modal-input" formControlName="location" (change)="onLocationChange()">
+      <option value="" disabled>Select Location</option>
+      <option *ngFor="let loc of locations" [value]="loc">{{ loc }}</option>
+    </select>
+  </div>
+
+  <div class="modal-field">
+    <label>Unit</label>
+    <select class="modal-input" formControlName="unit">
+      <option value="" disabled>Select Unit</option>
+      <option *ngFor="let u of units" [value]="u">{{ u }}</option>
+    </select>
+  </div>
+
+  <div class="modal-field">
+    <label>Milestone</label>
+    <select class="modal-input" formControlName="milestone">
+      <option value="" disabled>Select Milestone</option>
+      <option *ngFor="let m of milestones" [value]="m">{{ m }}</option>
+    </select>
+  </div>
+</div>
+
+
+         <!-- ROW 2.5: STATUS -->
+<div class="modal-row">
+  <div class="modal-field">
+    <label>Status</label>
+    <select class="modal-input" formControlName="status">
+      <option value="" disabled>Select Status</option>
+      <option *ngFor="let s of statusOptions" [value]="s">{{ s }}</option>
+    </select>
+  </div>
+</div>
+
+
+        <!-- ROW 3: PLAN DATES -->
+        <div class="modal-row">
+          <div class="modal-field">
+            <label>Plan Start</label>
+            <input type="date" class="modal-input" formControlName="planStart" />
+          </div>
+          <div class="modal-field">
+            <label>Plan Close</label>
+            <input type="date" class="modal-input" formControlName="planClose" />
+          </div>
+
+          <div class="modal-field" *ngIf="isEditing">
+            <label>Actual Start</label>
+            <input type="date" class="modal-input" formControlName="actualStart" />
+          </div>
+
+          <div class="modal-field" *ngIf="isEditing">
+            <label>Actual Close</label>
+            <input type="date" class="modal-input" formControlName="actualClose" />
+          </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="modal-actions">
+          <button type="button" class="btn-secondary" (click)="onCancel()">Cancel</button>
+          <button
+            type="submit"
+            class="btn-primary"
+            [disabled]="projectForm.invalid || isSubmitting">
+            {{ isSubmitting
+                ? (isEditing ? 'Updating…' : 'Creating…')
+                : (isEditing ? 'Update Project' : 'Create Project') }}
+          </button>
+        </div>
+      </form>
+    </div>
   </div>
 
 </div>

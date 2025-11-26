@@ -13,6 +13,15 @@ namespace server.DTOs
         public int ProjectId { get; set; }
         public int? AssignedToUserId { get; set; }
 
-        public DateTime? DueDate { get; set; }
+        public DateTime? DueDate { get; set; }          // Expected Closure
+        public DateTime? ActualClosureDate { get; set; }
+
+        // Issue & Requirement fields
+        public string? Type { get; set; }               // Issue / Requirement
+        public string? ProduceStep { get; set; }
+        public string? SampleData { get; set; }
+        public string? AcceptanceCriteria { get; set; }
+        public string? TestingStatus { get; set; }
+        public string? TestingDoneBy { get; set; }
     }
 }

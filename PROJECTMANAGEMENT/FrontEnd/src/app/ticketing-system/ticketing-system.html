@@ -1,148 +1,537 @@
 <!-- src/app/ticketing-system/ticketing-system.html -->
 
-<!-- ✅ Notification at top-level -->
 <app-notification
   [notification]="notification"
   (onClose)="onNotificationClose()">
 </app-notification>
 
-<div class="p-6 bg-gray-50 min-h-screen">
-  <div class="flex justify-between items-center mb-4">
-    <h1 class="text-2xl font-bold text-gray-800">Ticketing System</h1>
-    <button
-      class="bg-blue-600 text-white px-4 py-2 rounded"
-      (click)="startCreate()">
-      + New Ticket
-    </button>
+<div class="ticket-page">
+  <!-- Header + KPI + Actions -->
+  <div class="ticket-header-row">
+    <div class="ticket-header-left">
+      <h1 class="ticket-title">Ticketing System</h1>
+    </div>
+
+    <div class="ticket-header-right">
+      <button class="btn-light" (click)="toggleFilters()">
+        <span class="icon-filter"></span>
+        Filters
+      </button>
+
+      <button class="btn-primary" (click)="startAdd()">
+        + Add Ticket
+      </button>
+
+      <button class="btn-outline" (click)="exportToExcel()">
+        Export Excel
+      </button>
+    </div>
   </div>
 
-<!-- Form Card -->
-<div class="bg-white shadow rounded p-4 mb-6" *ngIf="form">
-  <h2 class="text-lg font-semibold mb-3">
-    {{ editingId ? 'Edit Ticket' : 'Create Ticket' }}
-  </h2>
-
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-    <!-- Title -->
-    <div>
-      <label class="block text-sm font-medium mb-1">Title</label>
-      <input
-        class="w-full border rounded px-3 py-2"
-        [(ngModel)]="form.title"
-        name="title"
-        placeholder="Enter ticket title" />
+  <!-- KPI Cards -->
+  <div class="kpi-row">
+    <div class="kpi-card kpi-total">
+      <p class="kpi-label">Total Tickets</p>
+      <p class="kpi-value">{{ totalTicketsCount }}</p>
     </div>
-
-    <!-- Priority -->
-    <div>
-      <label class="block text-sm font-medium mb-1">Priority</label>
-      <select
-        class="w-full border rounded px-3 py-2"
-        [(ngModel)]="form.priority"
-        name="priority">
-        <option value="Low">Low</option>
-        <option value="Medium">Medium</option>
-        <option value="High">High</option>
-      </select>
+    <div class="kpi-card kpi-closed">
+      <p class="kpi-label">Closed</p>
+      <p class="kpi-value">{{ closedTicketsCount }}</p>
     </div>
+    <div class="kpi-card kpi-open">
+      <p class="kpi-label">Open</p>
+      <p class="kpi-value">{{ openTicketsCount }}</p>
+    </div>
+    <div class="kpi-card kpi-hold">
+      <p class="kpi-label">On Hold</p>
+      <p class="kpi-value">{{ onHoldTicketsCount }}</p>
+    </div>
+  </div>
 
-    <!-- Assign To -->
-    <div>
-      <label class="block text-sm font-medium mb-1">Assign To</label>
-      <div class="flex gap-2">
-        <select
-          class="w-full border rounded px-3 py-2"
-          [(ngModel)]="form.assignedToUserId"
-          name="assignedToUserId">
-          <option [ngValue]="null">-- Unassigned --</option>
-          <option *ngFor="let u of users" [ngValue]="u.id">
-            {{ u.fullName }} ({{ u.username }})
+  <!-- Filters Panel -->
+  <div *ngIf="showFilterPanel" class="filter-panel">
+    <div class="filter-row">
+      <div class="filter-field">
+        <label>Status</label>
+        <select [(ngModel)]="filters.status" (change)="onFilterChange()">
+          <option value="All">All</option>
+          <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+        </select>
+      </div>
+
+      <div class="filter-field">
+        <label>Client</label>
+        <select [(ngModel)]="filters.clientName" (change)="onFilterChange()">
+          <option value="All">All</option>
+          <option *ngFor="let c of clients" [value]="c.clientName">
+            {{ c.clientName }}
           </option>
         </select>
-        <button
-          type="button"
-          class="bg-gray-200 text-sm px-2 py-1 rounded whitespace-nowrap"
-          (click)="assignToMe()">
-          Assign to me
-        </button>
+      </div>
+
+      <div class="filter-field">
+        <label>Priority</label>
+        <select [(ngModel)]="filters.priority" (change)="onFilterChange()">
+          <option value="All">All</option>
+          <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+        </select>
       </div>
     </div>
   </div>
 
-  <div class="mt-3">
-    <label class="block text-sm font-medium mb-1">Description</label>
-    <textarea
-      class="w-full border rounded px-3 py-2"
-      rows="3"
-      [(ngModel)]="form.description"
-      name="description"
-      placeholder="Enter ticket description">
-    </textarea>
+  <!-- ADD / EDIT FORM -->
+  <div *ngIf="showForm" class="ticket-form-card">
+    <div class="ticket-form-header">
+      <h2>{{ editingId ? 'Edit Ticket' : 'Add Ticket' }}</h2>
+    </div>
+
+    <!-- ================= ADD TICKET (like second screenshot) ================= -->
+    <ng-container *ngIf="!editingId; else editFormTemplate">
+      <div class="ticket-form-grid">
+        <!-- Row 1 -->
+        <div class="form-group">
+          <label>Client Name *</label>
+          <select
+            [(ngModel)]="form.clientId"
+            name="clientId"
+            (change)="onClientChange(form.clientId)">
+            <option [ngValue]="null">Select Client</option>
+            <option *ngFor="let c of clients" [ngValue]="c.id">
+              {{ c.clientName }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Location *</label>
+          <select
+            [(ngModel)]="form.locationId"
+            name="locationId"
+            (change)="onLocationChange(form.locationId)">
+            <option [ngValue]="null">Select Location</option>
+            <option *ngFor="let l of locationsForSelectedClient" [ngValue]="l.id">
+              {{ l.locationName }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Category</label>
+          <select [(ngModel)]="form.category" name="category">
+            <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+
+        <!-- Row 2 -->
+        <div class="form-group">
+          <label>Raised By</label>
+          <select
+            [(ngModel)]="form.raisedByUserId"
+            name="raisedByUserId"
+            (change)="onRaisedByChange(form.raisedByUserId)">
+            <option [ngValue]="null">Raised By</option>
+            <option *ngFor="let u of users" [ngValue]="u.id">
+              {{ u.fullName }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Assigned To</label>
+          <select
+            [(ngModel)]="form.assignedToUserId"
+            name="assignedToUserId"
+            (change)="onAssignedToChange(form.assignedToUserId)">
+            <option [ngValue]="null">Assigned To</option>
+            <option *ngFor="let u of users" [ngValue]="u.id">
+              {{ u.fullName }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Priority</label>
+          <select [(ngModel)]="form.priority" name="priority">
+            <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+          </select>
+          <div class="priority-bar">
+            <div
+              [ngClass]="[
+                'priority-bar-fill',
+                form.priority === 'Low'
+                  ? 'priority-low'
+                  : form.priority === 'High'
+                  ? 'priority-high'
+                  : 'priority-medium'
+              ]">
+            </div>
+          </div>
+        </div>
+
+        <!-- Description full width -->
+        <div class="form-group full-width">
+          <label>Description</label>
+          <textarea
+            rows="2"
+            [(ngModel)]="form.description"
+            name="description"
+            placeholder="Description"></textarea>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- ================= EDIT TICKET (like first screenshot) ================= -->
+    <ng-template #editFormTemplate>
+      <!-- Ticket Number row -->
+      <div class="ticket-form-grid single-row">
+        <div class="form-group">
+          <label>Ticket Number</label>
+          <input
+            type="text"
+            [ngModel]="form.ticketNumber"
+            name="ticketNumber"
+            disabled />
+        </div>
+      </div>
+
+      <div class="ticket-form-grid">
+        <!-- Client Name -->
+        <div class="form-group">
+          <label>Client Name *</label>
+          <select
+            [(ngModel)]="form.clientId"
+            name="clientId"
+            (change)="onClientChange(form.clientId)">
+            <option [ngValue]="null">Select Client</option>
+            <option *ngFor="let c of clients" [ngValue]="c.id">
+              {{ c.clientName }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Location -->
+        <div class="form-group">
+          <label>Location *</label>
+          <select
+            [(ngModel)]="form.locationId"
+            name="locationId"
+            (change)="onLocationChange(form.locationId)">
+            <option [ngValue]="null">Select Location</option>
+            <option *ngFor="let l of locationsForSelectedClient" [ngValue]="l.id">
+              {{ l.locationName }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Category -->
+        <div class="form-group">
+          <label>Category</label>
+          <select [(ngModel)]="form.category" name="category">
+            <option *ngFor="let c of categories" [value]="c">{{ c }}</option>
+          </select>
+        </div>
+
+        <!-- Raised By -->
+        <div class="form-group">
+          <label>Raised By</label>
+          <select
+            [(ngModel)]="form.raisedByUserId"
+            name="raisedByUserId"
+            (change)="onRaisedByChange(form.raisedByUserId)">
+            <option [ngValue]="null">Select User</option>
+            <option *ngFor="let u of users" [ngValue]="u.id">
+              {{ u.fullName }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Assigned To -->
+        <div class="form-group">
+          <label>Assigned To</label>
+          <select
+            [(ngModel)]="form.assignedToUserId"
+            name="assignedToUserId"
+            (change)="onAssignedToChange(form.assignedToUserId)">
+            <option [ngValue]="null">Unassigned</option>
+            <option *ngFor="let u of users" [ngValue]="u.id">
+              {{ u.fullName }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Priority -->
+        <div class="form-group">
+          <label>Priority</label>
+          <select [(ngModel)]="form.priority" name="priority">
+            <option *ngFor="let p of priorities" [value]="p">{{ p }}</option>
+          </select>
+          <div class="priority-bar">
+            <div
+              [ngClass]="[
+                'priority-bar-fill',
+                form.priority === 'Low'
+                  ? 'priority-low'
+                  : form.priority === 'High'
+                  ? 'priority-high'
+                  : 'priority-medium'
+              ]">
+            </div>
+          </div>
+        </div>
+
+        <!-- Status -->
+        <div class="form-group">
+          <label>Status</label>
+          <select [(ngModel)]="form.status" name="status">
+            <option *ngFor="let s of statuses" [value]="s">{{ s }}</option>
+          </select>
+          <div class="status-bar">
+            <div
+              [ngClass]="[
+                'status-bar-fill',
+                form.status === 'Closed'
+                  ? 'status-bar-closed'
+                  : form.status === 'On Hold'
+                  ? 'status-bar-hold'
+                  : 'status-bar-open'
+              ]">
+            </div>
+          </div>
+        </div>
+
+        <!-- Date Raised -->
+        <div class="form-group">
+          <label>Date Raised</label>
+          <input
+            type="date"
+            [(ngModel)]="form.dateRaised"
+            name="dateRaised"
+            disabled />
+        </div>
+
+        <!-- Time Raised -->
+        <div class="form-group">
+          <label>Time Raised</label>
+          <input
+            type="time"
+            [(ngModel)]="form.timeRaised"
+            name="timeRaised"
+            step="60" />
+        </div>
+
+        <!-- Resolution -->
+        <div class="form-group full-width">
+          <label>Resolution</label>
+          <input
+            type="text"
+            [(ngModel)]="form.resolution"
+            name="resolution"
+            placeholder="Resolution" />
+        </div>
+
+        <!-- Description -->
+        <div class="form-group full-width">
+          <label>Description</label>
+          <textarea
+            rows="2"
+            [(ngModel)]="form.description"
+            name="description"
+            placeholder="Description"></textarea>
+        </div>
+
+        <!-- Date Closed -->
+        <div class="form-group">
+          <label>Date Closed</label>
+          <input
+            type="date"
+            [(ngModel)]="form.dateClosed"
+            name="dateClosed" />
+        </div>
+
+        <!-- Time Closed -->
+        <div class="form-group">
+          <label>Time Closed</label>
+          <input
+            type="time"
+            [(ngModel)]="form.timeClosed"
+            name="timeClosed"
+            step="60" />
+        </div>
+
+        <!-- Total Hours -->
+        <div class="form-group">
+          <label>Total Hours Elapsed</label>
+          <input
+            type="number"
+            [(ngModel)]="form.totalHoursElapsed"
+            name="totalHoursElapsed"
+            step="0.01"
+            disabled />
+        </div>
+
+        <!-- Total Days -->
+        <div class="form-group">
+          <label>Total Days Elapsed</label>
+          <input
+            type="number"
+            [(ngModel)]="form.totalDaysElapsed"
+            name="totalDaysElapsed"
+            disabled />
+        </div>
+      </div>
+    </ng-template>
+
+    <!-- Buttons -->
+    <div class="form-actions">
+      <button
+        class="btn-primary"
+        type="button"
+        (click)="saveTicket()"
+        [disabled]="isSaving">
+        {{ isSaving ? 'Saving…' : (editingId ? 'Update Ticket' : 'Add Ticket') }}
+      </button>
+
+      <button class="btn-light" type="button" (click)="cancelForm()">
+        Cancel
+      </button>
+    </div>
   </div>
 
-  <div class="flex gap-2 mt-4">
-    <button
-      class="bg-blue-600 text-white px-4 py-2 rounded"
-      [disabled]="isSaving"
-      (click)="saveTicket()">
-      {{ isSaving ? 'Saving...' : (editingId ? 'Update Ticket' : 'Create Ticket') }}
-    </button>
-    <button
-      class="bg-gray-300 px-4 py-2 rounded"
-      type="button"
-      (click)="cancelForm()">
-      Cancel
-    </button>
-  </div>
-</div>
+  <!-- TICKETS TABLE -->
+  <div class="tickets-card">
+    <div class="tickets-card-header">
+      <h2>Tickets List</h2>
 
+      <div class="tickets-controls">
+        <div class="show-select">
+          <span>Show:</span>
+          <select [(ngModel)]="pageSize" (change)="onPageSizeChange()">
+            <option *ngFor="let size of pageSizeOptions" [ngValue]="size">
+              {{ size }}
+            </option>
+          </select>
+        </div>
+        <div class="tickets-count">
+          Showing {{ showingFrom }} - {{ showingTo }} of {{ totalItems }} tickets
+        </div>
+      </div>
+    </div>
 
-  <!-- Tickets Table -->
-  <div class="bg-white shadow rounded overflow-x-auto">
-    <table class="min-w-full border-collapse">
-      <thead class="bg-gray-100">
-        <tr>
-          <th class="p-2 border text-left">Title</th>
-          <th class="p-2 border text-left">Priority</th>
-          <th class="p-2 border text-left">Created By</th>
-          <th class="p-2 border text-left">Assigned To</th>
-          <th class="p-2 border text-left">Created At</th>
-          <th class="p-2 border text-left">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let t of tickets" class="hover:bg-gray-50">
-          <td class="p-2 border">{{ t.title }}</td>
-          <td class="p-2 border">{{ t.priority }}</td>
-          <td class="p-2 border">{{ t.createdByName || '-' }}</td>
-          <td class="p-2 border">{{ t.assignedToName || '-' }}</td>
-          <td class="p-2 border">{{ t.dateRaised | date:'short' }}</td>
-          <td class="p-2 border">
-            <button
-              class="bg-yellow-500 text-white px-2 py-1 rounded text-sm mr-2"
-              (click)="startEdit(t)">
-              Edit
-            </button>
-            <button
-              class="bg-red-600 text-white px-2 py-1 rounded text-sm"
-              (click)="deleteTicket(t.id)">
-              Delete
-            </button>
-          </td>
-        </tr>
+    <div class="table-wrapper">
+      <table class="tickets-table">
+        <thead>
+          <tr>
+            <th>Ticket Number</th>
+            <th>Client Name</th>
+            <th>Location</th>
+            <th>Date Raised</th>
+            <th>Time Raised</th>
+            <th>Category</th>
+            <th>Raised By</th>
+            <th>Assigned To</th>
+            <th>Description</th>
+            <th>Total Hours Elapsed</th>
+            <th>Total Days Elapsed</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Resolution</th>
+            <th>Date Closed</th>
+            <th>Time Closed</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
 
-        <tr *ngIf="tickets.length === 0 && !loading">
-          <td colspan="6" class="p-3 text-center text-gray-500">
-            No tickets found.
-          </td>
-        </tr>
+        <tbody>
+          <tr *ngFor="let t of pagedTickets">
+            <td>{{ t.ticketNumber }}</td>
+            <td>{{ t.clientName }}</td>
+            <td>{{ t.location }}</td>
+            <td>{{ t.dateRaised | date: 'yyyy-MM-dd' }}</td>
+            <td>{{ t.timeRaised }}</td>
+            <td>{{ t.category }}</td>
+            <td>{{ t.raisedBy }}</td>
+            <td>{{ t.assignedTo }}</td>
+            <td class="description-cell">
+              {{ t.description }}
+            </td>
+            <td class="numeric-cell">
+              {{ t.totalHoursElapsed ?? '' }}
+            </td>
+            <td class="numeric-cell">
+              {{ t.totalDaysElapsed ?? '' }}
+            </td>
+            <td>
+              <span [ngClass]="getStatusClass(t.status)">
+                {{ t.status }}
+              </span>
+            </td>
+            <td>
+              <span [ngClass]="getPriorityClass(t.priority)">
+                {{ t.priority }}
+              </span>
+            </td>
+            <td>{{ t.resolution }}</td>
+            <td>{{ t.dateClosed | date: 'yyyy-MM-dd' }}</td>
+            <td>{{ t.timeClosed }}</td>
+            <td class="actions-cell">
+              <button
+                class="btn-icon edit"
+                type="button"
+                (click)="startEdit(t)">
+                ✏
+              </button>
+              <button
+                class="btn-icon delete"
+                type="button"
+                (click)="deleteTicket(t.id)">
+                🗑
+              </button>
+            </td>
+          </tr>
 
-        <tr *ngIf="loading">
-          <td colspan="6" class="p-3 text-center text-gray-500">
-            Loading tickets...
-          </td>
-        </tr>
-      </tbody>
-    </table>
+          <tr *ngIf="!loading && pagedTickets.length === 0">
+            <td colspan="17" class="empty-row">
+              No tickets found.
+            </td>
+          </tr>
+
+          <tr *ngIf="loading">
+            <td colspan="17" class="empty-row">
+              Loading tickets...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination footer -->
+    <div class="pagination-footer" *ngIf="totalPages > 1">
+      <div class="page-info">
+        Page {{ currentPage }} of {{ totalPages }}
+      </div>
+      <div class="page-buttons">
+        <button
+          class="page-btn"
+          [disabled]="currentPage === 1"
+          (click)="goToPage(currentPage - 1)">
+          ‹
+        </button>
+
+        <button
+          *ngFor="let page of [].constructor(totalPages); let i = index"
+          class="page-btn"
+          [ngClass]="{ active: currentPage === i + 1 }"
+          (click)="goToPage(i + 1)">
+          {{ i + 1 }}
+        </button>
+
+        <button
+          class="page-btn"
+          [disabled]="currentPage === totalPages"
+          (click)="goToPage(currentPage + 1)">
+          ›
+        </button>
+      </div>
+    </div>
   </div>
 </div>

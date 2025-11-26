@@ -18,9 +18,16 @@ namespace server.DTOs
         public int? AssignedToUserId { get; set; }
         public string? AssignedUserName { get; set; }
 
-        public DateTime CreatedAt { get; set; }        // Raised Date
-        public DateTime? DueDate { get; set; }         // Expected Closure
+        public DateTime CreatedAt { get; set; }          // Raised Date
+        public DateTime? DueDate { get; set; }           // Expected Closure
+        public DateTime? ActualClosureDate { get; set; } // Actual Closure Date
 
-        public int? Progress { get; set; }             // from TaskTracker
+        // Issue & Requirement fields
+        public string? Type { get; set; }
+        public string? ProduceStep { get; set; }
+        public string? SampleData { get; set; }
+        public string? AcceptanceCriteria { get; set; }
+        public string? TestingStatus { get; set; }
+        public string? TestingDoneBy { get; set; }
     }
 }

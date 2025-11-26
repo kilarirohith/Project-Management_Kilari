@@ -1,93 +1,129 @@
 <!-- src/app/task-tracker/task-tracker.html -->
-<div class="space-y-6 p-4">
-  <h1 class="text-2xl font-bold">Issue & Requirement Tracker</h1>
+<div class="task-tracker-page">
+  <h1 class="page-title">Issue &amp; Requirement Tracker</h1>
 
-  <!-- Stats -->
-  <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-    <div class="bg-gray-200 shadow-sm rounded-lg p-4 text-center">
-      <p class="text-sm text-gray-500">Total Tasks</p>
-      <p class="text-2xl font-bold">{{ totalTasks }}</p>
+  <!-- Top Stats -->
+  <div class="stats-row">
+    <div class="stat-card stat-total">
+      <p class="stat-label">Total Tasks</p>
+      <p class="stat-value">{{ totalTasks }}</p>
     </div>
-    <div class="bg-yellow-200 shadow-sm rounded-lg p-4 text-center">
-      <p class="text-sm text-yellow-700">Open</p>
-      <p class="text-2xl font-bold text-yellow-700">{{ openTasks }}</p>
+
+    <div class="stat-card stat-open">
+      <p class="stat-label">Open</p>
+      <p class="stat-value">{{ openTasks }}</p>
     </div>
-    <div class="bg-blue-200 shadow-sm rounded-lg p-4 text-center">
-      <p class="text-sm text-blue-700">In Progress</p>
-      <p class="text-2xl font-bold text-blue-700">{{ inProgressTasks }}</p>
+
+    <div class="stat-card stat-inprogress">
+      <p class="stat-label">In Progress</p>
+      <p class="stat-value">{{ inProgressTasks }}</p>
     </div>
-    <div class="bg-green-200 shadow-sm rounded-lg p-4 text-center">
-      <p class="text-sm text-green-700">Closed</p>
-      <p class="text-2xl font-bold text-green-700">{{ closedTasks }}</p>
+
+    <div class="stat-card stat-closed">
+      <p class="stat-label">Closed</p>
+      <p class="stat-value">{{ closedTasks }}</p>
     </div>
   </div>
 
-  <button (click)="onAddNew()"
-          class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
-    + Add New Entry
-  </button>
+  <!-- Add New button -->
+  <div class="add-entry-row">
+    <button (click)="onAddNew()" class="btn-primary">
+      + Add New Entry
+    </button>
+  </div>
 
-  <!-- Add/Edit Form -->
-  <div *ngIf="showForm" class="p-8 bg-white rounded-xl shadow-lg max-w-4xl mx-auto">
-    <h2 class="text-xl font-semibold mb-6 text-gray-800">
-      {{ form.id ? 'Edit Task' : 'Add Task' }}
-    </h2>
+  <!-- Add / Edit Task Form -->
+  <div *ngIf="showForm" class="task-form-card">
+    <h2 class="task-form-title">Add / Edit Task</h2>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Title -->
-      <div class="flex flex-col">
-        <label class="mb-2 text-sm font-medium text-gray-700">Title</label>
+    <div class="task-form-grid">
+      <!-- Assigned To -->
+      <div class="form-group">
+        <label>Assigned To</label>
+        <select
+          [value]="form.assignedToUserId ?? ''"
+          (change)="onFieldChange('assignedToUserId', $any($event.target).value ? +$any($event.target).value : null)"
+        >
+          <option value="" disabled>Select user</option>
+          <option *ngFor="let u of users" [value]="u.id">
+            {{ u.fullName }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Type -->
+      <div class="form-group">
+        <label>Type</label>
+        <select
+          [value]="form.type || ''"
+          (change)="onFieldChange('type', $any($event.target).value)"
+        >
+          <option value="" disabled>Select Type</option>
+          <option value="Issue">Issue</option>
+          <option value="Requirement">Requirement</option>
+        </select>
+      </div>
+
+      <!-- Client (Project) -->
+      <div class="form-group">
+        <label>Client</label>
+        <select
+          [value]="form.projectId || ''"
+          (change)="onFieldChange('projectId', +$any($event.target).value)"
+        >
+          <option value="" disabled>Select Client</option>
+          <option *ngFor="let p of projects" [value]="p.id">
+            {{ p.projectName }}
+          </option>
+        </select>
+      </div>
+
+      <!-- Issue / Requirement (Title) -->
+      <div class="form-group">
+        <label>Issue / Requirement</label>
         <input
           type="text"
           [value]="form.title"
           (input)="onFieldChange('title', $any($event.target).value)"
-          class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
         />
       </div>
 
-      <!-- Project Id -->
-      <div class="flex flex-col">
-        <label class="mb-2 text-sm font-medium text-gray-700">Project Id</label>
+      <!-- Produce Step -->
+      <div class="form-group">
+        <label>Produce Step</label>
         <input
-          type="number"
-          [value]="form.projectId"
-          (input)="onFieldChange('projectId', +$any($event.target).value)"
-          class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+          type="text"
+          [value]="form.produceStep || ''"
+          (input)="onFieldChange('produceStep', $any($event.target).value)"
         />
       </div>
 
-      <!-- Assigned To User Id -->
-      <div class="flex flex-col">
-        <label class="mb-2 text-sm font-medium text-gray-700">Assigned To (User Id)</label>
+      <!-- Sample Data -->
+      <div class="form-group">
+        <label>Sample Data</label>
         <input
-          type="number"
-          [value]="form.assignedToUserId"
-          (input)="onFieldChange('assignedToUserId', $any($event.target).value ? +$any($event.target).value : null)"
-          class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
+          type="text"
+          [value]="form.sampleData || ''"
+          (input)="onFieldChange('sampleData', $any($event.target).value)"
         />
       </div>
 
-      <!-- Priority -->
-      <div class="flex flex-col">
-        <label class="mb-2 text-sm font-medium text-gray-700">Priority</label>
-        <select
-          [value]="form.priority"
-          (change)="onFieldChange('priority', $any($event.target).value)"
-          class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
-        >
-          <option value="Low">Low</option>
-          <option value="Normal">Normal</option>
-          <option value="High">High</option>
-        </select>
+      <!-- Acceptance Criteria -->
+      <div class="form-group form-group-full">
+        <label>Acceptance Criteria</label>
+        <textarea
+          rows="2"
+          [value]="form.acceptanceCriteria || ''"
+          (input)="onFieldChange('acceptanceCriteria', $any($event.target).value)"
+        ></textarea>
       </div>
 
       <!-- Status -->
-      <div class="flex flex-col">
-        <label class="mb-2 text-sm font-medium text-gray-700">Status</label>
+      <div class="form-group">
+        <label>Status</label>
         <select
           [value]="form.status"
           (change)="onFieldChange('status', $any($event.target).value)"
-          class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
         >
           <option value="Open">Open</option>
           <option value="In Progress">In Progress</option>
@@ -95,111 +131,105 @@
         </select>
       </div>
 
-      <!-- Due Date -->
-      <div class="flex flex-col">
-        <label class="mb-2 text-sm font-medium text-gray-700">Expected Closure Date</label>
+      <!-- Expected Closure Date -->
+      <div class="form-group">
+        <label>Expected Closure Date</label>
         <input
           type="date"
-          [value]="form.dueDate"
+          [value]="form.dueDate || ''"
           (input)="onFieldChange('dueDate', $any($event.target).value)"
-          class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
         />
       </div>
 
-      <!-- Description -->
-      <div class="flex flex-col md:col-span-2">
-        <label class="mb-2 text-sm font-medium text-gray-700">Description</label>
-        <textarea
-          rows="3"
-          [value]="form.description"
-          (input)="onFieldChange('description', $any($event.target).value)"
-          class="w-full rounded-lg border border-gray-300 p-3 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition"
-        ></textarea>
-      </div>
-
-      <!-- Progress -->
-      <div class="flex flex-col md:col-span-2">
-        <label class="mb-2 text-sm font-medium text-gray-700">Progress (%)</label>
+      <!-- Actual Closure Date -->
+      <div class="form-group">
+        <label>Actual Closure Date</label>
         <input
-          type="range"
-          min="0"
-          max="100"
-          [value]="form.progress || 0"
-          (input)="onFieldChange('progress', +$any($event.target).value)"
-          class="w-full"
+          type="date"
+          [value]="form.actualClosureDate || ''"
+          (input)="onFieldChange('actualClosureDate', $any($event.target).value)"
         />
-        <div class="text-right text-sm text-gray-600 mt-1">
-          {{ form.progress || 0 }}%
-        </div>
+      </div>
+
+      <!-- Testing Status -->
+      <div class="form-group">
+        <label>Testing Status</label>
+        <input
+          type="text"
+          [value]="form.testingStatus || ''"
+          (input)="onFieldChange('testingStatus', $any($event.target).value)"
+        />
+      </div>
+
+      <!-- Testing Done By -->
+      <div class="form-group form-group-full">
+        <label>Testing Done By</label>
+        <input
+          type="text"
+          [value]="form.testingDoneBy || ''"
+          (input)="onFieldChange('testingDoneBy', $any($event.target).value)"
+        />
       </div>
     </div>
 
-    <div class="flex justify-end gap-4 mt-8">
+    <div class="task-form-actions">
       <button
+        type="button"
         (click)="onSave()"
         [disabled]="saving"
-        class="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        class="btn-primary"
       >
         {{ saving ? 'Saving...' : 'Save' }}
       </button>
-      <button
-        (click)="onCancel()"
-        class="px-6 py-2 rounded-lg border border-gray-300 hover:bg-gray-100 transition"
-      >
+      <button type="button" (click)="onCancel()" class="btn-secondary">
         Cancel
       </button>
     </div>
   </div>
 
-  <!-- Task Table -->
-  <div class="bg-white rounded-lg shadow overflow-hidden">
-    <div class="overflow-x-auto">
-      <table class="w-full border-collapse">
+  <!-- Table -->
+  <div class="table-card">
+    <div class="table-scroll">
+      <table class="task-table">
         <thead>
-          <tr class="bg-gray-100">
-            <th class="p-3 text-left border-b font-semibold text-gray-700">RAISED DATE</th>
-            <th class="p-3 text-left border-b font-semibold text-gray-700">TITLE</th>
-            <th class="p-3 text-left border-b font-semibold text-gray-700">PROJECT</th>
-            <th class="p-3 text-left border-b font-semibold text-gray-700">ASSIGNED TO</th>
-            <th class="p-3 text-left border-b font-semibold text-gray-700">PRIORITY</th>
-            <th class="p-3 text-left border-b font-semibold text-gray-700">STATUS</th>
-            <th class="p-3 text-left border-b font-semibold text-gray-700">EXPECTED CLOSURE DATE</th>
-            <th class="p-3 text-left border-b font-semibold text-gray-700">PROGRESS</th>
-            <th class="p-3 text-left border-b font-semibold text-gray-700">ACTION</th>
+          <tr class="table-header-row">
+            <th>RAISED DATE</th>
+            <th>ASSIGNED TO</th>
+            <th>TYPE</th>
+            <th>CLIENT</th>
+            <th>ISSUE/REQUIREMENT</th>
+            <th>PRODUCE STEP</th>
+            <th>SAMPLE DATA</th>
+            <th>ACCEPTANCE CRITERIA</th>
+            <th>STATUS</th>
+            <th>EXPECTED CLOSURE DATE</th>
+            <th>ACTUAL CLOSURE DATE</th>
+            <th>TESTING STATUS</th>
+            <th>TESTING DONE BY</th>
+            <th>ACTION</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let task of tasks" class="border-b hover:bg-gray-50">
-            <td class="p-3">{{ formatDate(task.createdAt) }}</td>
-            <td class="p-3">{{ task.title }}</td>
-            <td class="p-3">{{ task.projectName }}</td>
-            <td class="p-3">{{ task.assignedUserName || task.assignedToUserId }}</td>
-            <td class="p-3">{{ task.priority }}</td>
-            <td class="p-3">{{ task.status }}</td>
-            <td class="p-3">{{ formatDate(task.dueDate || '') }}</td>
-            <td class="p-3">
-              <div class="w-24 bg-gray-200 rounded-full h-2">
-                <div
-                  class="h-2 rounded-full bg-green-500"
-                  [style.width.%]="task.progress || 0">
-                </div>
-              </div>
-              <span class="text-xs text-gray-600 ml-1">
-                {{ task.progress || 0 }}%
-              </span>
-            </td>
-            <td class="p-3">
-              <div class="flex gap-2">
-                <button
-                  (click)="onEdit(task)"
-                  class="px-3 py-1 border border-gray-300 rounded text-sm hover:bg-gray-100 transition"
-                >
+          <tr *ngFor="let task of tasks" class="table-body-row">
+            <td>{{ formatDate(task.createdAt) }}</td>
+            <td>{{ task.assignedUserName || task.assignedToUserId }}</td>
+            <td>{{ task.type }}</td>
+            <td>{{ task.projectName }}</td>
+            <td>{{ task.title }}</td>
+            <td>{{ task.produceStep }}</td>
+            <td>{{ task.sampleData }}</td>
+            <td>{{ task.acceptanceCriteria }}</td>
+            <td>{{ task.status }}</td>
+            <td>{{ formatDate(task.dueDate || '') }}</td>
+            <td>{{ formatDate(task.actualClosureDate || '') }}</td>
+            <td>{{ task.testingStatus }}</td>
+            <td>{{ task.testingDoneBy }}</td>
+            <td>
+              <div class="table-action-buttons">
+                <button (click)="onEdit(task)" class="btn-table edit">
                   Edit
                 </button>
-                <button
-                  (click)="onDelete(task.id)"
-                  class="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 transition"
-                >
+                <button (click)="onDelete(task.id)" class="btn-table delete">
                   Delete
                 </button>
               </div>
@@ -207,12 +237,12 @@
           </tr>
 
           <tr *ngIf="!loading && tasks.length === 0">
-            <td colspan="9" class="p-4 text-center text-gray-500">
+            <td colspan="14" class="table-empty">
               No tasks found.
             </td>
           </tr>
           <tr *ngIf="loading">
-            <td colspan="9" class="p-4 text-center text-gray-500">
+            <td colspan="14" class="table-empty">
               Loading tasks...
             </td>
           </tr>

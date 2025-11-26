@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import {AuthService} from '../auth/auth.service';
+import { AuthService } from '../auth/auth.service';
 
 export interface User {
   id: number;
@@ -9,19 +9,16 @@ export interface User {
   email: string;
   role?: { id: number; name: string };
 }
+
 export interface SimpleUser {
   id: number;
   username: string;
   fullName: string;
 }
 
-// src/app/services/user.service.ts
-
-// ... imports and interface ...
-
 @Injectable({ providedIn: 'root' })
 export class UserService {
-  private apiUrl = 'http://localhost:5089/api/User'; 
+  private apiUrl = 'http://localhost:5089/api/User';
 
   constructor(private http: HttpClient, private authService: AuthService) {}
 
@@ -29,23 +26,23 @@ export class UserService {
     const token = this.authService.getToken();
     return {
       headers: new HttpHeaders({
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
       })
     };
   }
 
+  // dropdown for RaisedBy/AssignedTo
   getSimpleUsers(): Observable<SimpleUser[]> {
-    return this.http.get<SimpleUser[]>(this.apiUrl, this.getOptions());
+    return this.http.get<SimpleUser[]>(`${this.apiUrl}/simple`, this.getOptions());
   }
 
   getAllUsers(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl, this.getOptions());
   }
 
-  // ✅ ADD THIS METHOD
-  getUserById(id: number): Observable<any> {
-    return this.http.get<any>(`${this.apiUrl}/${id}`, this.getOptions());
+  getUserById(id: number): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/${id}`, this.getOptions());
   }
 
   createUser(userData: any): Observable<any> {

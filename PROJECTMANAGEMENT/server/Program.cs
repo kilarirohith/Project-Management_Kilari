@@ -30,7 +30,6 @@ builder.Services.AddScoped<IMilestoneMasterService, MilestoneMasterService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<IProjectMasterService, ProjectMasterService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
-builder.Services.AddScoped<ITaskTrackerService, TaskTrackerService>();
 builder.Services.AddScoped<ITicketService, TicketService>();
 
 builder.Services.AddScoped<IVendorWorkService, VendorWorkService>();

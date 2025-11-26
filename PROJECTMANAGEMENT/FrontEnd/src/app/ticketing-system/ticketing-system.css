@@ -1,331 +1,528 @@
-/* 🌐 Global Layout */
-.space-y-6 {
-  background: linear-gradient(180deg, #f8fafc 0%, #eef2f7 100%);
-  min-height: 100vh;
-  font-family: "Inter", "Poppins", sans-serif;
-  color: #1e293b;
-  padding: 2rem;
-  line-height: 1.6;
+/* Page wrapper */
+.ticket-page {
+  padding: 16px 24px;
+  background: #f3f5ff;
+  min-height: calc(100vh - 60px);
+  box-sizing: border-box;
 }
 
-/* 🌟 Smooth Animation Setup */
-* {
-  transition: all 0.25s ease-in-out;
-}
+/* --------- HEADER --------- */
 
-/* 🌟 Header Section */
-h1 {
-  font-size: 2.25rem;
-  font-weight: 800;
-  color: #1d4ed8;
-  letter-spacing: -0.03em;
-}
-
-p {
-  color: #64748b;
-}
-
-button {
-  cursor: pointer;
-  font-weight: 500;
-  border: none;
-  border-radius: 0.5rem;
-  font-family: inherit;
-}
-
-/* ⚙️ Header Buttons */
-button.bg-blue-600 {
-  background: linear-gradient(135deg, #2563eb, #1d4ed8);
-  color: white;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
-}
-
-button.bg-green-600 {
-  background: linear-gradient(135deg, #16a34a, #15803d);
-  color: white;
-  box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
-}
-
-button.bg-blue-600:hover,
-button.bg-green-600:hover {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
-}
-
-/* ⚙️ Neutral Buttons */
-button.border {
-  border: 1px solid #cbd5e1;
-  background: #f8fafc;
-  color: #334155;
-}
-
-button.border:hover {
-  background: #e2e8f0;
-}
-
-/* 🌟 Notification Styling */
-[ngClass*="notification"] {
-  animation: fadeIn 0.4s ease;
-  border-radius: 0.75rem;
-  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(6px);
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-10px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-button[ng-reflect-ng-click*="closeNotification"] {
-  background: transparent;
-  border: none;
-  font-size: 1.25rem;
-  font-weight: bold;
-  color: #475569;
-}
-
-button[ng-reflect-ng-click*="closeNotification"]:hover {
-  color: #1e293b;
-}
-
-/* 🌟 Summary Cards */
-/* 🌈 Master Card Grid - Modern Minimal Design */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 1rem;
-  padding: 1rem;
-}
-
-/* 🌟 Individual Card Styling */
-.grid > div {
-  border-radius: 0.75rem;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
-  padding: 1rem;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
-  transition: all 0.35s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-/* 🎨 Card Accent Border (Top gradient line) */
-.grid > div::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 4px;
-  background: linear-gradient(90deg, #2563eb, #3b82f6, #60a5fa);
-  opacity: 0.8;
-  transition: all 0.4s ease;
-}
-
-/* ✨ Hover Effects */
-.grid > div:hover {
-  transform: translateY(-6px);
-  border-color: #bfdbfe;
-  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.15);
-}
-
-.grid > div:hover::before {
-  opacity: 1;
-  height: 6px;
-}
-
-/* 🧾 Text Styling */
-.grid > div h3 {
-  color: #1e3a8a;
-  font-weight: 600;
-  font-size: 1.1rem;
-  margin-bottom: 0.4rem;
-  transition: color 0.3s ease;
-}
-
-.grid > div p {
-  color: #475569;
-  font-size: 0.9rem;
-  line-height: 1.4;
-}
-
-/* 🧠 Hover text highlight */
-.grid > div:hover h3 {
-  color: #2563eb;
-}
-
-/* 🌟 Optional Icon Wrapper (if used inside cards) */
-.icon-wrapper {
-  width: 48px;
-  height: 48px;
-  background: linear-gradient(135deg, #dbeafe, #eff6ff);
-  color: #2563eb;
-  border-radius: 50%;
+.ticket-header-row {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  margin-bottom: 0.75rem;
-  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.15);
+  justify-content: space-between;
+  margin-bottom: 12px;
 }
 
-/* 🪄 Responsive Layout */
-@media (max-width: 768px) {
-  .grid {
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: 0.75rem;
-  }
-
-  .grid > div {
-    padding: 0.75rem;
-  }
+.ticket-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
 }
 
-/* 🌟 Filter Section */
-.bg-white {
+.ticket-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Buttons */
+.btn-primary,
+.btn-light,
+.btn-outline {
+  border-radius: 4px;
+  font-size: 13px;
+  padding: 6px 12px;
+  cursor: pointer;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-primary {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: #1d4ed8;
+}
+
+.btn-light {
+  background: #f3f4f6;
+  color: #111827;
+  border: 1px solid #e5e7eb;
+}
+
+.btn-light:hover {
+  background: #e5e7eb;
+}
+
+.btn-outline {
   background: #ffffff;
-  border: 1px solid #e2e8f0;
-  border-radius: 1rem;
-  box-shadow: 0 4px 10px rgba(148, 163, 184, 0.15);
+  color: #2563eb;
+  border: 1px solid #2563eb;
 }
 
-select,
-input,
-textarea {
+.btn-outline:hover {
+  background: #eff6ff;
+}
+
+.icon-filter::before {
+  content: '⚙';
+  font-size: 12px;
+}
+
+/* --------- KPI ROW --------- */
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.kpi-card {
+  padding: 12px 16px;
+  border-radius: 4px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+}
+
+.kpi-label {
+  font-size: 12px;
+  color: #4b5563;
+  margin: 0 0 4px;
+}
+
+.kpi-value {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.kpi-total {
+  background: #e0edff;
+}
+
+.kpi-closed {
+  background: #e4ffe8;
+}
+
+.kpi-open {
+  background: #ffe5ec;
+}
+
+.kpi-hold {
+  background: #fff9d6;
+}
+
+/* --------- FILTER PANEL --------- */
+
+.filter-panel {
+  background: #ffffff;
   border: 1px solid #d1d5db;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  background-color: #f9fafb;
-  transition: all 0.2s ease;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin-bottom: 16px;
 }
 
-select:focus,
-input:focus,
-textarea:focus {
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.filter-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+}
+
+.filter-field label {
+  font-size: 12px;
+  color: #4b5563;
+  margin-bottom: 4px;
+}
+
+.filter-field select {
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  font-size: 13px;
+  padding: 4px 8px;
+}
+
+/* --------- FORM CARD --------- */
+
+.ticket-form-card {
+  background: #ffffff;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  margin-bottom: 16px;
+  padding: 12px 16px 16px;
+}
+
+.ticket-form-header {
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+
+.ticket-form-header h2 {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+}
+
+/* Grid layout similar to screenshot */
+.ticket-form-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px 16px;
+  margin-bottom: 12px;
+}
+
+.ticket-form-grid.single-row {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: span 4;
+}
+
+.form-group label {
+  font-size: 12px;
+  color: #4b5563;
+  margin-bottom: 3px;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  font-size: 13px;
+  padding: 5px 8px;
+  outline: none;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
   border-color: #2563eb;
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
-  background-color: #fff;
 }
 
-/* 🌟 Table Design */
-table {
-  border-collapse: separate;
-  border-spacing: 0;
-  width: 100%;
-  border-radius: 1rem;
+/* Priority & Status bars */
+
+.priority-bar,
+.status-bar {
+  margin-top: 4px;
+  height: 6px;
+  border-radius: 999px;
+  background: #e5e7eb;
   overflow: hidden;
 }
 
-thead {
-  background: linear-gradient(90deg, #2563eb, #1d4ed8);
-  color: white;
+.priority-bar-fill,
+.status-bar-fill {
+  height: 100%;
+  width: 100%;
 }
 
-thead th {
-  font-weight: 600;
-  padding: 0.75rem;
-  text-align: left;
-  font-size: 0.875rem;
+.priority-low {
+  background: linear-gradient(90deg, #bbf7d0, #22c55e);
 }
 
-tbody td {
-  padding: 0.75rem;
-  border-bottom: 1px solid #e2e8f0;
+.priority-medium {
+  background: linear-gradient(90deg, #fed7aa, #f97316);
 }
 
-tbody tr:hover {
-  background-color: #f8fafc;
+.priority-high {
+  background: linear-gradient(90deg, #fecaca, #ef4444);
 }
 
-/* 🌟 Status Badges */
-.bg-open {
-  background-color: #ef4444 !important;
+.status-bar-open {
+  background: linear-gradient(90deg, #fecaca, #ef4444);
 }
 
-.bg-hold {
-  background-color: #facc15 !important;
-  color: #1e293b !important;
+.status-bar-closed {
+  background: linear-gradient(90deg, #bbf7d0, #22c55e);
 }
 
-.bg-closed {
-  background-color: #22c55e !important;
+.status-bar-hold {
+  background: linear-gradient(90deg, #fef9c3, #eab308);
 }
 
-/* 🌟 Ticket Form */
-form {
+/* Form actions */
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+/* --------- TICKETS TABLE --------- */
+
+.tickets-card {
   background: #ffffff;
-  border-radius: 1rem;
-  box-shadow: 0 5px 20px rgba(148, 163, 184, 0.15);
-  padding: 1.5rem;
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  padding: 12px 16px 10px;
 }
 
-form label {
+.tickets-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.tickets-card-header h2 {
+  font-size: 14px;
   font-weight: 600;
-  color: #334155;
+  margin: 0;
 }
 
-form textarea {
-  resize: none;
+.tickets-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
 }
 
-/* 🌟 Pagination Buttons */
-.pagination button {
-  border-radius: 0.5rem;
-  padding: 0.4rem 0.75rem;
-  background-color: #f1f5f9;
-  color: #334155;
+.show-select {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
-.pagination button:hover {
-  background-color: #e0e7ff;
+.show-select select {
+  border-radius: 4px;
+  border: 1px solid #d1d5db;
+  font-size: 12px;
+  padding: 2px 6px;
 }
 
-.pagination button.bg-blue-600 {
-  background-color: #2563eb;
-  color: white;
-  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+.tickets-count {
+  color: #6b7280;
 }
 
-/* 🌟 Scrollbar */
-.overflow-auto::-webkit-scrollbar {
-  height: 8px;
-  width: 8px;
+/* Table */
+
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
 }
 
-.overflow-auto::-webkit-scrollbar-thumb {
-  background-color: #94a3b8;
-  border-radius: 10px;
+.tickets-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
 }
 
-.overflow-auto::-webkit-scrollbar-thumb:hover {
-  background-color: #64748b;
+.tickets-table thead tr {
+  background: #2563eb;
+  color: #ffffff;
 }
 
-/* 🌟 Responsive */
+.tickets-table th,
+.tickets-table td {
+  padding: 6px 8px;
+  border: 1px solid #e5e7eb;
+  text-align: left;
+  vertical-align: middle;
+}
+
+.tickets-table th {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.tickets-table tbody tr:nth-child(even) {
+  background: #f9fafb;
+}
+
+.tickets-table tbody tr:hover {
+  background: #eff6ff;
+}
+
+.description-cell {
+  max-width: 220px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.numeric-cell {
+  text-align: right;
+}
+
+.empty-row {
+  text-align: center;
+  color: #6b7280;
+}
+
+/* Status & Priority pills */
+
+.status-pill,
+.priority-pill {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.status-open {
+}
+
+.status-pill.status-open,
+.status-bar-open {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-pill.status-closed {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.status-pill.status-hold {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.priority-low {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.priority-medium {
+  background: #ffedd5;
+  color: #c2410c;
+}
+
+.priority-high {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Actions */
+
+.actions-cell {
+  white-space: nowrap;
+}
+
+.btn-icon {
+  border-radius: 4px;
+  border: none;
+  padding: 3px 6px;
+  font-size: 11px;
+  cursor: pointer;
+  margin-right: 4px;
+}
+
+.btn-icon.edit {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.btn-icon.edit:hover {
+  background: #1d4ed8;
+}
+
+.btn-icon.delete {
+  background: #ef4444;
+  color: #ffffff;
+}
+
+.btn-icon.delete:hover {
+  background: #dc2626;
+}
+
+/* --------- PAGINATION --------- */
+
+.pagination-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.page-buttons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.page-btn {
+  min-width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.page-btn.active {
+  background: #2563eb;
+  color: #ffffff;
+  border-color: #2563eb;
+}
+
+.page-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* --------- RESPONSIVE --------- */
+
 @media (max-width: 1024px) {
-  h1 {
-    font-size: 1.75rem;
+  .ticket-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .grid {
-    grid-template-columns: repeat(2, 1fr);
+  .form-group.full-width {
+    grid-column: span 2;
   }
 
-  table {
-    font-size: 0.875rem;
+  .kpi-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 @media (max-width: 640px) {
-  .grid {
+  .ticket-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .ticket-header-right {
+    align-self: stretch;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .kpi-row {
     grid-template-columns: 1fr;
   }
 
-  table {
-    font-size: 0.75rem;
+  .ticket-form-grid {
+    grid-template-columns: 1fr;
   }
 
-  button {
-    padding: 0.4rem 0.75rem;
+  .form-group.full-width {
+    grid-column: span 1;
   }
 }

@@ -1,65 +1,152 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using server.Data;
-using server.DTOs;
 using server.Models;
+using server.DTOs;
 using server.Services.Interfaces;
 
 namespace server.Services.Implementations
 {
     public class TicketService : ITicketService
     {
-        private readonly AppDbContext _context;
+        private readonly AppDbContext _db;
 
-        public TicketService(AppDbContext context)
+        public TicketService(AppDbContext db)
         {
-            _context = context;
+            _db = db;
         }
 
-        // -------------------------
-        // Get all tickets as DTOs
-        // -------------------------
-        public async Task<List<TicketDTO>> GetAllAsync()
+        public async Task<IEnumerable<TicketDTO>> GetAllAsync()
         {
-            return await _context.Tickets
-                .Include(t => t.CreatedByUser)
-                .Include(t => t.AssignedToUser)
+            var tickets = await _db.Tickets
                 .OrderByDescending(t => t.Id)
-                .Select(t => new TicketDTO
-                {
-                    Id = t.Id,
-                    TicketNumber = t.TicketNumber,
-                    Title = t.Title,
-                    Description = t.Description,
-                    ClientName = t.ClientName,
-                    Location = t.Location,
-                    Category = t.Category,
-                    RaisedBy = t.RaisedBy,
-                    AssignedTo = t.AssignedTo,
-                    Priority = t.Priority,
-                    Status = t.Status,
-                    Resolution = t.Resolution,
-                    DateRaised = t.DateRaised,
-                    TimeRaised = t.TimeRaised,
-                    CreatedByName = t.CreatedByUser != null ? t.CreatedByUser.Username : string.Empty,
-                    AssignedToName = t.AssignedToUser != null ? t.AssignedToUser.Username : string.Empty,
-                    CreatedByUserId = t.CreatedByUserId,
-                    AssignedToUserId = t.AssignedToUserId
-                })
                 .ToListAsync();
+
+            return tickets.Select(ToDto);
         }
 
-        // -------------------------
-        // Get single ticket
-        // -------------------------
         public async Task<TicketDTO?> GetByIdAsync(int id)
         {
-            var t = await _context.Tickets
-                .Include(x => x.CreatedByUser)
-                .Include(x => x.AssignedToUser)
-                .FirstOrDefaultAsync(x => x.Id == id);
+            var ticket = await _db.Tickets.FindAsync(id);
+            return ticket == null ? null : ToDto(ticket);
+        }
 
-            if (t == null) return null;
+        public async Task<TicketDTO> CreateAsync(CreateTicketDTO dto, int currentUserId)
+        {
+            var ticket = new Ticket
+            {
+                Title = dto.Title,
+                Description = dto.Description,
+                ClientName = dto.ClientName,
+                Location = dto.Location,
+                Category = dto.Category,
+                RaisedBy = dto.RaisedBy,
+                AssignedTo = dto.AssignedTo,
+                Priority = dto.Priority,
+                Status = dto.Status,
+                Resolution = dto.Resolution,
+                DateRaised = dto.DateRaised ?? DateTime.UtcNow,
+                TimeRaised = dto.TimeRaised,
+                DateClosed = dto.DateClosed,
+                TimeClosed = dto.TimeClosed,
+                CreatedByUserId = currentUserId,
+                AssignedToUserId = dto.AssignedToUserId
+            };
 
+            // Example: 251120251115 format
+            ticket.TicketNumber = DateTime.UtcNow.ToString("ddMMyyyyHHmm");
+
+            ComputeDurations(ticket);
+
+            _db.Tickets.Add(ticket);
+            await _db.SaveChangesAsync();
+
+            return ToDto(ticket);
+        }
+
+        public async Task<TicketDTO?> UpdateAsync(int id, CreateTicketDTO dto, int currentUserId)
+        {
+            var ticket = await _db.Tickets.FindAsync(id);
+            if (ticket == null) return null;
+
+            ticket.Title = dto.Title;
+            ticket.Description = dto.Description;
+            ticket.ClientName = dto.ClientName;
+            ticket.Location = dto.Location;
+            ticket.Category = dto.Category;
+            ticket.RaisedBy = dto.RaisedBy;
+            ticket.AssignedTo = dto.AssignedTo;
+            ticket.Priority = dto.Priority;
+            ticket.Status = dto.Status;
+            ticket.Resolution = dto.Resolution;
+
+            ticket.DateRaised = dto.DateRaised ?? ticket.DateRaised;
+            if (!string.IsNullOrEmpty(dto.TimeRaised))
+            {
+                ticket.TimeRaised = dto.TimeRaised;
+            }
+
+            ticket.DateClosed = dto.DateClosed;
+            ticket.TimeClosed = dto.TimeClosed;
+            ticket.AssignedToUserId = dto.AssignedToUserId;
+
+            ComputeDurations(ticket);
+
+            await _db.SaveChangesAsync();
+
+            return ToDto(ticket);
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var ticket = await _db.Tickets.FindAsync(id);
+            if (ticket == null) return false;
+
+            _db.Tickets.Remove(ticket);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+      private static void ComputeDurations(Ticket t)
+{
+    // If any required piece is missing, clear and return
+    if (t.DateClosed == default(DateTime) ||
+        string.IsNullOrWhiteSpace(t.TimeClosed) ||
+        t.DateRaised == default(DateTime) ||
+        string.IsNullOrWhiteSpace(t.TimeRaised))
+    {
+        t.TotalHoursElapsed = null;
+        t.TotalDaysElapsed = null;
+        return;
+    }
+
+    try
+    {
+        var start = DateTime.Parse($"{t.DateRaised:yyyy-MM-dd} {t.TimeRaised}");
+        var end   = DateTime.Parse($"{t.DateClosed.Value:yyyy-MM-dd} {t.TimeClosed}");
+
+        var diff = end - start;
+
+        // ✅ Use absolute value so even if dates are reversed, you still get a duration
+        var totalHours = Math.Abs(diff.TotalHours);
+        var totalDays  = Math.Abs(diff.TotalDays);
+
+        t.TotalHoursElapsed = Math.Round(totalHours, 2);
+        t.TotalDaysElapsed  = (int)Math.Floor(totalDays);
+    }
+    catch
+    {
+        t.TotalHoursElapsed = null;
+        t.TotalDaysElapsed = null;
+    }
+}
+
+
+        private static TicketDTO ToDto(Ticket t)
+        {
             return new TicketDTO
             {
                 Id = t.Id,
@@ -76,133 +163,13 @@ namespace server.Services.Implementations
                 Resolution = t.Resolution,
                 DateRaised = t.DateRaised,
                 TimeRaised = t.TimeRaised,
-                CreatedByName = t.CreatedByUser != null ? t.CreatedByUser.Username : string.Empty,
-                AssignedToName = t.AssignedToUser != null ? t.AssignedToUser.Username : string.Empty,
+                DateClosed = t.DateClosed,
+                TimeClosed = t.TimeClosed,
+                TotalHoursElapsed = t.TotalHoursElapsed,
+                TotalDaysElapsed = t.TotalDaysElapsed,
                 CreatedByUserId = t.CreatedByUserId,
                 AssignedToUserId = t.AssignedToUserId
             };
-        }
-
-        // -------------------------
-        // Create new ticket
-        // -------------------------
-        public async Task<TicketDTO> CreateAsync(CreateTicketDTO dto)
-        {
-            var count = await _context.Tickets.CountAsync() + 1;
-            var ticketNum = $"TKT-{count:D3}";
-
-            var ticket = new Ticket
-            {
-                TicketNumber = ticketNum,
-                Title = dto.Title ?? "No Title",
-                Description = dto.Description,
-                ClientName = dto.ClientName,
-                Location = dto.Location,
-                Category = dto.Category,
-                RaisedBy = dto.RaisedBy,
-                AssignedTo = dto.AssignedTo,
-                Priority = dto.Priority,
-                Status = dto.Status,
-                Resolution = dto.Resolution,
-                TimeRaised = dto.TimeRaised,
-                DateRaised = DateTime.Now,
-                CreatedByUserId = dto.CreatedByUserId,
-                AssignedToUserId = dto.AssignedToUserId
-            };
-
-            _context.Tickets.Add(ticket);
-            await _context.SaveChangesAsync();
-
-            // Reload with navigation properties
-            ticket = await _context.Tickets
-                .Include(t => t.CreatedByUser)
-                .Include(t => t.AssignedToUser)
-                .FirstAsync(t => t.Id == ticket.Id);
-
-            return new TicketDTO
-            {
-                Id = ticket.Id,
-                TicketNumber = ticket.TicketNumber,
-                Title = ticket.Title,
-                Description = ticket.Description,
-                ClientName = ticket.ClientName,
-                Location = ticket.Location,
-                Category = ticket.Category,
-                RaisedBy = ticket.RaisedBy,
-                AssignedTo = ticket.AssignedTo,
-                Priority = ticket.Priority,
-                Status = ticket.Status,
-                Resolution = ticket.Resolution,
-                DateRaised = ticket.DateRaised,
-                TimeRaised = ticket.TimeRaised,
-                CreatedByName = ticket.CreatedByUser != null ? ticket.CreatedByUser.Username : string.Empty,
-                AssignedToName = ticket.AssignedToUser != null ? ticket.AssignedToUser.Username : string.Empty,
-                CreatedByUserId = ticket.CreatedByUserId,
-                AssignedToUserId = ticket.AssignedToUserId
-            };
-        }
-
-        // -------------------------
-        // Update existing ticket
-        // -------------------------
-        public async Task<TicketDTO?> UpdateAsync(int id, CreateTicketDTO dto)
-        {
-            var ticket = await _context.Tickets
-                .Include(t => t.CreatedByUser)
-                .Include(t => t.AssignedToUser)
-                .FirstOrDefaultAsync(t => t.Id == id);
-
-            if (ticket == null) return null;
-
-            ticket.Title = dto.Title;
-            ticket.Description = dto.Description;
-            ticket.ClientName = dto.ClientName;
-            ticket.Location = dto.Location;
-            ticket.Category = dto.Category;
-            ticket.RaisedBy = dto.RaisedBy;
-            ticket.AssignedTo = dto.AssignedTo;
-            ticket.Priority = dto.Priority;
-            ticket.Status = dto.Status;
-            ticket.Resolution = dto.Resolution;
-            ticket.TimeRaised = dto.TimeRaised;
-            ticket.AssignedToUserId = dto.AssignedToUserId;
-
-            await _context.SaveChangesAsync();
-
-            return new TicketDTO
-            {
-                Id = ticket.Id,
-                TicketNumber = ticket.TicketNumber,
-                Title = ticket.Title,
-                Description = ticket.Description,
-                ClientName = ticket.ClientName,
-                Location = ticket.Location,
-                Category = ticket.Category,
-                RaisedBy = ticket.RaisedBy,
-                AssignedTo = ticket.AssignedTo,
-                Priority = ticket.Priority,
-                Status = ticket.Status,
-                Resolution = ticket.Resolution,
-                DateRaised = ticket.DateRaised,
-                TimeRaised = ticket.TimeRaised,
-                CreatedByName = ticket.CreatedByUser != null ? ticket.CreatedByUser.Username : string.Empty,
-                AssignedToName = ticket.AssignedToUser != null ? ticket.AssignedToUser.Username : string.Empty,
-                CreatedByUserId = ticket.CreatedByUserId,
-                AssignedToUserId = ticket.AssignedToUserId
-            };
-        }
-
-        // -------------------------
-        // Delete ticket
-        // -------------------------
-        public async Task<bool> DeleteAsync(int id)
-        {
-            var ticket = await _context.Tickets.FindAsync(id);
-            if (ticket == null) return false;
-
-            _context.Tickets.Remove(ticket);
-            await _context.SaveChangesAsync();
-            return true;
         }
     }
 }

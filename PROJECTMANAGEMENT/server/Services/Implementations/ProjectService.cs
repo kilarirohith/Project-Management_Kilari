@@ -1,3 +1,4 @@
+// server/Services/Implementations/ProjectService.cs
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,97 +72,75 @@ namespace server.Services.Implementations
             };
         }
 
-        public async Task<ProjectDTO> CreateAsync(CreateProjectDTO dto)
-        {
-            var client = await _context.Clients.FindAsync(dto.ClientId);
-            if (client == null) throw new Exception("Invalid Client ID");
+        // server/Services/Implementations/ProjectService.cs
 
-            var project = new Project
-            {
-                ProjectName = dto.ProjectName,
-                ProjectCode = string.IsNullOrWhiteSpace(dto.ProjectCode)
-                    ? GenerateCode()
-                    : dto.ProjectCode,
-                ProjectType = dto.ProjectType,
-                ClientId = dto.ClientId,
-                ClientLocation = dto.ClientLocation,
-                Unit = dto.Unit,
-                Milestone = dto.Milestone,
-                PlanStartDate = dto.PlanStartDate,
-                PlanEndDate = dto.PlanEndDate,
-                ActualStartDate = dto.ActualStartDate,
-                ActualEndDate = dto.ActualEndDate,
-                Status = dto.Status ?? "Running"
-            };
+private static ProjectDTO ToDto(Project p)
+{
+    return new ProjectDTO
+    {
+        Id = p.Id,
+        ProjectCode = p.ProjectCode,
+        ProjectName = p.ProjectName,
+        ProjectType = p.ProjectType,
+        ClientName = p.Client.ClientName,
+        ClientLocation = p.ClientLocation,
+        Unit = p.Unit,
+        Milestone = p.Milestone,
+        PlanStartDate = p.PlanStartDate,
+        PlanEndDate = p.PlanEndDate,
+        ActualStartDate = p.ActualStartDate,
+        ActualEndDate = p.ActualEndDate,
+        ElapsedDays = p.ElapsedDays,
+        Status = p.Status          // 👈 important
+    };
+}
 
-            _context.Projects.Add(project);
-            await _context.SaveChangesAsync();
+public async Task<ProjectDTO> CreateAsync(CreateProjectDTO dto)
+{
+    var project = new Project
+    {
+        ProjectCode = dto.ProjectCode,
+        ProjectName = dto.ProjectName,
+        ProjectType = dto.ProjectType,
+        ClientId = dto.ClientId,
+        ClientLocation = dto.ClientLocation,
+        Unit = dto.Unit,
+        Milestone = dto.Milestone,
+        PlanStartDate = dto.PlanStartDate,
+        PlanEndDate = dto.PlanEndDate,
+        Status = dto.Status        // 👈 manual status from UI
+    };
 
-            return new ProjectDTO
-            {
-                Id = project.Id,
-                ProjectName = project.ProjectName,
-                ProjectCode = project.ProjectCode,
-                ProjectType = project.ProjectType,
-                ClientId = project.ClientId,
-                ClientName = client.ClientName,
-                ClientLocation = project.ClientLocation,
-                Unit = project.Unit,
-                Milestone = project.Milestone,
-                PlanStartDate = project.PlanStartDate,
-                PlanEndDate = project.PlanEndDate,
-                ActualStartDate = project.ActualStartDate,
-                ActualEndDate = project.ActualEndDate,
-                Status = project.Status
-            };
-        }
+    _context.Projects.Add(project);
+    await _context.SaveChangesAsync();
 
-        public async Task<ProjectDTO?> UpdateAsync(int id, CreateProjectDTO dto)
-        {
-            var project = await _context.Projects
-                .Include(p => p.Client)
-                .FirstOrDefaultAsync(p => p.Id == id);
+    await _context.Entry(project).Reference(p => p.Client).LoadAsync();
+    return ToDto(project);
+}
 
-            if (project == null) return null;
+public async Task<ProjectDTO?> UpdateAsync(int id, UpdateProjectDTO dto)
+{
+    var project = await _context.Projects.Include(p => p.Client)
+                                         .FirstOrDefaultAsync(p => p.Id == id);
+    if (project == null) return null;
 
-            var client = await _context.Clients.FindAsync(dto.ClientId);
-            if (client == null) throw new Exception("Invalid Client ID");
+    project.ProjectCode = dto.ProjectCode;
+    project.ProjectName = dto.ProjectName;
+    project.ProjectType = dto.ProjectType;
+    project.ClientId = dto.ClientId;
+    project.ClientLocation = dto.ClientLocation;
+    project.Unit = dto.Unit;
+    project.Milestone = dto.Milestone;
+    project.PlanStartDate = dto.PlanStartDate;
+    project.PlanEndDate = dto.PlanEndDate;
+    project.ActualStartDate = dto.ActualStartDate;
+    project.ActualEndDate = dto.ActualEndDate;
+    project.ElapsedDays = dto.ElapsedDays;
+    project.Status = dto.Status;      // 👈 update from UI
 
-            project.ProjectName = dto.ProjectName ?? project.ProjectName;
-            project.ProjectCode = string.IsNullOrWhiteSpace(dto.ProjectCode)
-                ? project.ProjectCode
-                : dto.ProjectCode;
-            project.ProjectType = dto.ProjectType ?? project.ProjectType;
-            project.ClientId = dto.ClientId;
-            project.ClientLocation = dto.ClientLocation ?? project.ClientLocation;
-            project.Unit = dto.Unit ?? project.Unit;
-            project.Milestone = dto.Milestone ?? project.Milestone;
-            project.PlanStartDate = dto.PlanStartDate ?? project.PlanStartDate;
-            project.PlanEndDate = dto.PlanEndDate ?? project.PlanEndDate;
-            project.ActualStartDate = dto.ActualStartDate ?? project.ActualStartDate;
-            project.ActualEndDate = dto.ActualEndDate ?? project.ActualEndDate;
-            project.Status = dto.Status ?? project.Status;
-
-            await _context.SaveChangesAsync();
-
-            return new ProjectDTO
-            {
-                Id = project.Id,
-                ProjectName = project.ProjectName,
-                ProjectCode = project.ProjectCode,
-                ProjectType = project.ProjectType,
-                ClientId = project.ClientId,
-                ClientName = client.ClientName,
-                ClientLocation = project.ClientLocation,
-                Unit = project.Unit,
-                Milestone = project.Milestone,
-                PlanStartDate = project.PlanStartDate,
-                PlanEndDate = project.PlanEndDate,
-                ActualStartDate = project.ActualStartDate,
-                ActualEndDate = project.ActualEndDate,
-                Status = project.Status
-            };
-        }
+    await _context.SaveChangesAsync();
+    return ToDto(project);
+}
 
         public async Task<bool> DeleteAsync(int id)
         {

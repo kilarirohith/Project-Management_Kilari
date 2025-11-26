@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace server.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialCreate : Migration
+    public partial class AddRolesTable : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -247,6 +247,13 @@ namespace server.Migrations
                     Priority = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DueDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ActualClosureDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProduceStep = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SampleData = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    AcceptanceCriteria = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TestingStatus = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TestingDoneBy = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
@@ -284,8 +291,12 @@ namespace server.Migrations
                     Resolution = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     DateRaised = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TimeRaised = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: false),
+                    DateClosed = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    TimeClosed = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     CreatedByUserId = table.Column<int>(type: "int", nullable: false),
                     AssignedToUserId = table.Column<int>(type: "int", nullable: true),
+                    TotalHoursElapsed = table.Column<double>(type: "float", nullable: true),
+                    TotalDaysElapsed = table.Column<int>(type: "int", nullable: true),
                     UserId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -338,28 +349,6 @@ namespace server.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "TaskTrackers",
-                columns: table => new
-                {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    TaskId = table.Column<int>(type: "int", nullable: false),
-                    Progress = table.Column<int>(type: "int", nullable: false),
-                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Remarks = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_TaskTrackers", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_TaskTrackers_ProjectTasks_TaskId",
-                        column: x => x.TaskId,
-                        principalTable: "ProjectTasks",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_ApprovalDesks_ProjectId",
                 table: "ApprovalDesks",
@@ -406,11 +395,6 @@ namespace server.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TaskTrackers_TaskId",
-                table: "TaskTrackers",
-                column: "TaskId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Tickets_AssignedToUserId",
                 table: "Tickets",
                 column: "AssignedToUserId");
@@ -452,10 +436,10 @@ namespace server.Migrations
                 name: "ProjectMasters");
 
             migrationBuilder.DropTable(
-                name: "RolePermissions");
+                name: "ProjectTasks");
 
             migrationBuilder.DropTable(
-                name: "TaskTrackers");
+                name: "RolePermissions");
 
             migrationBuilder.DropTable(
                 name: "Tickets");
@@ -467,16 +451,13 @@ namespace server.Migrations
                 name: "ClientLocations");
 
             migrationBuilder.DropTable(
-                name: "ProjectTasks");
-
-            migrationBuilder.DropTable(
-                name: "Vendors");
-
-            migrationBuilder.DropTable(
                 name: "Projects");
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Vendors");
 
             migrationBuilder.DropTable(
                 name: "Clients");

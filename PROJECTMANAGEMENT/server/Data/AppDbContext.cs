@@ -17,7 +17,6 @@ namespace server.Data
         public DbSet<MilestoneMaster> MilestoneMasters { get; set; } = null!;
         public DbSet<ProjectTask> ProjectTasks { get; set; } = null!;
         public DbSet<Ticket> Tickets { get; set; } = null!;
-        public DbSet<TaskTracker> TaskTrackers { get; set; } = null!;
         public DbSet<Vendor> Vendors { get; set; } = null!;
         public DbSet<VendorWork> VendorWorks { get; set; } = null!;
         public DbSet<ApprovalDesk> ApprovalDesks { get; set; } = null!;

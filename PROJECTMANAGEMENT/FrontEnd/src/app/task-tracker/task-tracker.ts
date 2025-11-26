@@ -2,8 +2,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+
 import { TaskService } from '../services/task.service';
 import { Task, CreateTaskPayload } from '../models/task.model';
+
+import { ProjectDTO } from '../models/project.model';
+import { ProjectService } from '../services/project.service';
+import { UserService, SimpleUser } from '../services/user.service';
 
 @Component({
   selector: 'app-task-tracker',
@@ -14,21 +19,27 @@ import { Task, CreateTaskPayload } from '../models/task.model';
 })
 export class TaskTrackerComponent implements OnInit {
   tasks: Task[] = [];
+  projects: ProjectDTO[] = [];
+  users: SimpleUser[] = [];
 
-  // Form model
   form: Task & { isEditing?: boolean } = this.getEmptyForm();
   showForm = false;
 
   loading = false;
   saving = false;
 
-  constructor(private taskService: TaskService) { }
+  constructor(
+    private taskService: TaskService,
+    private projectService: ProjectService,
+    private userService: UserService
+  ) {}
 
   ngOnInit(): void {
     this.loadTasks();
+    this.loadProjects();
+    this.loadUsers();
   }
 
-  // --------- Helpers ---------
   private getEmptyForm(): Task & { isEditing?: boolean } {
     return {
       id: undefined,
@@ -42,43 +53,61 @@ export class TaskTrackerComponent implements OnInit {
       assignedUserName: '',
       createdAt: '',
       dueDate: '',
-      progress: 0,
+      type: '',
+      produceStep: '',
+      sampleData: '',
+      acceptanceCriteria: '',
+      actualClosureDate: null,
+      testingStatus: '',
+      testingDoneBy: '',
       isEditing: false
     };
   }
 
-  formatDate(date?: string): string {
+  formatDate(date?: string | null): string {
     if (!date) return '';
     const d = new Date(date);
     return isNaN(d.getTime()) ? '' : d.toISOString().split('T')[0];
   }
 
-  // --------- Stats getters ---------
+  // Stats
   get totalTasks(): number {
     return this.tasks.length;
   }
-
   get openTasks(): number {
     return this.tasks.filter(t => t.status === 'Open').length;
   }
-
   get inProgressTasks(): number {
     return this.tasks.filter(t => t.status === 'In Progress').length;
   }
-
   get closedTasks(): number {
     return this.tasks.filter(t => t.status === 'Closed').length;
   }
 
-  // --------- CRUD ---------
+  // Load dropdowns
+  private loadProjects() {
+    this.projectService.getProjects().subscribe({
+      next: data => (this.projects = data),
+      error: err => console.error('Failed to load projects', err)
+    });
+  }
+
+  private loadUsers() {
+    this.userService.getSimpleUsers().subscribe({
+      next: data => (this.users = data),
+      error: err => console.error('Failed to load users', err)
+    });
+  }
+
+  // CRUD
   loadTasks() {
     this.loading = true;
     this.taskService.getTasks().subscribe({
-      next: (data) => {
+      next: data => {
         this.tasks = data;
         this.loading = false;
       },
-      error: (err) => {
+      error: err => {
         console.error('Failed to load tasks', err);
         this.loading = false;
       }
@@ -92,10 +121,7 @@ export class TaskTrackerComponent implements OnInit {
 
   onEdit(task: Task) {
     this.showForm = true;
-    this.form = {
-      ...task,
-      isEditing: true
-    };
+    this.form = { ...task, isEditing: true };
   }
 
   onDelete(id?: number) {
@@ -104,7 +130,7 @@ export class TaskTrackerComponent implements OnInit {
 
     this.taskService.deleteTask(id).subscribe({
       next: () => this.loadTasks(),
-      error: (err) => console.error('Failed to delete task', err)
+      error: err => console.error('Failed to delete task', err)
     });
   }
 
@@ -124,57 +150,40 @@ export class TaskTrackerComponent implements OnInit {
       priority: this.form.priority,
       projectId: this.form.projectId || 0,
       assignedToUserId: this.form.assignedToUserId ?? null,
-      dueDate: this.form.dueDate || null
+      dueDate: this.form.dueDate || null,
+
+      type: this.form.type || null,
+      produceStep: this.form.produceStep || null,
+      sampleData: this.form.sampleData || null,
+      acceptanceCriteria: this.form.acceptanceCriteria || null,
+      actualClosureDate: this.form.actualClosureDate || null,
+      testingStatus: this.form.testingStatus || null,
+      testingDoneBy: this.form.testingDoneBy || null
     };
 
-    // Create or Update
     if (this.form.id) {
       this.taskService.updateTask(this.form.id, payload).subscribe({
         next: () => {
           this.saving = false;
-          this.updateProgressIfNeeded(this.form.id!);
+          this.afterSave();
         },
-        error: (err) => {
+        error: err => {
           console.error('Failed to update task', err);
           this.saving = false;
         }
       });
     } else {
       this.taskService.createTask(payload).subscribe({
-        next: (res) => {
+        next: () => {
           this.saving = false;
-          const newId = res.taskId;
-          if (typeof this.form.progress === 'number') {
-            this.updateProgressIfNeeded(newId);
-          } else {
-            this.afterSave();
-          }
+          this.afterSave();
         },
-        error: (err) => {
+        error: err => {
           console.error('Failed to create task', err);
           this.saving = false;
         }
       });
     }
-  }
-
-  private updateProgressIfNeeded(taskId: number) {
-    if (this.form.progress == null) {
-      this.afterSave();
-      return;
-    }
-
-    this.taskService.updateProgress({
-      taskId,
-      progress: this.form.progress,
-      remarks: ''
-    }).subscribe({
-      next: () => this.afterSave(),
-      error: (err) => {
-        console.error('Failed to update progress', err);
-        this.afterSave();
-      }
-    });
   }
 
   private afterSave() {

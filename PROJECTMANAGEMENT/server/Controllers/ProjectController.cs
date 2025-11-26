@@ -1,3 +1,4 @@
+// server/Controllers/ProjectController.cs
 using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
@@ -57,19 +58,19 @@ namespace server.Controllers
         [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> Update(int id, [FromBody] CreateProjectDTO dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
+          if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            try
-            {
-                var updated = await _projectService.UpdateAsync(id, dto);
-                return updated == null
-                    ? NotFound(new { message = "Project not found" })
-                    : Ok(updated);
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { message = ex.Message });
-            }
+          try
+          {
+              var updated = await _projectService.UpdateAsync(id, dto);
+              return updated == null
+                  ? NotFound(new { message = "Project not found" })
+                  : Ok(updated);
+          }
+          catch (Exception ex)
+          {
+              return BadRequest(new { message = ex.Message });
+          }
         }
 
         [HttpDelete("{id}")]

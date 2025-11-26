@@ -20,10 +20,16 @@ export interface Ticket {
   dateRaised?: string;
   timeRaised?: string;
 
+  dateClosed?: string | null;
+  timeClosed?: string | null;
+
+  totalHoursElapsed?: number;
+  totalDaysElapsed?: number;
+
   createdByName?: string;
   assignedToName?: string;
 
-  createdByUserId?: number;          // ✅ now optional (or you can remove it)
+  createdByUserId?: number;
   assignedToUserId?: number | null;
 }
 
@@ -38,15 +44,3 @@ export interface FilterConfig {
   clientName: string;
   priority: string;
 }
-
-
-
-export interface CreateTicketPayload {
-  title: string;
-  description: string;
-  priority: string;
-  createdByUserId: number;
-  assignedToUserId?: number | null;
-}
-
-

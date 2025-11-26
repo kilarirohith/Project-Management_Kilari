@@ -1,6 +1,12 @@
+// src/app/projects/projects.component.ts
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import {
+  ReactiveFormsModule,
+  FormBuilder,
+  FormGroup,
+  Validators
+} from '@angular/forms';
 
 import { ProjectService } from '../services/project.service';
 import {
@@ -8,9 +14,10 @@ import {
   DashboardProject,
   ProjectStatus,
   ProjectType,
-  Milestone
+  Milestone,
+  CreateProjectPayload,    // 👈 add this
+  UpdateProjectPayload     // 👈 and this
 } from '../models/project.model';
-
 import {
   ClientService,
   Client,
@@ -30,7 +37,7 @@ import { ProjectMasterService } from '../services/projectMaster.service';
 })
 export class ProjectsComponent implements OnInit {
 
-  // Summary
+  // summary
   totalProjects = 0;
   running = 0;
   completed = 0;
@@ -39,22 +46,28 @@ export class ProjectsComponent implements OnInit {
 
   activeTab: string = 'All';
 
-  // Modal / form
+  // modal / form
   isModalOpen = false;
   isSubmitting = false;
   isEditing = false;
   editingId: number | null = null;
   projectForm!: FormGroup;
 
-  // Dropdown data from backend
+  // dropdown data
   clients: Client[] = [];
-  projectTypes: string[] = [];    // from ProjectMaster
-  milestones: string[] = [];      // from MilestoneMaster
-  locations: string[] = [];       // filtered by client
-  units: string[] = [];           // filtered by location
+  projectTypes: string[] = [];
+  milestones: string[] = [];
+  locations: string[] = [];
+  units: string[] = [];
+  statusOptions: ProjectStatus[] = ['Running', 'Completed', 'Delayed', 'OnHold'];
 
-  // Projects for table
+  // table data
   projects: DashboardProject[] = [];
+
+  // pagination
+  pageSizeOptions = [10, 25, 50, 100];
+  pageSize = 10;
+  pageIndex = 0;
 
   constructor(
     private fb: FormBuilder,
@@ -73,10 +86,11 @@ export class ProjectsComponent implements OnInit {
     this.loadProjects();
   }
 
-  // --- Form ---
+  // ---------------- FORM ----------------
 
   initForm() {
     this.projectForm = this.fb.group({
+      projectCode: [''],                       // only used in edit
       project: ['', Validators.required],
       projectType: ['', Validators.required],
       clientId: ['', Validators.required],
@@ -84,7 +98,10 @@ export class ProjectsComponent implements OnInit {
       unit: ['', Validators.required],
       milestone: ['', Validators.required],
       planStart: ['', Validators.required],
-      planClose: ['', Validators.required]
+      planClose: ['', Validators.required],
+      actualStart: [''],
+      actualClose: [''],
+      status: ['Running', Validators.required] // 👈 manual status
     });
   }
 
@@ -92,13 +109,11 @@ export class ProjectsComponent implements OnInit {
     return this.projectForm.controls;
   }
 
-  // --- Load masters from backend ---
+  // ------------- LOAD MASTER DATA -------------
 
   loadClients() {
     this.clientService.getAllClients().subscribe({
-      next: (data) => {
-        this.clients = data;        // 👈 let TypeScript infer Client[]
-      },
+      next: (data) => this.clients = data,
       error: (err) => console.error('Error loading clients', err)
     });
   }
@@ -117,7 +132,7 @@ export class ProjectsComponent implements OnInit {
       next: (data) => {
         this.projectTypes = (data as ProjectType[]).map(p => p.projectName);
       },
-      error: (err) => console.error('Error loading project master', err)
+      error: (err) => console.error('Error loading project types', err)
     });
   }
 
@@ -126,13 +141,22 @@ export class ProjectsComponent implements OnInit {
       next: (data: ProjectDTO[]) => {
         this.projects = data.map(p => this.mapToDashboardProject(p));
         this.updateStats();
+        this.pageIndex = 0;
       },
       error: (err) => console.error('Error loading projects', err)
     });
   }
 
+  // ------------- MAP + HELPERS -------------
+
   private mapToDashboardProject(p: ProjectDTO): DashboardProject {
     const status = this.mapStatus(p.status);
+    const planStart = p.planStartDate ? p.planStartDate.substring(0, 10) : '-';
+    const planEnd = p.planEndDate ? p.planEndDate.substring(0, 10) : '-';
+    const actualStart = p.actualStartDate ? p.actualStartDate.substring(0, 10) : '-';
+    const actualEnd = p.actualEndDate ? p.actualEndDate.substring(0, 10) : '-';
+
+    const elapsedDays = this.calculateElapsedDays(planStart, actualEnd, status);
 
     return {
       id: p.id,
@@ -143,11 +167,34 @@ export class ProjectsComponent implements OnInit {
       location: p.clientLocation || '-',
       unit: p.unit || '-',
       milestone: p.milestone || '-',
-      planStart: p.planStartDate ? p.planStartDate.substring(0, 10) : '-',
-      planEnd: p.planEndDate ? p.planEndDate.substring(0, 10) : '-',
-      actualStart: p.actualStartDate ? p.actualStartDate.substring(0, 10) : '-',
+      planStart,
+      planEnd,
+      actualStart,
+      actualEnd,
+      elapsedDays,
       status
     };
+  }
+
+  private calculateElapsedDays(
+    planStart: string,
+    actualEnd: string,
+    status: ProjectStatus
+  ): number | '-' {
+    if (!planStart || planStart === '-') return '-';
+
+    const start = new Date(planStart);
+    let end: Date;
+
+    if (status === 'Completed' && actualEnd !== '-' && actualEnd) {
+      end = new Date(actualEnd);
+    } else {
+      end = new Date(); // till today
+    }
+
+    const diffMs = end.getTime() - start.getTime();
+    const days = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    return days >= 0 ? days : 0;
   }
 
   private mapStatus(status: string): ProjectStatus {
@@ -156,10 +203,9 @@ export class ProjectsComponent implements OnInit {
       case 'Completed':
       case 'Delayed':
       case 'OnHold':
-      case 'Pending':
         return status as ProjectStatus;
       default:
-        return 'Pending';
+        return 'Running';
     }
   }
 
@@ -171,7 +217,7 @@ export class ProjectsComponent implements OnInit {
     this.onHold    = this.projects.filter(p => p.status === 'OnHold').length;
   }
 
-  // --- Dependent dropdowns ---
+  // --------- DEPENDENT DROPDOWNS ----------
 
   onClientChange() {
     const clientId = Number(this.projectForm.value.clientId);
@@ -218,7 +264,7 @@ export class ProjectsComponent implements OnInit {
     this.projectForm.patchValue({ unit: '' });
   }
 
-  // --- Modal / CRUD ---
+  // ------------- MODAL / CRUD -------------
 
   openModal(project?: DashboardProject) {
     this.isModalOpen = true;
@@ -231,6 +277,7 @@ export class ProjectsComponent implements OnInit {
       const client = this.clients.find(c => c.clientName === project.client);
 
       this.projectForm.patchValue({
+        projectCode: project.code,
         project: project.name,
         projectType: project.type !== '-' ? project.type : '',
         clientId: client?.id ?? '',
@@ -238,7 +285,10 @@ export class ProjectsComponent implements OnInit {
         unit: project.unit !== '-' ? project.unit : '',
         milestone: project.milestone !== '-' ? project.milestone : '',
         planStart: project.planStart !== '-' ? project.planStart : '',
-        planClose: project.planEnd !== '-' ? project.planEnd : ''
+        planClose: project.planEnd !== '-' ? project.planEnd : '',
+        actualStart: project.actualStart !== '-' ? project.actualStart : '',
+        actualClose: project.actualEnd !== '-' ? project.actualEnd : '',
+        status: project.status             // 👈 load existing status
       });
 
       if (client) {
@@ -250,7 +300,9 @@ export class ProjectsComponent implements OnInit {
     } else {
       this.isEditing = false;
       this.editingId = null;
-      this.projectForm.reset();
+      this.projectForm.reset({
+        status: 'Running'                 // 👈 default on new
+      });
     }
   }
 
@@ -259,58 +311,70 @@ export class ProjectsComponent implements OnInit {
     this.isSubmitting = false;
     this.isEditing = false;
     this.editingId = null;
-    this.projectForm.reset();
+    this.projectForm.reset({
+      status: 'Running'
+    });
   }
 
   onSubmit() {
-    if (this.projectForm.invalid) {
-      this.projectForm.markAllAsTouched();
-      return;
-    }
+  if (this.projectForm.invalid) {
+    this.projectForm.markAllAsTouched();
+    return;
+  }
 
-    this.isSubmitting = true;
-    const formData = this.projectForm.value;
+  this.isSubmitting = true;
+  const formData = this.projectForm.value;
 
-    const dto: Partial<ProjectDTO> = {
-      projectName: formData.project,
-      projectType: formData.projectType,
-      clientId: Number(formData.clientId),
-      clientLocation: formData.location,
-      unit: formData.unit,
-      milestone: formData.milestone,
-      planStartDate: formData.planStart,
-      planEndDate: formData.planClose,
-      status: 'Running'
+  // 👇 base payload for both create & update
+  const basePayload: CreateProjectPayload = {
+    projectCode: formData.projectCode || '',
+    projectName: formData.project,
+    projectType: formData.projectType,
+    clientId: Number(formData.clientId),          // ✅ required in payload type
+    clientLocation: formData.location || null,
+    unit: formData.unit || null,
+    milestone: formData.milestone || null,
+    planStartDate: formData.planStart,
+    planEndDate: formData.planClose,
+    status: formData.status as ProjectStatus      // ✅ from dropdown
+  };
+
+  if (this.isEditing && this.editingId) {
+    const updatePayload: UpdateProjectPayload = {
+      ...basePayload,
+      actualStartDate: formData.actualStart || null,
+      actualEndDate: formData.actualClose || null,
+      elapsedDays: undefined   // or compute if you want
     };
 
-    if (this.isEditing && this.editingId) {
-      this.projectService.updateProject(this.editingId, dto).subscribe({
-        next: () => {
-          this.isSubmitting = false;
-          this.onCancel();
-          this.loadProjects();
-        },
-        error: (err) => {
-          console.error(err);
-          this.isSubmitting = false;
-          alert('Failed to update project');
-        }
-      });
-    } else {
-      this.projectService.createProject(dto).subscribe({
-        next: () => {
-          this.isSubmitting = false;
-          this.onCancel();
-          this.loadProjects();
-        },
-        error: (err) => {
-          console.error(err);
-          this.isSubmitting = false;
-          alert('Failed to create project');
-        }
-      });
-    }
+    this.projectService.updateProject(this.editingId, updatePayload).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.onCancel();
+        this.loadProjects();
+      },
+      error: (err) => {
+        console.error(err);
+        this.isSubmitting = false;
+        alert('Failed to update project');
+      }
+    });
+  } else {
+    this.projectService.createProject(basePayload).subscribe({
+      next: () => {
+        this.isSubmitting = false;
+        this.onCancel();
+        this.loadProjects();
+      },
+      error: (err) => {
+        console.error(err);
+        this.isSubmitting = false;
+        alert('Failed to create project');
+      }
+    });
   }
+}
+
 
   deleteProject(project: DashboardProject) {
     const id = project.id;
@@ -323,10 +387,11 @@ export class ProjectsComponent implements OnInit {
     });
   }
 
-  // --- Tabs / Filters ---
+  // ------------- TABS / FILTERS -------------
 
   setTab(tab: string) {
     this.activeTab = tab;
+    this.pageIndex = 0;
   }
 
   get filteredProjects() {
@@ -342,6 +407,52 @@ export class ProjectsComponent implements OnInit {
         return this.projects.filter(p => p.status === 'Completed');
       default:
         return this.projects;
+    }
+  }
+
+  // ------------- PAGINATION -------------
+
+  get paginatedProjects(): DashboardProject[] {
+    const start = this.pageIndex * this.pageSize;
+    const end = start + this.pageSize;
+    return this.filteredProjects.slice(start, end);
+  }
+
+  get totalFiltered(): number {
+    return this.filteredProjects.length;
+  }
+
+  get totalPages(): number {
+    return this.totalFiltered === 0
+      ? 1
+      : Math.ceil(this.totalFiltered / this.pageSize);
+  }
+
+  get showingFrom(): number {
+    if (this.totalFiltered === 0) return 0;
+    return this.pageIndex * this.pageSize + 1;
+  }
+
+  get showingTo(): number {
+    if (this.totalFiltered === 0) return 0;
+    return Math.min(this.totalFiltered, (this.pageIndex + 1) * this.pageSize);
+  }
+
+  onPageSizeChange(event: Event) {
+    const value = (event.target as HTMLSelectElement).value;
+    this.pageSize = Number(value);
+    this.pageIndex = 0;
+  }
+
+  nextPage() {
+    if (this.pageIndex + 1 < this.totalPages) {
+      this.pageIndex++;
+    }
+  }
+
+  prevPage() {
+    if (this.pageIndex > 0) {
+      this.pageIndex--;
     }
   }
 }

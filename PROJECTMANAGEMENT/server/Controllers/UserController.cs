@@ -1,3 +1,5 @@
+using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using server.DTOs;
@@ -16,7 +18,6 @@ namespace server.Controllers
             _userService = userService;
         }
 
-        // 1. LOGIN (Public)
         [HttpPost("login")]
         [AllowAnonymous]
         public async Task<IActionResult> Login([FromBody] LoginDTO dto)
@@ -39,7 +40,6 @@ namespace server.Controllers
             });
         }
 
-        // 2. CREATE (Admin Only)
         [HttpPost]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateUser([FromBody] RegisterUserDTO dto)
@@ -51,13 +51,12 @@ namespace server.Controllers
                 var user = await _userService.RegisterUserAsync(dto);
                 return Ok(new { message = "User created successfully", userId = user.Id });
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
         }
 
-        // 3. GET ALL (Admin Only)
         [HttpGet]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
@@ -75,10 +74,8 @@ namespace server.Controllers
             return Ok(response);
         }
 
-        // ✅ NEW: SIMPLE USERS LIST (any authenticated user)
-        // GET api/User/simple
         [HttpGet("simple")]
-        [Authorize] // no roles restriction – anyone logged in can see dropdown
+        [Authorize]
         public async Task<IActionResult> GetSimpleUsers()
         {
             var users = await _userService.GetAllUsersAsync();
@@ -93,7 +90,6 @@ namespace server.Controllers
             return Ok(result);
         }
 
-        // 4. GET BY ID (Admin Only)
         [HttpGet("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetById(int id)
@@ -110,7 +106,6 @@ namespace server.Controllers
             });
         }
 
-        // 5. UPDATE (Admin Only)
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDTO dto)
@@ -122,13 +117,12 @@ namespace server.Controllers
 
                 return Ok(new { message = "User updated successfully" });
             }
-            catch (Exception ex)
+            catch (System.Exception ex)
             {
                 return BadRequest(new { message = ex.Message });
             }
         }
 
-        // 6. DELETE (Admin Only)
         [HttpDelete("{id}")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)

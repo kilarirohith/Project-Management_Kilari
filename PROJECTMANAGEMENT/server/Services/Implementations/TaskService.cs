@@ -1,3 +1,4 @@
+// server/Services/Implementations/TaskService.cs
 using Microsoft.EntityFrameworkCore;
 using server.Data;
 using server.DTOs;
@@ -41,17 +42,33 @@ namespace server.Services.Implementations
                 Status = dto.Status ?? "Open",
                 ProjectId = dto.ProjectId,
                 AssignedToUserId = dto.AssignedToUserId,
-                DueDate = dto.DueDate
+                DueDate = dto.DueDate,
+                ActualClosureDate = dto.ActualClosureDate,
+                Type = dto.Type,
+                ProduceStep = dto.ProduceStep,
+                SampleData = dto.SampleData,
+                AcceptanceCriteria = dto.AcceptanceCriteria,
+                TestingStatus = dto.TestingStatus,
+                TestingDoneBy = dto.TestingDoneBy
             };
 
             _context.ProjectTasks.Add(task);
             await _context.SaveChangesAsync();
+
+            // Load navigation properties so controller can map ProjectName & AssignedUserName
+            await _context.Entry(task).Reference(t => t.Project).LoadAsync();
+            await _context.Entry(task).Reference(t => t.AssignedToUser).LoadAsync();
+
             return task;
         }
 
         public async Task<ProjectTask?> UpdateAsync(int id, CreateTaskDTO dto)
         {
-            var task = await _context.ProjectTasks.FindAsync(id);
+            var task = await _context.ProjectTasks
+                .Include(t => t.Project)
+                .Include(t => t.AssignedToUser)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
             if (task == null) return null;
 
             task.Title = dto.Title ?? task.Title;
@@ -61,6 +78,14 @@ namespace server.Services.Implementations
             task.ProjectId = dto.ProjectId;
             task.AssignedToUserId = dto.AssignedToUserId;
             task.DueDate = dto.DueDate ?? task.DueDate;
+            task.ActualClosureDate = dto.ActualClosureDate ?? task.ActualClosureDate;
+
+            task.Type = dto.Type ?? task.Type;
+            task.ProduceStep = dto.ProduceStep ?? task.ProduceStep;
+            task.SampleData = dto.SampleData ?? task.SampleData;
+            task.AcceptanceCriteria = dto.AcceptanceCriteria ?? task.AcceptanceCriteria;
+            task.TestingStatus = dto.TestingStatus ?? task.TestingStatus;
+            task.TestingDoneBy = dto.TestingDoneBy ?? task.TestingDoneBy;
 
             await _context.SaveChangesAsync();
             return task;

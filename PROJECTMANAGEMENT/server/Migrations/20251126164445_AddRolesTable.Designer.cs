@@ -12,15 +12,15 @@ using server.Data;
 namespace server.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20251124174519_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20251126164445_AddRolesTable")]
+    partial class AddRolesTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.10")
+                .HasAnnotation("ProductVersion", "8.0.7")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -234,6 +234,12 @@ namespace server.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AcceptanceCriteria")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("ActualClosureDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<int?>("AssignedToUserId")
                         .HasColumnType("int");
 
@@ -251,15 +257,30 @@ namespace server.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("ProduceStep")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("ProjectId")
                         .HasColumnType("int");
+
+                    b.Property<string>("SampleData")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("TestingDoneBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TestingStatus")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Title")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -325,33 +346,6 @@ namespace server.Migrations
                     b.ToTable("RolePermissions");
                 });
 
-            modelBuilder.Entity("server.Models.TaskTracker", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("Progress")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Remarks")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("TaskId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("TaskId");
-
-                    b.ToTable("TaskTrackers");
-                });
-
             modelBuilder.Entity("server.Models.Ticket", b =>
                 {
                     b.Property<int>("Id")
@@ -380,6 +374,9 @@ namespace server.Migrations
 
                     b.Property<int>("CreatedByUserId")
                         .HasColumnType("int");
+
+                    b.Property<DateTime?>("DateClosed")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("DateRaised")
                         .HasColumnType("datetime2");
@@ -417,6 +414,9 @@ namespace server.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("TimeClosed")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("TimeRaised")
                         .IsRequired()
                         .HasMaxLength(20)
@@ -426,6 +426,12 @@ namespace server.Migrations
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<int?>("TotalDaysElapsed")
+                        .HasColumnType("int");
+
+                    b.Property<double?>("TotalHoursElapsed")
+                        .HasColumnType("float");
 
                     b.Property<int?>("UserId")
                         .HasColumnType("int");
@@ -629,17 +635,6 @@ namespace server.Migrations
                         .IsRequired();
 
                     b.Navigation("Role");
-                });
-
-            modelBuilder.Entity("server.Models.TaskTracker", b =>
-                {
-                    b.HasOne("server.Models.ProjectTask", "Task")
-                        .WithMany()
-                        .HasForeignKey("TaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Task");
                 });
 
             modelBuilder.Entity("server.Models.Ticket", b =>
