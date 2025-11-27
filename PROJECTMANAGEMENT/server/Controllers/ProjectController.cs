@@ -56,7 +56,7 @@ namespace server.Controllers
 
         [HttpPut("{id}")]
         [Authorize(Roles = "Admin,Manager")]
-        public async Task<IActionResult> Update(int id, [FromBody] CreateProjectDTO dto)
+        public async Task<IActionResult> Update(int id, [FromBody] UpdateProjectDTO dto)
         {
           if (!ModelState.IsValid) return BadRequest(ModelState);
 

@@ -10,7 +10,7 @@ namespace server.Services.Interfaces
         Task<List<ProjectDTO>> GetAllAsync();
         Task<ProjectDTO?> GetByIdAsync(int id);
         Task<ProjectDTO> CreateAsync(CreateProjectDTO dto);
-        Task<ProjectDTO?> UpdateAsync(int id, CreateProjectDTO dto);
+        Task<ProjectDTO?> UpdateAsync(int id, UpdateProjectDTO dto);
         Task<bool> DeleteAsync(int id);
     }
 }

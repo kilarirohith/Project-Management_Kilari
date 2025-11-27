@@ -19,31 +19,40 @@ namespace server.Controllers
             _taskService = taskService;
         }
 
-        // ---------- helper mapper ----------
-        private static TaskDTO MapToDto(ProjectTask t)
-        {
-            return new TaskDTO
-            {
-                Id = t.Id,
-                Title = t.Title,
-                Description = t.Description,
-                Status = t.Status,
-                Priority = t.Priority,
-                ProjectId = t.ProjectId,
-                ProjectName = t.Project.ProjectName,
-                AssignedToUserId = t.AssignedToUserId,
-                AssignedUserName = t.AssignedToUser != null ? t.AssignedToUser.FullName : null,
-                CreatedAt = t.CreatedAt,
-                DueDate = t.DueDate,
-                ActualClosureDate = t.ActualClosureDate,
-                Type = t.Type,
-                ProduceStep = t.ProduceStep,
-                SampleData = t.SampleData,
-                AcceptanceCriteria = t.AcceptanceCriteria,
-                TestingStatus = t.TestingStatus,
-                TestingDoneBy = t.TestingDoneBy
-            };
-        }
+        
+// ---------- helper mapper ----------
+private static TaskDTO MapToDto(ProjectTask t)
+{
+    return new TaskDTO
+    {
+        Id = t.Id,
+        Title = t.Title,
+        Description = t.Description,
+        Status = t.Status,
+        Priority = t.Priority,
+
+        ProjectId = t.ProjectId,
+        // 👇 null-safe: if Project is missing, avoid crash
+        ProjectName = t.Project?.ProjectName ?? string.Empty,
+
+        AssignedToUserId = t.AssignedToUserId,
+        // 👇 also null-safe, shorter syntax
+        AssignedUserName = t.AssignedToUser?.FullName,
+
+        CreatedAt = t.CreatedAt,
+        DueDate = t.DueDate,
+        ActualClosureDate = t.ActualClosureDate,
+
+        Type = t.Type,
+        ProduceStep = t.ProduceStep,
+        SampleData = t.SampleData,
+        AcceptanceCriteria = t.AcceptanceCriteria,
+        TestingStatus = t.TestingStatus,
+        TestingDoneBy = t.TestingDoneBy
+    };
+}
+
+
 
         // ---------- GET: api/Task ----------
         [HttpGet]
