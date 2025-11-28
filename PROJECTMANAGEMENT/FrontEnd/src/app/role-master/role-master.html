@@ -1,104 +1,155 @@
-<div class="p-6 bg-gray-50 min-h-screen">
-  <h1 class="text-3xl font-bold mb-6">Role Master</h1>
+<div class="role-master-container">
+  <div class="role-master-inner">
 
-  <!-- Hide 'Add Role' button if form is open -->
-  @if (!showForm && isAdmin) {
-    <button class="btn-primary mb-4" (click)="showForm = true; editingIndex = null; form = {name:'', permissions:[]}">
-      + Add Role
-    </button>
-  }
-
-  <!-- Add/Edit Role Form -->
-  @if (showForm) {
-    <div class="card">
-      <h2 class="card-title">{{ editingIndex !== null ? 'Edit Role' : 'Add New Role' }}</h2>
-
-      <div class="mb-3">
-        <label class="label">Role Name</label>
-        <input
-          [(ngModel)]="form.name"
-          placeholder="Enter Role Name"
-          class="input"
-        />
-        </div>
-        <div class="mb-3">
-  <label class="label">Description</label>
-  <textarea
-    [(ngModel)]="form.description"
-    placeholder="Enter Role Description (Optional)"
-    class="input"
-    rows="2"
-  ></textarea>
-</div>
-      
-
-      <!-- Permissions Table -->
-      <div class="permissions mb-4">
-        <h3 class="font-semibold mb-2 text-gray-700">Permissions</h3>
-        
-        @for (m of modules; track m) {
-          <div class="mb-3 border-b pb-2 border-gray-100">
-            <h4 class="font-semibold mb-2 text-sm text-gray-900">{{ m }}</h4>
-            <div class="flex gap-4 flex-wrap">
-              @for (a of actions; track a) {
-                <label class="flex items-center gap-1 cursor-pointer select-none">
-                  <input
-                    type="checkbox"
-                    [checked]="isChecked(m, a)"
-                    (change)="togglePermission(m, a)"
-                    class="cursor-pointer"
-                  />
-                  <span class="capitalize text-sm text-gray-600">{{ a }}</span>
-                </label>
-              }
-            </div>
-          </div>
-        }
+    <!-- HEADER -->
+    <div class="role-page-header">
+      <div>
+        <h1 class="role-header">Role Master</h1>
+        <p class="role-subtitle">Manage roles and permissions across PMP</p>
       </div>
 
-      <div class="flex gap-2">
-        <button class="btn-primary" (click)="saveRole()">Save</button>
-        <button class="btn-secondary" (click)="resetForm()">Cancel</button>
+      <div *ngIf="!showForm && isAdmin">
+        <button class="btn-primary" (click)="showForm = true">+ Add Role</button>
       </div>
     </div>
-  }
 
-  <!-- Roles List -->
-  <div class="mt-6">
-    <h2 class="text-2xl font-semibold mb-4">Roles List</h2>
+    <!-- ADD / EDIT ROLE FORM -->
+    <div *ngIf="showForm" class="card role-form-card">
 
-    @if (roles.length === 0) {
-      <div class="text-gray-500 italic">No roles created yet.</div>
-    }
+      <div class="card-header">
+        <h2 class="card-title">{{ editingIndex !== null ? 'Edit Role' : 'Add New Role' }}</h2>
+      </div>
 
-    @for (role of roles; track role.name; let i = $index) {
-      <div class="card mb-3">
-        <div class="flex justify-between items-start">
-          <div>
-            <b class="text-lg text-blue-700 block mb-1">{{ role.name }}</b>
-            
-            <!-- Display Permissions -->
-            <div class="mt-2 space-y-1">
-              @for (p of role.permissions; track p.module) {
-                <!-- Only show module if at least one action is allowed -->
-                @if (getActionsList(p).length > 0) {
-                  <div class="text-sm text-gray-700">
-                    <span class="font-semibold text-gray-900">{{ p.module }}:</span> 
-                    <i class="text-gray-500">{{ getActionsList(p).join(', ') }}</i>
-                  </div>
-                }
-              }
+      <div class="card-body">
+
+        <!-- Name + Description -->
+        <div class="role-form-grid">
+          <div class="form-group">
+            <label class="label">Role Name</label>
+            <input class="input" [(ngModel)]="form.name" />
+          </div>
+
+          <div class="form-group">
+            <label class="label">Description</label>
+            <textarea class="input" [(ngModel)]="form.description"></textarea>
+          </div>
+        </div>
+
+        <!-- Permissions -->
+        <div class="permissions-section">
+
+          <div class="perm-toolbar">
+            <div>
+              <h3 class="perm-title">Permissions</h3>
+              <p class="perm-hint">Toggle CRUD access per module</p>
+            </div>
+
+            <div class="perm-add-module" *ngIf="isAdmin">
+              <input
+                class="input input-sm"
+                [(ngModel)]="newModuleName"
+                placeholder="Add module (e.g. Approval Desk)" />
+              <button class="btn-chip-outline" (click)="addModule()">+ Add</button>
             </div>
           </div>
 
-          <div class="flex gap-2">
-             @if (isAdmin) {
-             <button class="btn-small" (click)="editRole(i)">Edit</button>
-             <button class="btn-danger" (click)="deleteRole(i)">Delete</button>
-              }
+          <!-- PERMISSION TABLE -->
+          <div class="perm-table">
+
+            <!-- HEADER ROW -->
+            <div class="perm-table-header">
+              <div>Module</div>
+              <div>Read</div>
+              <div>Create</div>
+              <div>Update</div>
+              <div>Delete</div>
+              <div *ngIf="isAdmin">Remove</div>
+            </div>
+
+            <!-- MODULE ROWS -->
+            <div *ngFor="let m of modules" class="perm-table-row">
+
+              <!-- 👇 show module name instead of [object Object] -->
+              <div class="perm-col-module">{{ m.name }}</div>
+
+              <!-- CRUD chips -->
+              <div *ngFor="let a of actions" class="perm-col-action">
+                <!-- start neutral, color when checked -->
+                <label class="perm-chip" [ngClass]="'perm-' + a">
+                  <input
+                    type="checkbox"
+                    [checked]="isChecked(m.name, a)"
+                    (change)="togglePermission(m.name, a)" />
+                  <span class="perm-chip-text">{{ a | titlecase }}</span>
+                </label>
+              </div>
+
+              <!-- delete module button -->
+              <div class="perm-col-action" *ngIf="isAdmin">
+                <button class="btn-module-delete" (click)="deleteModule(m)">✕</button>
+              </div>
+            </div>
+
           </div>
         </div>
+
+        <!-- BUTTONS -->
+        <div class="role-form-footer">
+          <button class="btn-primary" (click)="saveRole()">Save</button>
+          <button class="btn-secondary" (click)="resetForm()">Cancel</button>
+        </div>
+
       </div>
-    }
-  </div>
+    </div>
+
+    <!-- ROLES LIST -->
+    <div class="card roles-card">
+
+      <div class="card-header">
+        <h2 class="card-title">Roles List</h2>
+      </div>
+
+      <div class="card-body">
+
+        <div *ngIf="roles.length === 0" class="empty-state">No roles available</div>
+
+        <div *ngFor="let role of roles; let i = index" class="role-item">
+
+          <div class="role-item-header">
+            <div>
+              <div class="role-name">{{ role.name }}</div>
+              <div class="role-desc">{{ role.description }}</div>
+            </div>
+
+            <div *ngIf="isAdmin" class="role-actions">
+              <button class="btn-small" (click)="editRole(i)">Edit</button>
+              <button class="btn-danger" (click)="deleteRole(i)">Delete</button>
+            </div>
+          </div>
+
+          <div class="roles-table">
+            <div *ngFor="let p of role.permissions" class="role-perm-row">
+              <div class="role-perm-module">{{ p.module }}</div>
+
+              <div class="role-perm-badges">
+                <span *ngFor="let act of getActionsList(p)"
+                      class="perm-btn"
+                      [ngClass]="{
+                        'perm-read': act === 'Read',
+                        'perm-create': act === 'Create',
+                        'perm-update': act === 'Update',
+                        'perm-delete': act === 'Delete'
+                      }">
+                  {{ act }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+    </div>
+
+  </div> <!-- /role-master-inner -->
 </div>

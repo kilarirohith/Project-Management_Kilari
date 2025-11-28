@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using server.Authorization;                 // 👈 for PermissionAuthorize
 using server.DTOs;
 using server.Services.Interfaces;
 
@@ -7,6 +8,7 @@ namespace server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]                              // 👈 must be logged in
     public class VendorWorkController : ControllerBase
     {
         private readonly IVendorWorkService _vendorWorkService;
@@ -16,16 +18,18 @@ namespace server.Controllers
             _vendorWorkService = vendorWorkService;
         }
 
+        // ---------- GET: api/VendorWork ----------
         [HttpGet]
-        [Authorize]
+        [PermissionAuthorize("Projects", "Read")]
         public async Task<IActionResult> GetAll()
         {
             var vendorWorks = await _vendorWorkService.GetAllAsync();
             return Ok(vendorWorks);
         }
 
+        // ---------- GET: api/VendorWork/{id} ----------
         [HttpGet("{id}")]
-        [Authorize]
+        [PermissionAuthorize("Projects", "Read")]
         public async Task<IActionResult> GetById(int id)
         {
             var vendorWork = await _vendorWorkService.GetByIdAsync(id);
@@ -35,8 +39,9 @@ namespace server.Controllers
             return Ok(vendorWork);
         }
 
+        // ---------- POST: api/VendorWork ----------
         [HttpPost]
-        [Authorize(Roles = "Admin,Manager")]
+        [PermissionAuthorize("Projects", "Create")]
         public async Task<IActionResult> Create([FromBody] CreateVendorWorkDTO dto)
         {
             if (!ModelState.IsValid)
@@ -46,8 +51,9 @@ namespace server.Controllers
             return CreatedAtAction(nameof(GetById), new { id = created.Id }, created);
         }
 
+        // ---------- PUT: api/VendorWork/{id} ----------
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin,Manager")]
+        [PermissionAuthorize("Projects", "Update")]
         public async Task<IActionResult> Update(int id, [FromBody] CreateVendorWorkDTO dto)
         {
             if (!ModelState.IsValid)
@@ -60,8 +66,9 @@ namespace server.Controllers
             return Ok(updated);
         }
 
+        // ---------- DELETE: api/VendorWork/{id} ----------
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("Projects", "Delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _vendorWorkService.DeleteAsync(id);

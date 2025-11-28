@@ -1,6 +1,7 @@
 // src/app/app.routes.ts
 import { Routes } from '@angular/router';
-
+import { ForgotPasswordComponent } from './auth/forgot-password/forgot-password';
+import { ResetPasswordComponent } from './auth/reset-password/reset-password.component';
 import { LoginComponent } from './masters/login/login';
 import { LayoutComponent } from './masters/layout/layout';
 import { DashboardComponent } from './Dashboard/dashboard/dashboard';
@@ -20,8 +21,13 @@ import { AuthGuard } from './masters/auth.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'login', component: LoginComponent },
 
+  // 🔓 Public routes (no AuthGuard)
+  { path: 'login', component: LoginComponent },
+  { path: 'forgot-password', component: ForgotPasswordComponent },
+  { path: 'reset-password', component: ResetPasswordComponent },
+
+  // 🔐 Protected layout + children
   {
     path: 'layout',
     component: LayoutComponent,
@@ -39,8 +45,9 @@ export const routes: Routes = [
       { path: 'projects', component: ProjectsComponent },
       { path: 'task-tracker', component: TaskTrackerComponent },
       { path: 'approval-desk', component: ApprovalDeskComponent },
-      { path: 'ticketing-system', component: TicketingSystemComponent }
-    ]
+      { path: 'ticketing-system', component: TicketingSystemComponent },
+    ],
   },
-  { path: '**', redirectTo: 'login' }
+
+  { path: '**', redirectTo: 'login' },
 ];

@@ -3,6 +3,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using server.Authorization;              // 👈 IMPORTANT
 using server.DTOs;
 using server.Services.Interfaces;
 
@@ -10,6 +11,7 @@ namespace server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]                          // 👈 must be logged in
     public class ProjectController : ControllerBase
     {
         private readonly IProjectService _projectService;
@@ -19,16 +21,18 @@ namespace server.Controllers
             _projectService = projectService;
         }
 
+        // ---------- GET: api/Project ----------
         [HttpGet]
-        [Authorize]
+        [PermissionAuthorize("Projects", "Read")]
         public async Task<IActionResult> GetAll()
         {
             var items = await _projectService.GetAllAsync();
             return Ok(items);
         }
 
+        // ---------- GET: api/Project/{id} ----------
         [HttpGet("{id}")]
-        [Authorize]
+        [PermissionAuthorize("Projects", "Read")]
         public async Task<IActionResult> GetById(int id)
         {
             var project = await _projectService.GetByIdAsync(id);
@@ -37,8 +41,9 @@ namespace server.Controllers
                 : Ok(project);
         }
 
+        // ---------- POST: api/Project ----------
         [HttpPost]
-        [Authorize(Roles = "Admin,Manager")]
+        [PermissionAuthorize("Projects", "Create")]
         public async Task<IActionResult> Create([FromBody] CreateProjectDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -54,27 +59,29 @@ namespace server.Controllers
             }
         }
 
+        // ---------- PUT: api/Project/{id} ----------
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin,Manager")]
+        [PermissionAuthorize("Projects", "Update")]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateProjectDTO dto)
         {
-          if (!ModelState.IsValid) return BadRequest(ModelState);
+            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-          try
-          {
-              var updated = await _projectService.UpdateAsync(id, dto);
-              return updated == null
-                  ? NotFound(new { message = "Project not found" })
-                  : Ok(updated);
-          }
-          catch (Exception ex)
-          {
-              return BadRequest(new { message = ex.Message });
-          }
+            try
+            {
+                var updated = await _projectService.UpdateAsync(id, dto);
+                return updated == null
+                    ? NotFound(new { message = "Project not found" })
+                    : Ok(updated);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
+        // ---------- DELETE: api/Project/{id} ----------
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("Projects", "Delete")]
         public async Task<IActionResult> Delete(int id)
         {
             var ok = await _projectService.DeleteAsync(id);

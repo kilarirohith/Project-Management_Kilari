@@ -1,51 +1,66 @@
 <!-- milestone-master.component.html -->
 <div class="space-y-10 p-6">
-  <h1 class="text-2xl font-bold">Milestone Master</h1>
+  <!-- HEADER ROW -->
+  <div class="milestone-header-row">
+    <h1 class="milestone-title">Milestone Master</h1>
 
-  <div class="card">
-    <div class="card-header">
-      <h2 class="card-title">Milestones</h2>
+    <button class="btn btn-primary add-milestone-btn" (click)="showAddForm()">
+      + Add New Milestone
+    </button>
+  </div>
+
+  <!-- FORM SECTION (Add / Edit Milestone) -->
+  <div *ngIf="showMileForm" class="milestone-form-card">
+    <div class="milestone-form-header">
+      <h3>{{ mileForm.id ? 'Edit Milestone' : 'Add New Milestone' }}</h3>
     </div>
-    <div class="card-content">
-      <button class="btn btn-primary mb-4" (click)="showAddForm()">
-        + Add New Milestone
-      </button>
 
-      <div *ngIf="showMileForm" class="card mb-4">
-        <div class="card-header">
-          <h3 class="card-title">
-            {{ mileForm.id ? 'Edit Milestone' : 'Add New Milestone' }}
-          </h3>
-        </div>
-        <div class="card-content space-y-3">
-          <input
-            type="text"
-            class="form-input"
-            placeholder="Milestone Name"
-            [(ngModel)]="mileForm.name"
-            name="name"
-          />
-          <input
-            type="number"
-            class="form-input"
-            placeholder="Weightage"
-            [(ngModel)]="mileForm.weightage"
-            name="weightage"
-            min="0"
-            max="100"
-          />
-          <div class="flex gap-2">
-            <button class="btn btn-primary" (click)="handleMileSave()">
-              Save
-            </button>
-            <button class="btn btn-secondary" (click)="cancelForm()">
-              Cancel
-            </button>
-          </div>
-        </div>
+    <div class="milestone-form-body">
+      <!-- Milestone Name -->
+      <div class="form-row">
+        <label>Milestone Name</label>
+        <input
+          class="form-input"
+          placeholder="Enter milestone name"
+          [(ngModel)]="mileForm.name"
+          name="milestoneName"
+        />
       </div>
 
-      <table class="table">
+      <!-- Weightage -->
+      <div class="form-row">
+        <label>Weightage</label>
+        <input
+          class="form-input"
+          type="number"
+          placeholder="0 - 100"
+          min="0"
+          max="100"
+          [(ngModel)]="mileForm.weightage"
+          name="milestoneWeightage"
+        />
+      </div>
+
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button class="btn btn-primary" (click)="handleMileSave()">
+          Save
+        </button>
+        <button class="btn btn-secondary" (click)="cancelForm()">
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIST SECTION -->
+  <div class="card milestone-card">
+    <div class="card-header milestone-table-header">
+      <h2 class="card-title">Milestones</h2>
+    </div>
+
+    <div class="card-content milestone-table-wrapper">
+      <table class="table milestone-table">
         <thead>
           <tr>
             <th>Name</th>
@@ -54,26 +69,31 @@
           </tr>
         </thead>
         <tbody>
+          <!-- Rows -->
           <tr *ngFor="let milestone of milestones">
             <td>{{ milestone.name }}</td>
             <td>{{ milestone.weightage }}</td>
             <td class="space-x-2">
-              <button 
-                class="btn btn-sm" 
+              <button
+                class="btn btn-sm edit-btn"
                 (click)="handleMileEdit(milestone.id)"
               >
                 Edit
               </button>
-              <button 
-                class="btn btn-sm btn-destructive" 
+              <button
+                class="btn btn-sm btn-destructive"
                 (click)="handleMileDelete(milestone.id)"
               >
                 Delete
               </button>
             </td>
           </tr>
+
+          <!-- Empty State -->
           <tr *ngIf="milestones.length === 0">
-            <td colspan="3" class="text-center">No milestones found</td>
+            <td colspan="3" class="text-center">
+              No milestones found
+            </td>
           </tr>
         </tbody>
       </table>

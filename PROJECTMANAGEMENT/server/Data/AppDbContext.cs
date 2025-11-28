@@ -6,12 +6,15 @@ namespace server.Data
     public class AppDbContext : DbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
+        public DbSet<PasswordResetToken> PasswordResetTokens { get; set; }
+
 
         public DbSet<User> Users { get; set; } = null!;
         public DbSet<Role> Roles { get; set; } = null!;
         public DbSet<Client> Clients { get; set; } = null!;
         public DbSet<ClientLocation> ClientLocations { get; set; } = null!;
         public DbSet<ClientUnit> ClientUnits { get; set; } = null!;
+        public DbSet<AppModule> AppModules { get; set; }
         public DbSet<ProjectMaster> ProjectMasters { get; set; } = null!;
         public DbSet<Project> Projects { get; set; } = null!;
         public DbSet<MilestoneMaster> MilestoneMasters { get; set; } = null!;
@@ -25,6 +28,11 @@ namespace server.Data
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<PasswordResetToken>()
+    .HasOne(p => p.User)
+    .WithMany()
+    .HasForeignKey(p => p.UserId);
+
 
             // Ticket relationships configuration
             modelBuilder.Entity<Ticket>()

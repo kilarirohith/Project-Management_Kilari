@@ -45,6 +45,13 @@ export class ApprovalDeskComponent implements OnInit {
     remarks: ''
   };
 
+  // Dashboard status counts
+  totalCount = 0;
+  pendingCount = 0;
+  approvedCount = 0;
+  rejectedCount = 0;
+  onHoldCount = 0;
+
   constructor(
     private approvalService: ApprovalDeskService,
     private projectService: ProjectService,
@@ -59,25 +66,41 @@ export class ApprovalDeskComponent implements OnInit {
   // -------- API → UI --------
 
   loadData() {
-    // GET /api/ApprovalDesk
     this.approvalService.getAll().subscribe({
-      next: (data) => (this.approvals = data),
+      next: (data) => {
+        this.approvals = data;
+        this.computeStats();
+      },
       error: (err) => console.error('Error loading approvals', err)
     });
   }
 
   loadDropdowns() {
-    // Projects dropdown: GET /api/Project
     this.projectService.getProjects().subscribe({
       next: (data) => (this.projects = data),
       error: (err) => console.error('Error loading projects', err)
     });
 
-    // VendorWork dropdown: GET /api/VendorWork
     this.vendorWorkService.getAll().subscribe({
       next: (data) => (this.vendorWorks = data),
       error: (err) => console.error('Error loading vendor works', err)
     });
+  }
+
+  private computeStats() {
+    this.totalCount = this.approvals.length;
+    this.pendingCount = this.approvals.filter(
+      (a) => a.status === 'Pending'
+    ).length;
+    this.approvedCount = this.approvals.filter(
+      (a) => a.status === 'Approved'
+    ).length;
+    this.rejectedCount = this.approvals.filter(
+      (a) => a.status === 'Rejected'
+    ).length;
+    this.onHoldCount = this.approvals.filter(
+      (a) => a.status === 'On Hold'
+    ).length;
   }
 
   // -------- Form logic --------
@@ -112,7 +135,6 @@ export class ApprovalDeskComponent implements OnInit {
     };
 
     if (this.editingId) {
-      // PUT /api/ApprovalDesk/{id}
       this.approvalService.update(this.editingId, payload).subscribe({
         next: () => {
           this.loadData();
@@ -121,7 +143,6 @@ export class ApprovalDeskComponent implements OnInit {
         error: () => alert('Update failed')
       });
     } else {
-      // POST /api/ApprovalDesk
       this.approvalService.create(payload).subscribe({
         next: () => {
           this.loadData();
@@ -135,7 +156,6 @@ export class ApprovalDeskComponent implements OnInit {
   deleteItem(id: number) {
     if (!confirm('Are you sure you want to delete this approval record?')) return;
 
-    // DELETE /api/ApprovalDesk/{id}
     this.approvalService.delete(id).subscribe({
       next: () => this.loadData(),
       error: () => alert('Delete failed')

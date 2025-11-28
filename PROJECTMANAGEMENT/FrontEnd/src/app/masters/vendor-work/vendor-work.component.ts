@@ -15,6 +15,12 @@ export class VendorWorkComponent implements OnInit {
   works: VendorWork[] = [];
   vendors: Vendor[] = [];
 
+  // stats for cards
+  totalCount = 0;
+  pendingCount = 0;
+  inProgressCount = 0;
+  completedCount = 0;
+
   form: VendorWork = {
     projectName: '',
     workDescription: '',
@@ -37,8 +43,19 @@ export class VendorWorkComponent implements OnInit {
   }
 
   loadData() {
-    this.workService.getAll().subscribe((data) => (this.works = data));
+    this.workService.getAll().subscribe((data) => {
+      this.works = data;
+      this.updateStats();   // recompute cards every time we load
+    });
+
     this.vendorService.getAll().subscribe((data) => (this.vendors = data));
+  }
+
+  private updateStats() {
+    this.totalCount     = this.works.length;
+    this.pendingCount   = this.works.filter(w => w.status === 'Pending').length;
+    this.inProgressCount = this.works.filter(w => w.status === 'In Progress').length;
+    this.completedCount = this.works.filter(w => w.status === 'Completed').length;
   }
 
   showAddForm() {

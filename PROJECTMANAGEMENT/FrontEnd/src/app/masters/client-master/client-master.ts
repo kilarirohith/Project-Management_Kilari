@@ -112,17 +112,25 @@ export class ClientMasterComponent implements OnInit {
     this.deleteId = id;
   }
 
-  confirmDelete() {
-    if (!this.deleteId) return;
-    
-    this.clientService.deleteClient(this.deleteId).subscribe({
-      next: () => {
-        this.deleteId = null;
-        this.loadClients();
-      },
-      error: () => alert('Delete Failed')
-    });
-  }
+confirmDelete() {
+  if (this.deleteId == null) return;   // use == null to catch null/undefined
+  
+  this.clientService.deleteClient(this.deleteId).subscribe({
+    next: () => {
+      this.deleteId = null;
+      this.loadClients();
+    },
+    error: (err) => {
+      if (err.status === 403) {
+        alert('You do not have permission to delete clients.');
+      } else {
+        alert('Delete Failed');
+      }
+      this.deleteId = null;
+    }
+  });
+}
+
 
   // --- Helpers ---
 

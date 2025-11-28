@@ -1,15 +1,17 @@
 // server/Controllers/TaskController.cs
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using server.Authorization;          // 👈 IMPORTANT: for PermissionAuthorize
 using server.DTOs;
 using server.Services.Interfaces;
 using server.Models;   // ProjectTask
+using System.Linq;
 
 namespace server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]   // -> /api/Task
-    [Authorize]
+    [Authorize]                   // 👈 must be logged in
     public class TaskController : ControllerBase
     {
         private readonly ITaskService _taskService;
@@ -19,43 +21,39 @@ namespace server.Controllers
             _taskService = taskService;
         }
 
-        
-// ---------- helper mapper ----------
-private static TaskDTO MapToDto(ProjectTask t)
-{
-    return new TaskDTO
-    {
-        Id = t.Id,
-        Title = t.Title,
-        Description = t.Description,
-        Status = t.Status,
-        Priority = t.Priority,
+        // ---------- helper mapper ----------
+        private static TaskDTO MapToDto(ProjectTask t)
+        {
+            return new TaskDTO
+            {
+                Id = t.Id,
+                Title = t.Title,
+                Description = t.Description,
+                Status = t.Status,
+                Priority = t.Priority,
 
-        ProjectId = t.ProjectId,
-        // 👇 null-safe: if Project is missing, avoid crash
-        ProjectName = t.Project?.ProjectName ?? string.Empty,
+                ProjectId = t.ProjectId,
+                ProjectName = t.Project?.ProjectName ?? string.Empty,
 
-        AssignedToUserId = t.AssignedToUserId,
-        // 👇 also null-safe, shorter syntax
-        AssignedUserName = t.AssignedToUser?.FullName,
+                AssignedToUserId = t.AssignedToUserId,
+                AssignedUserName = t.AssignedToUser?.FullName,
 
-        CreatedAt = t.CreatedAt,
-        DueDate = t.DueDate,
-        ActualClosureDate = t.ActualClosureDate,
+                CreatedAt = t.CreatedAt,
+                DueDate = t.DueDate,
+                ActualClosureDate = t.ActualClosureDate,
 
-        Type = t.Type,
-        ProduceStep = t.ProduceStep,
-        SampleData = t.SampleData,
-        AcceptanceCriteria = t.AcceptanceCriteria,
-        TestingStatus = t.TestingStatus,
-        TestingDoneBy = t.TestingDoneBy
-    };
-}
-
-
+                Type = t.Type,
+                ProduceStep = t.ProduceStep,
+                SampleData = t.SampleData,
+                AcceptanceCriteria = t.AcceptanceCriteria,
+                TestingStatus = t.TestingStatus,
+                TestingDoneBy = t.TestingDoneBy
+            };
+        }
 
         // ---------- GET: api/Task ----------
         [HttpGet]
+        [PermissionAuthorize("Task Tracker", "Read")]
         public async Task<IActionResult> GetTasks()
         {
             var tasks = await _taskService.GetAllAsync();
@@ -65,6 +63,7 @@ private static TaskDTO MapToDto(ProjectTask t)
 
         // ---------- GET: api/Task/{id} ----------
         [HttpGet("{id:int}")]
+        [PermissionAuthorize("Task Tracker", "Read")]
         public async Task<IActionResult> GetTask(int id)
         {
             var t = await _taskService.GetByIdAsync(id);
@@ -75,20 +74,21 @@ private static TaskDTO MapToDto(ProjectTask t)
 
         // ---------- POST: api/Task ----------
         [HttpPost]
+        [PermissionAuthorize("Task Tracker", "Create")]
         public async Task<IActionResult> CreateTask([FromBody] CreateTaskDTO dto)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            // Angular sends ISO date strings -> model binder will map to DateTime? automatically
             var created = await _taskService.CreateAsync(dto);
-
             var resultDto = MapToDto(created);
+
             return CreatedAtAction(nameof(GetTask), new { id = resultDto.Id }, resultDto);
         }
 
         // ---------- PUT: api/Task/{id} ----------
         [HttpPut("{id:int}")]
+        [PermissionAuthorize("Task Tracker", "Update")]
         public async Task<IActionResult> UpdateTask(int id, [FromBody] CreateTaskDTO dto)
         {
             if (!ModelState.IsValid)
@@ -103,6 +103,7 @@ private static TaskDTO MapToDto(ProjectTask t)
 
         // ---------- DELETE: api/Task/{id} ----------
         [HttpDelete("{id:int}")]
+        [PermissionAuthorize("Task Tracker", "Delete")]
         public async Task<IActionResult> DeleteTask(int id)
         {
             var ok = await _taskService.DeleteAsync(id);

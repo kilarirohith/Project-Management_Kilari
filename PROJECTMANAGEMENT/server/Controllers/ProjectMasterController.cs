@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using server.Authorization; // 👈 add this
 using server.DTOs;
 using server.Services.Interfaces;
 
@@ -11,14 +12,14 @@ namespace server.Controllers
     {
         private readonly IProjectMasterService _projectService;
 
-        // ✅ FIXED: Constructor name matches Class name
         public ProjectMasterController(IProjectMasterService projectService)
         {
             _projectService = projectService;
         }
 
         [HttpGet]
-        [Authorize]
+        [Authorize] // any logged-in user can list (or you can use PermissionAuthorize if you want)
+        // [PermissionAuthorize("Projects", "Read")]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _projectService.GetAllAsync());
@@ -26,6 +27,7 @@ namespace server.Controllers
 
         [HttpGet("{id}")]
         [Authorize]
+        // [PermissionAuthorize("Projects", "Read")]
         public async Task<IActionResult> GetById(int id)
         {
             var project = await _projectService.GetByIdAsync(id);
@@ -33,8 +35,7 @@ namespace server.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,Manager")] 
-        // ✅ FIXED: Used CreateProjectMasterDTO
+        [PermissionAuthorize("Projects", "Create")]
         public async Task<IActionResult> Create([FromBody] CreateProjectMasterDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -50,8 +51,7 @@ namespace server.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin,Manager")]
-        // ✅ FIXED: Used CreateProjectMasterDTO
+        [PermissionAuthorize("Projects", "Update")]
         public async Task<IActionResult> Update(int id, [FromBody] CreateProjectMasterDTO dto)
         {
             try
@@ -66,7 +66,7 @@ namespace server.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("Projects", "Delete")]
         public async Task<IActionResult> Delete(int id)
         {
             return await _projectService.DeleteAsync(id) ? NoContent() : NotFound();

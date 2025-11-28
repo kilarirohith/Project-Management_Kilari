@@ -1,8 +1,11 @@
 <div class="space-y-6 p-4">
-  <h1 class="text-2xl font-bold">Client Master</h1>
-  <button class="btn btn-primary" (click)="showForm = true; resetForm()">
-    + Add New Client
-  </button>
+   <div class="client-header-row">
+    <h1 class="client-title">Client Master</h1>
+
+    <button class="btn btn-primary" (click)="showForm = true; resetForm()">
+      + Add New Client
+    </button>
+  </div>
 
   <!-- FORM SECTION -->
   <div *ngIf="showForm" class="card">
@@ -77,12 +80,12 @@
   </div>
 
   <!-- TABLE SECTION -->
-  <div class="card">
+ <div class="card client-card">
     <div class="card-header">
       <h2 class="card-title">Clients List</h2>
     </div>
-    <div class="card-content">
-      <table class="table">
+    <div class="card-content client-table-wrapper">
+      <table class="table client-table">
         <thead>
           <tr>
             <th>Name</th>
@@ -104,18 +107,15 @@
             <td>{{ getUnitNames(client.locations) }}</td>
             <td class="space-x-2">
               
-              <!-- ✅ FIXED: Passed client.id (number) instead of client._id -->
-              <button class="btn btn-sm" (click)="handleEdit(client.id!)">
-                Edit
-              </button>
-              
-              <!-- ✅ FIXED: Passed client.id (number) -->
-              <button 
-                class="btn btn-sm btn-destructive" 
-                (click)="setDeleteId(client.id!)"
-              >
-                Delete
-              </button>
+             <button class="btn btn-sm edit-btn" (click)="handleEdit(client.id!)">
+    Edit
+  </button>
+
+  <button
+    class="btn btn-sm btn-destructive"
+    (click)="setDeleteId(client.id!)">
+    Delete
+  </button>
               
               <!-- ✅ FIXED: Compared deleteId === client.id -->
               <div *ngIf="deleteId === client.id" class="modal-overlay">
@@ -139,6 +139,26 @@
           </tr>
         </tbody>
       </table>
+    </div>
+  </div>
+</div>
+
+<!-- GLOBAL DELETE MODAL -->
+<div *ngIf="deleteId !== null" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 class="modal-title">Are you sure?</h3>
+    </div>
+    <div class="modal-body">
+      <p>This action cannot be undone.</p>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" (click)="deleteId = null">
+        Cancel
+      </button>
+      <button class="btn btn-destructive" (click)="confirmDelete()">
+        Delete
+      </button>
     </div>
   </div>
 </div>

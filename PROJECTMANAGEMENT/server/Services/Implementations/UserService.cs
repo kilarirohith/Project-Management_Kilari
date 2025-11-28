@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using server.Data;
 using server.DTOs;
+using System.Security.Cryptography;
 using server.Models;
 using server.Services.Interfaces;
 using server.Utils;
@@ -16,21 +17,37 @@ namespace server.Services.Implementations
         private readonly AppDbContext _context;
         private readonly IConfiguration _config;
 
-        public UserService(AppDbContext context, IConfiguration config)
-        {
-            _context = context;
-            _config = config;
-        }
+        private readonly IEmailService _emailService;
+public UserService(AppDbContext context, IConfiguration config, IEmailService emailService)
+{
+    _context = context;
+    _config = config;
+    _emailService = emailService;
+}
+
 
         public async Task<(string? Token, User? User)> LoginUserAsync(LoginDTO dto)
         {
+            // 🔴 OLD:
+            // var user = await _context.Users
+            //     .Include(u => u.Role)
+            //     .FirstOrDefaultAsync(u => u.Email == dto.Email);
+
+            // ✅ NEW: also load RolePermissions so AuthHelper can build Permission claims
             var user = await _context.Users
                 .Include(u => u.Role)
+                    .ThenInclude(r => r.RolePermissions)
                 .FirstOrDefaultAsync(u => u.Email == dto.Email);
 
             if (user == null || !AuthHelper.VerifyPassword(dto.Password, user.PasswordHash))
                 return (null, null);
 
+            // this will now include:
+            //   - NameIdentifier
+            //   - Name
+            //   - Email
+            //   - Role
+            //   - Permission: "Projects:Read", "Ticket Tracker:Create", etc
             var token = AuthHelper.GenerateJwtToken(user, _config);
             return (token, user);
         }
@@ -100,5 +117,51 @@ namespace server.Services.Implementations
             await _context.SaveChangesAsync();
             return user;
         }
+
+        public async Task RequestPasswordResetAsync(string email)
+{
+    var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
+    if (user == null) return;
+
+    var tokenBytes = new byte[32];
+    RandomNumberGenerator.Fill(tokenBytes);
+    var token = Convert.ToBase64String(tokenBytes)
+        .Replace("+", "-").Replace("/", "_").TrimEnd('=');
+
+    var reset = new PasswordResetToken
+    {
+        UserId = user.Id,
+        Token = token,
+        ExpiresAt = DateTime.UtcNow.AddHours(1)
+    };
+
+    _context.PasswordResetTokens.Add(reset);
+    await _context.SaveChangesAsync();
+
+    var link = $"{_config["App:FrontendBaseUrl"]}/reset-password?token={token}";
+
+    await _emailService.SendEmailAsync(
+        user.Email,
+        "PMS Password Reset",
+        $"<p>Hello {user.FullName},</p><p>Click to reset: <a href='{link}'>Reset Password</a></p>"
+    );
+}
+
+public async Task<bool> ResetPasswordAsync(string token, string newPassword)
+{
+    var reset = await _context.PasswordResetTokens
+        .Include(x => x.User)
+        .FirstOrDefaultAsync(x => x.Token == token);
+
+    if (reset == null || reset.Used || reset.ExpiresAt < DateTime.UtcNow)
+        return false;
+
+    reset.User.PasswordHash = AuthHelper.HashPassword(newPassword);
+    reset.Used = true;
+
+    await _context.SaveChangesAsync();
+    return true;
+}
+
     }
 }

@@ -24,19 +24,21 @@ export class LoginComponent {
     this.errorMessage = '';
     this.loading = true;
 
-    this.authService.login({
-      email: this.email,
-      password: this.password
-    }).subscribe({
-      next: () => {
-        this.loading = false;
-        this.router.navigate(['/layout/dashboard']);
-      },
-      error: (err) => {
-        this.loading = false;
-        this.errorMessage =
-          err.error?.message || 'Invalid email or password';
-      },
-    });
+    this.authService
+      .login({
+        email: this.email,
+        password: this.password,
+      })
+      .subscribe({
+        next: () => {
+          this.loading = false;
+          this.router.navigate(['/layout/dashboard']);
+        },
+        error: (err) => {
+          this.loading = false;
+          this.errorMessage =
+            err.error?.message || 'Invalid email or password';
+        },
+      });
   }
 }

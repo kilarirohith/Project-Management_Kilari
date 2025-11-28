@@ -1,6 +1,5 @@
-using System.Net;
-using System.Net.Mail;
-using Microsoft.Extensions.Configuration;
+using MailKit.Net.Smtp;
+using MimeKit;
 using server.Services.Interfaces;
 
 namespace server.Services.Implementations
@@ -14,30 +13,20 @@ namespace server.Services.Implementations
             _config = config;
         }
 
-        public async Task SendEmailAsync(string toEmail, string subject, string body, bool isHtml = true)
+        public async Task SendEmailAsync(string to, string subject, string htmlBody)
         {
-            var smtpHost = _config["Smtp:Host"];
-            var smtpPort = int.Parse(_config["Smtp:Port"] ?? "587");
-            var smtpUser = _config["Smtp:Username"];
-            var smtpPass = _config["Smtp:Password"];
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress("PMS System", _config["Email:From"]));
+            message.To.Add(new MailboxAddress("", to));
+            message.Subject = subject;
 
-            var message = new MailMessage
-            {
-                From = new MailAddress(smtpUser ?? throw new Exception("SMTP Username not configured")),
-                Subject = subject,
-                Body = body,
-                IsBodyHtml = isHtml
-            };
+            message.Body = new TextPart("html") { Text = htmlBody };
 
-            message.To.Add(toEmail);
-
-            using var client = new SmtpClient(smtpHost, smtpPort)
-            {
-                Credentials = new NetworkCredential(smtpUser, smtpPass),
-                EnableSsl = true
-            };
-
-            await client.SendMailAsync(message);
+            using var client = new SmtpClient();
+            await client.ConnectAsync("smtp.gmail.com", 587, false);
+            await client.AuthenticateAsync(_config["Email:From"], _config["Email:Password"]);
+            await client.SendAsync(message);
+            await client.DisconnectAsync(true);
         }
     }
 }

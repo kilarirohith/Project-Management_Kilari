@@ -1,208 +1,203 @@
 <div class="project-master-container">
-  <!-- Top Header -->
-  <div class="project-header-row">
-    <div>
-      <h1 class="project-header">Project Master</h1>
-      <p class="project-subtitle">
-        Create and manage projects linked to your clients.
-      </p>
-    </div>
+  <div class="project-inner">
 
-    <!-- Add Button (Hidden if form is open) -->
-    <button
-      *ngIf="!showForm"
-      mat-raised-button
-      color="primary"
-      class="add-project-btn"
-      (click)="addNew()"
-    >
-      <mat-icon>add</mat-icon>
-      <span>New Project</span>
-    </button>
-  </div>
-
-  <!-- FORM SECTION -->
-  <mat-card *ngIf="showForm" class="form-container">
-    <div class="form-header">
+    <!-- HEADER -->
+    <div class="project-header-row">
       <div>
-        <h2 class="form-title">
-          {{ editingId ? 'Edit Project' : 'Create New Project' }}
-        </h2>
-        <p class="form-subtitle">
-          Fill in the details below to {{ editingId ? 'update the project.' : 'add a new project.' }}
+        <h1 class="project-header">Project Master</h1>
+        <p class="project-subtitle">
+          Create and manage projects linked to your clients.
         </p>
       </div>
-      <button mat-icon-button color="warn" (click)="closeForm()" aria-label="Close">
-        <mat-icon>close</mat-icon>
+
+      <button
+        mat-raised-button
+        color="primary"
+        class="add-project-btn"
+        (click)="addNew()"
+      >
+        <mat-icon>add</mat-icon>
+        <span>Create Project</span>
       </button>
     </div>
 
-    <form [formGroup]="form" class="form-grid">
+
+    <!-- CREATE / EDIT FORM (same style as Client/Vendor) -->
+<mat-card *ngIf="showForm" class="card project-form-card">
+  <div class="card-header">
+    <h2 class="card-title">
+      {{ editingId ? 'Edit Project' : 'Add New Project' }}
+    </h2>
+
+   
+  </div>
+
+  <form [formGroup]="form" (ngSubmit)="saveProject()">
+    <div class="card-content project-form-grid">
       <!-- Project Name -->
-      <mat-form-field appearance="outline" class="custom-form-field">
-        <mat-label>Project Name</mat-label>
+      <div class="field-group">
+        <label class="field-label">
+          Project Name <span class="req">*</span>
+        </label>
         <input
-          matInput
+          type="text"
+          class="form-input"
+          placeholder="Project Name"
           formControlName="projectName"
-          placeholder="e.g. ERP Implementation"
         />
-        <mat-error *ngIf="form.get('projectName')?.hasError('required')">
-          Project name is required
-        </mat-error>
-      </mat-form-field>
+      </div>
 
-      <!-- Client Dropdown -->
-      <mat-form-field appearance="outline" class="custom-form-field">
-        <mat-label>Client</mat-label>
-        <mat-select formControlName="clientId">
-          <mat-option *ngFor="let client of clients" [value]="client.id">
+      <!-- Client -->
+      <div class="field-group">
+        <label class="field-label">
+          Client <span class="req">*</span>
+        </label>
+        <select
+          class="form-input"
+          formControlName="clientId">
+          <option value="" disabled>Select Client</option>
+          <option *ngFor="let client of clients" [value]="client.id">
             {{ client.clientName }}
-          </mat-option>
-        </mat-select>
-        <mat-error *ngIf="form.get('clientId')?.hasError('required')">
-          Client is required
-        </mat-error>
-      </mat-form-field>
+          </option>
+        </select>
+      </div>
 
-      <!-- Description - full width row -->
-      <mat-form-field
-        appearance="outline"
-        class="custom-form-field description-field"
-      >
-        <mat-label>Description</mat-label>
+      <!-- Description -->
+      <div class="field-group field-full">
+        <label class="field-label">Description</label>
         <textarea
-          matInput
-          formControlName="description"
-          rows="2"
+          class="form-input textarea"
+          rows="3"
           placeholder="Short summary about this project..."
+          formControlName="description"
         ></textarea>
-      </mat-form-field>
+      </div>
 
-      <!-- Action Buttons -->
-      <div class="form-actions">
+      <!-- ACTION BUTTONS -->
+      <div class="field-full form-actions">
         <button
-          mat-stroked-button
-          color="warn"
-          class="cancel-btn"
           type="button"
-          (click)="closeForm()"
-        >
+          class="btn btn-secondary"
+          (click)="closeForm()">
           Cancel
         </button>
 
         <button
-          mat-raised-button
-          color="primary"
-          class="save-btn"
-          (click)="saveProject()"
-          [disabled]="form.invalid || isSaving"
-        >
-          <mat-icon *ngIf="isSaving" class="loading-icon">autorenew</mat-icon>
-          {{ isSaving ? 'Saving...' : (editingId ? 'Update Project' : 'Save Project') }}
+          type="submit"
+          class="btn btn-primary"
+          [disabled]="form.invalid || isSaving">
+          {{ isSaving
+              ? (editingId ? 'Updating…' : 'Saving…')
+              : (editingId ? 'Update Project' : 'Save Project') }}
         </button>
       </div>
-    </form>
-  </mat-card>
-
-  <!-- TABLE SECTION -->
-  <div class="table-card">
-    <div class="table-header">
-      <div>
-        <h3 class="table-title">Project List</h3>
-        <p class="table-subtitle">
-          Showing {{ projects.length || 0 }} project{{ projects.length === 1 ? '' : 's' }}.
-        </p>
-      </div>
     </div>
+  </form>
+</mat-card>
 
-    <div class="table-container" *ngIf="projects?.length; else emptyState">
-      <table mat-table [dataSource]="projects" class="custom-table">
 
-        <!-- Project Name -->
-        <ng-container matColumnDef="projectName">
-          <th mat-header-cell *matHeaderCellDef> Project </th>
-          <td mat-cell *matCellDef="let p">
-            <div class="project-cell">
-              <div class="project-avatar">
-                {{ p.projectName?.charAt(0) | uppercase }}
-              </div>
-              <div>
-                <div class="project-name">{{ p.projectName }}</div>
-                <div class="project-meta">
-                  ID: {{ p.id || '—' }}
-                </div>
-              </div>
+   
+<!-- PROJECT LIST TABLE (always below form) -->
+<div class="table-card">
+  <div class="table-header">
+    <div>
+      <h3 class="table-title">Project List</h3>
+      <p class="table-subtitle">
+        Showing {{ projects.length || 0 }} project{{ projects.length === 1 ? '' : 's' }}.
+      </p>
+    </div>
+  </div>
+
+  <div class="table-container" *ngIf="projects?.length; else emptyState">
+    <table mat-table [dataSource]="projects" class="custom-table mat-elevation-z0">
+
+      <!-- Project Name -->
+      <ng-container matColumnDef="projectName">
+        <th mat-header-cell *matHeaderCellDef>Project</th>
+        <td mat-cell *matCellDef="let p">
+          <div class="project-cell">
+            <div class="project-avatar">
+              {{ p.projectName?.charAt(0) | uppercase }}
             </div>
-          </td>
-        </ng-container>
+            <div>
+              <div class="project-name">{{ p.projectName }}</div>
+              
+            </div>
+          </div>
+        </td>
+      </ng-container>
 
-        <!-- Client Name -->
-        <ng-container matColumnDef="clientName">
-          <th mat-header-cell *matHeaderCellDef> Client </th>
-          <td mat-cell *matCellDef="let p">
-            <span class="client-chip">
-              {{ p.clientName || 'N/A' }}
-            </span>
-          </td>
-        </ng-container>
+      <!-- Client Name -->
+      <ng-container matColumnDef="clientName">
+        <th mat-header-cell *matHeaderCellDef>Client</th>
+        <td mat-cell *matCellDef="let p">
+          <span class="client-chip">
+            {{ p.clientName || 'N/A' }}
+          </span>
+        </td>
+      </ng-container>
 
-        <!-- Description -->
-        <ng-container matColumnDef="description">
-          <th mat-header-cell *matHeaderCellDef> Description </th>
-          <td mat-cell *matCellDef="let p">
-            {{ p.description || '-' }}
-          </td>
-        </ng-container>
+      <!-- Description -->
+      <ng-container matColumnDef="description">
+        <th mat-header-cell *matHeaderCellDef>Description</th>
+        <td mat-cell *matCellDef="let p">
+          {{ p.description || '-' }}
+        </td>
+      </ng-container>
 
-        <!-- Actions -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef class="actions-header"> Actions </th>
-          <td mat-cell *matCellDef="let p" class="actions-cell">
-            <button
-              mat-icon-button
-              class="edit-icon-btn"
-              matTooltip="Edit Project"
-              (click)="editProject(p)"
-            >
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button
-              mat-icon-button
-              color="warn"
-              class="delete-icon-btn"
-              matTooltip="Delete Project"
-              (click)="deleteProject(p.id!)"
-            >
-              <mat-icon>delete</mat-icon>
-            </button>
-          </td>
-        </ng-container>
+      <!-- Actions -->
+      <ng-container matColumnDef="actions">
+        <th
+          mat-header-cell
+          *matHeaderCellDef
+          class="actions-header">
+          Actions
+        </th>
+        <td
+          mat-cell
+          *matCellDef="let p"
+          class="actions-cell">
+          <button
+            mat-stroked-button
+            type="button"
+            class="table-btn table-btn-edit"
+            (click)="editProject(p)">
+            Edit
+          </button>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: displayedColumns;"
-          class="data-row"
-        ></tr>
+          <button
+            mat-stroked-button
+            type="button"
+            class="table-btn table-btn-delete"
+            (click)="deleteProject(p.id!)">
+            Delete
+          </button>
+        </td>
+      </ng-container>
 
-      </table>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr
+        mat-row
+        *matRowDef="let row; columns: displayedColumns;"
+        class="data-row"
+      ></tr>
+    </table>
+  </div>
+
+  <!-- EMPTY STATE -->
+  <ng-template #emptyState>
+    <div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <h4>No projects yet</h4>
+      <p>Add your first project to get started.</p>
+      <button mat-raised-button color="primary" (click)="addNew()">
+        <mat-icon>add</mat-icon>
+        <span>Create Project</span>
+      </button>
     </div>
+  </ng-template>
+</div>
 
-    <!-- Empty State -->
-    <ng-template #emptyState>
-      <div class="empty-state">
-        <div class="empty-icon">📋</div>
-        <h4>No projects yet</h4>
-        <p>Add your first project to get started.</p>
-        <button
-          mat-raised-button
-          color="primary"
-          (click)="addNew()"
-        >
-          <mat-icon>add</mat-icon>
-          <span>Create Project</span>
-        </button>
-      </div>
-    </ng-template>
+
   </div>
 </div>

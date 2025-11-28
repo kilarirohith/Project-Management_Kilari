@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using server.Authorization;      // 👈 IMPORTANT
 using server.Data;
 using server.DTOs;
 
@@ -7,6 +9,7 @@ namespace server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]                   // 👈 must be logged in
     public class DashboardController : ControllerBase
     {
         private readonly AppDbContext _context;
@@ -16,7 +19,10 @@ namespace server.Controllers
             _context = context;
         }
 
+        // GET: api/Dashboard/summary
         [HttpGet("summary")]
+        [PermissionAuthorize("Dashboard", "Read")]   
+        [Authorize]    // 👈 needs Dashboard:Read permission
         public async Task<IActionResult> GetSummary()
         {
             // ---------- PROJECTS ----------
@@ -25,7 +31,6 @@ namespace server.Controllers
             var completedProjects = await _context.Projects.CountAsync(p => p.Status == "Completed");
             var delayedProjects = await _context.Projects.CountAsync(p => p.Status == "Delayed");
             var onHoldProjects = await _context.Projects.CountAsync(p => p.Status == "OnHold");
-
 
             // ---------- TASKS ----------
             var totalTasks = await _context.ProjectTasks.CountAsync();

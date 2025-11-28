@@ -1,10 +1,15 @@
 <!-- vendor-master.component.html -->
 <div class="space-y-6 p-4">
-  <h1 class="text-2xl font-bold">Vendor Master</h1>
+ <!-- HEADER ROW -->
+<div class="vendor-top-row">
+  <h1 class="vendor-title">Vendor Master</h1>
 
-   <button class="btn btn-primary" (click)="showAddForm()">
+  <button class="btn btn-primary add-vendor-btn" (click)="showAddForm()">
     + Add New Vendor
   </button>
+</div>
+
+
 
   <div *ngIf="showForm" class="card">
     <div class="card-header">
@@ -25,12 +30,12 @@
     </div>
   </div>
 
-  <div class="card">
-    <div class="card-header">
+  <div class="card vendor-card">
+    <div class="card-header vendor-card-header">
       <h2 class="card-title">Vendors List</h2>
     </div>
-    <div class="card-content">
-      <table class="table">
+    <div class="card-content vendor-card-content">
+      <table class="table vendor-table">
         <thead>
           <tr>
             <th>Name</th>

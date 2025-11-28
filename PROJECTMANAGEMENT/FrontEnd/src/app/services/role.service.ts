@@ -1,7 +1,8 @@
+// src/app/services/role.service.ts
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders } from '@angular/common/http'; // ✅ Import HttpHeaders
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { AuthService } from '../auth/auth.service'; // ✅ Import AuthService
+import { AuthService } from '../auth/auth.service';
 
 export interface RolePermission {
   module: string;
@@ -18,26 +19,32 @@ export interface Role {
   permissions: RolePermission[];
 }
 
+export interface AppModule {
+  id?: number;
+  name: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class RoleService {
-  private apiUrl = 'http://localhost:5089/api/Role'; // Check your port
+  private apiUrl = 'http://localhost:5089/api/Role';
+  private moduleApi = 'http://localhost:5089/api/Module';
 
   constructor(
     private http: HttpClient,
-    private authService: AuthService // ✅ Inject Auth Service
+    private authService: AuthService
   ) {}
 
-  // ✅ Helper: Get Token from Auth Service and create Headers
   private getOptions() {
     const token = this.authService.getToken();
     return {
       headers: new HttpHeaders({
-        'Authorization': `Bearer ${token}`,
+        Authorization: `Bearer ${token}`,
         'Content-Type': 'application/json'
       })
     };
   }
 
+  // ---- Roles ----
   getRoles(): Observable<Role[]> {
     return this.http.get<Role[]>(this.apiUrl, this.getOptions());
   }
@@ -52,5 +59,18 @@ export class RoleService {
 
   deleteRole(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`, this.getOptions());
+  }
+
+  // ---- Modules ----
+  getModules(): Observable<AppModule[]> {
+    return this.http.get<AppModule[]>(this.moduleApi, this.getOptions());
+  }
+
+  createModule(name: string): Observable<AppModule> {
+    return this.http.post<AppModule>(this.moduleApi, { name }, this.getOptions());
+  }
+
+  deleteModule(id: number): Observable<any> {
+    return this.http.delete(`${this.moduleApi}/${id}`, this.getOptions());
   }
 }

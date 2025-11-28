@@ -1,126 +1,376 @@
-/* milestone-master.component.css */
+/* ===========================
+   PAGE WRAPPER
+   =========================== */
+
+.space-y-10.p-6 {
+  padding: 2rem 2.5rem;
+  min-height: 100vh;
+  background: radial-gradient(circle at top left,
+      #eef2ff 0,
+      #e0f2fe 30%,
+      #fafafa 60%,
+      #f3f4f6 100%);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+/* mimic space-y-10 */
 .space-y-10 > * + * {
   margin-top: 2.5rem;
 }
 
-.space-y-3 > * + * {
-  margin-top: 0.75rem;
+/* ===========================
+   HEADER ROW (TITLE + BUTTON)
+   =========================== */
+
+.milestone-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
-.p-6 {
-  padding: 1.5rem;
+.milestone-title {
+  margin: 0;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0f172a;
 }
 
-.text-2xl {
-  font-size: 1.5rem;
+/* top-right main button */
+.add-milestone-btn {
+  border-radius: 999px;
+  padding: 0.55rem 1.4rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-transform: none;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  color: #ffffff;
+  border: none;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
 }
 
-.font-bold {
-  font-weight: bold;
+.add-milestone-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.07);
+  box-shadow: 0 14px 32px rgba(37, 99, 235, 0.5);
 }
+
+.add-milestone-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.4);
+}
+
+/* ===========================
+   GENERIC BUTTONS
+   =========================== */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 0.45rem 1.1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: none;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.12s ease, box-shadow 0.12s ease,
+    background 0.12s ease, filter 0.12s ease;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.45);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  box-shadow: 0 4px 10px rgba(148, 163, 184, 0.25);
+}
+
+.btn-secondary:hover {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+/* small buttons (table actions) */
+.btn-sm {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+}
+
+/* red delete */
+.btn-destructive {
+  background: #fee2e2;
+  color: #b91c1c;
+  border: 1px solid #fecaca;
+  box-shadow: 0 4px 10px rgba(248, 113, 113, 0.35);
+}
+
+.btn-destructive:hover {
+  background: #fecaca;
+}
+
+/* blue edit */
+.edit-btn {
+  background: #e0e7ff;
+  color: #1d4ed8;
+  border: 1px solid #c7d2fe;
+  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.25);
+}
+
+.edit-btn:hover {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+/* spacing between buttons in actions column */
+.space-x-2 > * + * {
+  margin-left: 0.4rem;
+}
+
+/* ===========================
+   FORM CARD
+   =========================== */
+
+.milestone-form-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  padding: 1.5rem 1.7rem;
+  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow:
+    0 18px 44px rgba(15, 23, 42, 0.10),
+    0 0 0 1px rgba(148, 163, 184, 0.25);
+  animation: mm-dropdown 0.25s ease-out;
+}
+
+/* simple drop animation */
+@keyframes mm-dropdown {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.milestone-form-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* two-column grid for fields */
+.milestone-form-body {
+  margin-top: 1.15rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  row-gap: 1.2rem;
+}
+
+/* full-width row for actions */
+.form-actions {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+}
+
+/* form rows */
+.form-row {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-row label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 0.35rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* text inputs */
+.form-input {
+  padding: 0.55rem 0.9rem;
+  border-radius: 0.65rem;
+  border: 1px solid #d1d5db;
+  background: #f9fafb;
+  font-size: 0.95rem;
+  color: #111827;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.form-input::placeholder {
+  color: #9ca3af;
+}
+
+/* hover */
+.form-input:hover {
+  background: #f3f4f6;
+}
+
+/* focus */
+.form-input:focus {
+  outline: none;
+  background: #ffffff;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.25);
+}
+
+/* ===========================
+   LIST CARD + TABLE
+   =========================== */
 
 .card {
-  border: 1px solid #e5e7eb;
-  border-radius: 0.5rem;
-  background: white;
+  background: #ffffff;
+  border-radius: 1rem;
+  padding: 1.25rem 1.4rem 1.5rem;
+  box-shadow:
+    0 18px 44px rgba(15, 23, 42, 0.08),
+    0 0 0 1px rgba(148, 163, 184, 0.16);
+}
+
+.milestone-card {
+  margin-top: 0.5rem;
 }
 
 .card-header {
-  padding: 1rem 1.5rem;
-  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
 }
 
 .card-title {
-  font-size: 1.125rem;
-  font-weight: 600;
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
 }
 
-.card-content {
-  padding: 1.5rem;
+.milestone-table-wrapper {
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.45);
+  overflow-x: auto;
+  overflow-y: hidden;
+  background: #ffffff;
+  padding-bottom: 8px; /* for scrollbar space */
 }
 
-.mb-4 {
-  margin-bottom: 1rem;
+/* scrollbar styling */
+.milestone-table-wrapper::-webkit-scrollbar {
+  height: 8px;
 }
-
-.flex {
-  display: flex;
+.milestone-table-wrapper::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 4px;
 }
-
-.gap-2 {
-  gap: 0.5rem;
+.milestone-table-wrapper::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.milestone-table-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 .table {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.9rem;
 }
 
-.table th,
-.table td {
-  padding: 0.75rem;
-  text-align: left;
+/* ensure scroll on narrow screens */
+.milestone-table {
+  min-width: 500px;
+}
+
+.milestone-table thead {
+  background: #f3f4f6;
+}
+
+.milestone-table th,
+.milestone-table td {
+  padding: 0.6rem 0.9rem;
   border-bottom: 1px solid #e5e7eb;
 }
 
-.table th {
-  font-weight: 600;
-  background: #f9fafb;
+/* header style */
+.milestone-table th {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #4b5563;
 }
 
-.text-center {
+/* alignment: name left, others center */
+.milestone-table td:nth-child(1) {
+  text-align: left;
+}
+.milestone-table th:nth-child(2),
+.milestone-table th:nth-child(3),
+.milestone-table td:nth-child(2),
+.milestone-table td:nth-child(3) {
   text-align: center;
 }
 
-.btn {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.375rem;
-  cursor: pointer;
-  font-size: 0.875rem;
+/* zebra rows */
+.milestone-table tbody tr:nth-child(even) {
+  background-color: #f9fafb;
 }
 
-.btn-primary {
-  background: #3b82f6;
-  color: white;
+/* hover effect */
+.milestone-table tbody tr {
+  transition: background 0.12s ease, transform 0.08s ease,
+    box-shadow 0.12s ease;
 }
 
-.btn-primary:hover {
-  background: #2563eb;
+.milestone-table tbody tr:hover {
+  background: #eef2ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(148, 163, 184, 0.35);
 }
 
-.btn-secondary {
-  background: #6b7280;
-  color: white;
+/* empty text row */
+.text-center {
+  text-align: center;
+  font-style: italic;
+  color: #9ca3af;
 }
 
-.btn-secondary:hover {
-  background: #4b5563;
-}
+/* ===========================
+   RESPONSIVE
+   =========================== */
 
-.btn-destructive {
-  background: #ef4444;
-  color: white;
-}
+@media (max-width: 900px) {
+  .space-y-10.p-6 {
+    padding: 1.5rem;
+  }
 
-.btn-destructive:hover {
-  background: #dc2626;
-}
+  .milestone-form-body {
+    grid-template-columns: 1fr; /* stack fields */
+  }
 
-.btn-sm {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.75rem;
-}
-
-.form-input {
-  width: 100%;
-  padding: 0.5rem 0.75rem;
-  border: 1px solid #d1d5db;
-  border-radius: 0.375rem;
-}
-
-.form-input:focus {
-  outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  .form-actions {
+    justify-content: flex-start;
+  }
 }

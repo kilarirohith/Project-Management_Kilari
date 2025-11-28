@@ -13,5 +13,9 @@ namespace server.Services.Interfaces
         Task<User?> GetUserByIdAsync(int id);
         Task<bool> DeleteUserAsync(int id);
         Task<User?> UpdateUserAsync(int id, UpdateUserDTO dto);
+
+        // ✅ NEW: for forgot / reset password
+        Task RequestPasswordResetAsync(string email);
+        Task<bool> ResetPasswordAsync(string token, string newPassword);
     }
 }

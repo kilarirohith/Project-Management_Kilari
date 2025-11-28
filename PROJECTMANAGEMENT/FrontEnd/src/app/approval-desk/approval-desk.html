@@ -1,20 +1,124 @@
-<div class="p-6 bg-gray-50 min-h-screen space-y-6">
-  <div class="flex justify-between items-center">
+<div class="page-shell space-y-6">
+  <!-- HEADER -->
+  <div class="page-header">
     <div>
-      <h1 class="text-3xl font-bold text-gray-800">Approval Desk</h1>
-      <p class="text-gray-500">Manage approvals for Vendor Works and Projects</p>
+      <h1 class="page-title">
+        Approval Desk
+        <span class="page-badge">Live</span>
+      </h1>
+      <p class="page-subtitle">
+        Central place to review and manage approvals across all projects and vendor works.
+      </p>
     </div>
-    <button *ngIf="!showForm" class="btn btn-primary shadow-lg" (click)="openForm()">
-      + New Approval
+
+    <button
+      *ngIf="!showForm"
+      class="btn btn-primary-outline"
+      (click)="openForm()"
+    >
+      <span>+ New Approval</span>
     </button>
   </div>
+
+  <!-- STATUS SUMMARY CARDS -->
+ <div class="stats-grid">
+
+  <!-- Total -->
+  <div class="stat-card stat-blue">
+    <div>
+      <div class="stat-label">Total Approvals</div>
+      <div class="stat-value">{{ totalCount }}</div>
+      <div class="stat-subtitle">Across all projects</div>
+    </div>
+
+    <div class="stat-icon">
+      <!-- Blue Folder-check -->
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"
+        fill="none" stroke="currentColor">
+        <path d="M3 7h5l2 2h11v8a2 2 0 01-2 2H5a2 2 0 01-2-2V7z"/>
+        <path d="M9 13l2 2l4 -4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Pending -->
+  <div class="stat-card stat-yellow">
+    <div>
+      <div class="stat-label">Pending</div>
+      <div class="stat-value">{{ pendingCount }}</div>
+      <div class="stat-subtitle">Waiting for approval</div>
+    </div>
+
+    <div class="stat-icon">
+      <!-- Yellow Clock -->
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+        viewBox="0 0 24 24" stroke="currentColor">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 7v5l3 3"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Approved -->
+  <div class="stat-card stat-green">
+    <div>
+      <div class="stat-label">Approved</div>
+      <div class="stat-value">{{ approvedCount }}</div>
+      <div class="stat-subtitle">Completed & verified</div>
+    </div>
+
+    <div class="stat-icon">
+      <!-- Green Check Circle -->
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+        viewBox="0 0 24 24" stroke="currentColor">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M9 12l2 2l4 -4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Attention -->
+  <div class="stat-card stat-red">
+    <div>
+      <div class="stat-label">Attention Needed</div>
+      <div class="stat-value">{{ rejectedCount + onHoldCount }}</div>
+      <div class="stat-subtitle">
+        {{ rejectedCount }} rejected • {{ onHoldCount }} on hold
+      </div>
+    </div>
+
+    <div class="stat-icon">
+      <!-- Red Alert Triangle -->
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none"
+        viewBox="0 0 24 24" stroke="currentColor">
+        <path d="M10.29 3.86l-7.07 12.26a2 2 0 001.74 3h14.07a2 2 0 001.74-3L13.7 3.86a2 2 0 00-3.42 0z"/>
+        <line x1="12" y1="9" x2="12" y2="13"/>
+        <line x1="12" y1="17" x2="12.01" y2="17"/>
+      </svg>
+    </div>
+  </div>
+
+</div>
+
+
 
   <!-- FORM SECTION -->
   <div *ngIf="showForm" class="card fade-in">
     <div class="card-header bg-gray-100 p-4 rounded-t-lg border-b">
-      <h2 class="text-xl font-bold text-gray-700">
-        {{ editingId ? 'Edit Approval' : 'Create New Approval' }}
-      </h2>
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-xl font-bold text-gray-800">
+            {{ editingId ? 'Edit Approval' : 'Create New Approval' }}
+          </h2>
+          <p class="text-xs text-gray-500 mt-1">
+            Link a project and vendor work, then set the current approval status.
+          </p>
+        </div>
+
+        <button class="btn btn-secondary" (click)="closeForm()">
+          Close
+        </button>
+      </div>
     </div>
 
     <div class="card-body p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -26,9 +130,8 @@
         <select class="form-select" [(ngModel)]="form.projectId">
           <option [value]="0" disabled>-- Choose Project --</option>
           <option *ngFor="let p of projects" [value]="p.id">
-           {{ p.projectName }}
-         </option>
-
+            {{ p.projectName }}
+          </option>
         </select>
       </div>
 
@@ -40,7 +143,7 @@
         <select class="form-select" [(ngModel)]="form.vendorWorkId">
           <option [value]="0" disabled>-- Choose Work --</option>
           <option *ngFor="let w of vendorWorks" [value]="w.id">
-            {{ w.vendorName }} - {{ w.projectName }}
+            {{ w.vendorName }} – {{ w.projectName }}
           </option>
         </select>
       </div>
@@ -64,7 +167,7 @@
           Remarks
         </label>
         <textarea
-          class="form-textarea w-full border rounded p-2"
+          class="form-textarea"
           rows="3"
           [(ngModel)]="form.remarks"
           placeholder="Enter comments regarding this approval..."
@@ -73,76 +176,128 @@
 
       <!-- Actions -->
       <div class="md:col-span-2 flex justify-end gap-3 mt-4">
-        <button class="btn btn-secondary" (click)="closeForm()">Cancel</button>
-        <button class="btn btn-primary" (click)="save()">
-          {{ editingId ? 'Update' : 'Submit' }}
+        <button class="btn btn-secondary" type="button" (click)="closeForm()">
+          Cancel
+        </button>
+        <button class="btn btn-primary" type="button" (click)="save()">
+          {{ editingId ? 'Update Approval' : 'Submit Approval' }}
         </button>
       </div>
     </div>
   </div>
 
-  <!-- TABLE SECTION -->
-  <div class="card bg-white rounded-lg shadow overflow-hidden">
-    <table class="w-full text-left border-collapse">
-      <thead class="bg-gray-100 text-gray-600 uppercase text-xs tracking-wider">
-        <tr>
-          <th class="p-4 border-b">Project</th>
-          <th class="p-4 border-b">Vendor Work</th>
-          <th class="p-4 border-b">Remarks</th>
-          <th class="p-4 border-b text-center">Status</th>
-          <th class="p-4 border-b text-right">Actions</th>
-        </tr>
-      </thead>
-      <tbody class="text-sm divide-y divide-gray-200">
-        <tr *ngFor="let item of approvals" class="hover:bg-gray-50 transition">
-          <td class="p-4 font-medium text-gray-800">
-            {{ item.project?.projectName || 'N/A' }}
-          </td>
-          <td class="p-4 text-gray-600">
-            <div class="font-semibold">
-              {{ item.vendorWork?.vendor?.vendorName || 'N/A' }}
-            </div>
-            <div class="text-xs text-gray-400">
-              {{ item.vendorWork?.projectName }}
-            </div>
-          </td>
-          <td class="p-4 text-gray-600 max-w-xs truncate">
-            {{ item.remarks || '-' }}
-          </td>
-          <td class="p-4 text-center">
-            <span
-              class="px-3 py-1 rounded-full text-xs font-bold shadow-sm"
-              [ngClass]="{
-                'bg-yellow-100 text-yellow-700': item.status === 'Pending',
-                'bg-green-100 text-green-700': item.status === 'Approved',
-                'bg-red-100 text-red-700': item.status === 'Rejected',
-                'bg-gray-100 text-gray-700': item.status === 'On Hold'
-              }"
-            >
-              {{ item.status }}
-            </span>
-          </td>
-          <td class="p-4 text-right space-x-2">
+ <!-- TABLE SECTION -->
+<div class="table-card">
+  <div class="table-header">
+    <div>
+      <h3 class="table-title">Approval Records</h3>
+      <p class="table-meta">
+        Showing {{ approvals.length }} approval{{ approvals.length === 1 ? '' : 's' }}
+      </p>
+    </div>
+
+    <div class="table-legend">
+      <span class="table-legend-pill">
+        <span class="table-legend-dot" style="background:#eab308;"></span>
+        Pending
+      </span>
+      <span class="table-legend-pill">
+        <span class="table-legend-dot" style="background:#22c55e;"></span>
+        Approved
+      </span>
+      <span class="table-legend-pill">
+        <span class="table-legend-dot" style="background:#ef4444;"></span>
+        Rejected
+      </span>
+      <span class="table-legend-pill">
+        <span class="table-legend-dot" style="background:#6b7280;"></span>
+        On Hold
+      </span>
+    </div>
+  </div>
+
+ <div class="table-scroll">
+  <table class="approval-table">
+    <thead>
+      <tr>
+        <th>Project</th>
+        <th>Vendor Work</th>
+        <th>Remarks</th>
+        <th class="th-status">Status</th>
+        <th class="th-actions">Actions</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      <tr *ngFor="let item of approvals">
+        
+        <!-- Project -->
+        <td class="project-cell">
+          {{ item.project?.projectName || 'N/A' }}
+        </td>
+
+        <!-- Vendor -->
+        <td class="vendor-cell">
+          <div class="vendor-main">
+            {{ item.vendorWork?.vendor?.vendorName || 'N/A' }}
+          </div>
+          <div class="vendor-sub">
+            {{ item.vendorWork?.projectName || '-' }}
+          </div>
+        </td>
+
+        <!-- Remarks -->
+        <td class="remarks-cell">
+          {{ item.remarks || '-' }}
+        </td>
+
+        <!-- STATUS -->
+        <td class="status-cell">
+          <span
+            class="status-chip"
+            [ngClass]="{
+              'status-pending': item.status === 'Pending',
+              'status-approved': item.status === 'Approved',
+              'status-rejected': item.status === 'Rejected',
+              'status-onhold': item.status === 'On Hold'
+            }"
+          >
+            {{ item.status }}
+          </span>
+        </td>
+
+        <!-- ACTIONS → centered -->
+        <td class="actions-cell">
+          <div class="actions-wrapper">
             <button
-              class="text-blue-600 hover:text-blue-800 font-medium"
+              class="table-action-btn action-edit"
               (click)="editItem(item)"
             >
-              Edit
+              ✏️ Edit
             </button>
+
             <button
-              class="text-red-600 hover:text-red-800 font-medium"
+              class="table-action-btn action-delete"
               (click)="deleteItem(item.id!)"
             >
-              Delete
+              🗑 Delete
             </button>
-          </td>
-        </tr>
-        <tr *ngIf="approvals.length === 0">
-          <td colspan="5" class="p-8 text-center text-gray-500 italic">
-            No approval records found.
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+          </div>
+        </td>
+
+      </tr>
+
+      <!-- Empty -->
+      <tr *ngIf="approvals.length === 0">
+        <td colspan="5" class="empty-state">
+          No approval records found. Click “New Approval” to create one.
+        </td>
+      </tr>
+    </tbody>
+
+  </table>
+</div>
+
+
+
 </div>

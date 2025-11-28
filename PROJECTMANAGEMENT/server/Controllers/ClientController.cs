@@ -1,6 +1,6 @@
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using server.Authorization;
 using server.DTOs;
 using server.Services.Interfaces;
 
@@ -8,6 +8,7 @@ namespace server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize]
     public class ClientController : ControllerBase
     {
         private readonly IClientService _clientService;
@@ -18,14 +19,14 @@ namespace server.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [PermissionAuthorize("Masters", "Read")]
         public async Task<IActionResult> GetAll()
         {
             return Ok(await _clientService.GetAllAsync());
         }
 
         [HttpGet("{id}")]
-        [Authorize]
+        [PermissionAuthorize("Masters", "Read")]
         public async Task<IActionResult> GetById(int id)
         {
             var client = await _clientService.GetByIdAsync(id);
@@ -33,7 +34,7 @@ namespace server.Controllers
         }
 
         [HttpGet("{clientId}/locations")]
-        [Authorize]
+        [PermissionAuthorize("Masters", "Read")]
         public async Task<IActionResult> GetLocationsByClient(int clientId)
         {
             var locations = await _clientService.GetLocationsByClientAsync(clientId);
@@ -42,7 +43,7 @@ namespace server.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("Masters", "Create")]
         public async Task<IActionResult> Create([FromBody] ClientDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -51,7 +52,7 @@ namespace server.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("Masters", "Update")]
         public async Task<IActionResult> Update(int id, [FromBody] ClientDTO dto)
         {
             var updated = await _clientService.UpdateAsync(id, dto);
@@ -59,7 +60,7 @@ namespace server.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("Masters", "Delete")]
         public async Task<IActionResult> Delete(int id)
         {
             return await _clientService.DeleteAsync(id) ? NoContent() : NotFound();

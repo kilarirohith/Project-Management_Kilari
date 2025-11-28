@@ -1,236 +1,307 @@
-/* Main Container */
+/* ===========================
+   PAGE BACKGROUND & LAYOUT
+   =========================== */
+
 .project-master-container {
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   min-height: 100vh;
-  padding: 2rem;
-  box-sizing: border-box;
+  padding: 2rem 2.5rem;
+  background: radial-gradient(circle at top left,
+      #eef2ff 0,
+      #e0f2fe 30%,
+      #fafafa 60%,
+      #f3f4f6 100%);
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-/* Header Row */
+.project-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ===========================
+   HEADER
+   =========================== */
+
 .project-header-row {
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1.6rem;
 }
 
 .project-header {
-  color: #1a202c;
-  font-weight: 700;
-  font-size: 1.8rem;
   margin: 0;
-  position: relative;
-  display: inline-block;
-}
-
-.project-header::after {
-  content: '';
-  position: absolute;
-  bottom: -8px;
-  left: 0;
-  width: 80px;
-  height: 4px;
-  background: linear-gradient(90deg, #3f51b5 0%, #2196f3 100%);
-  border-radius: 2px;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0f172a;
 }
 
 .project-subtitle {
-  margin-top: 0.75rem;
-  color: #64748b;
-  font-size: 0.95rem;
-}
-
-/* Add Project Button */
-.add-project-btn {
-  border-radius: 999px !important;
-  padding: 0.6rem 1.4rem !important;
-  font-weight: 600 !important;
-  text-transform: none !important;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  box-shadow: 0 4px 8px rgba(37, 99, 235, 0.25) !important;
-  transition: transform 0.18s ease, box-shadow 0.18s ease !important;
-}
-
-.add-project-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 8px 16px rgba(37, 99, 235, 0.3) !important;
-}
-
-/* Form Card */
-.form-container {
-  background: #ffffff;
-  border-radius: 14px;
-  padding: 1.75rem 1.75rem 1.5rem;
-  margin-top: 0.75rem;
-  box-shadow:
-    0 4px 20px rgba(15, 23, 42, 0.08),
-    0 0 0 1px rgba(148, 163, 184, 0.2);
-  animation: slideDown 0.25s ease-out;
-}
-
-/* Form Header */
-.form-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 1rem;
-  margin-bottom: 1.25rem;
-}
-
-.form-title {
-  color: #1f2933;
-  font-size: 1.2rem;
-  font-weight: 600;
-  margin: 0;
-}
-
-.form-subtitle {
-  margin-top: 0.35rem;
-  margin-bottom: 0;
-  color: #6b7280;
+  margin: 0.3rem 0 0;
   font-size: 0.9rem;
+  color: #6b7280;
 }
 
-/* Form Grid */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 1.1rem 1.5rem;
-}
-
-.custom-form-field {
-  width: 100%;
-}
-
-/* Make description span full width */
-.description-field {
-  grid-column: 1 / -1;
-}
-
-/* Form Actions */
-.form-actions {
-  grid-column: 1 / -1;
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
-}
-
-.save-btn,
-.cancel-btn {
-  border-radius: 999px !important;
-  padding: 0.55rem 1.4rem !important;
-  font-weight: 600 !important;
-  text-transform: none !important;
-}
-
-.save-btn {
-  box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3) !important;
+/* Create Project pill button (top-right) */
+.add-project-btn {
+  border-radius: 999px;
+  padding: 0.55rem 1.5rem;
+  font-size: 0.92rem;
+  font-weight: 600;
+  text-transform: none;
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  color: #ffffff !important;
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.4);
 }
 
-.save-btn .loading-icon {
-  animation: spin 0.8s linear infinite;
-}
+/* ===========================
+   FORM CARD (Create / Edit)
+   =========================== */
 
-/* Table Card */
-.table-card {
-  margin-top: 1.75rem;
+.project-form-card {
   background: #ffffff;
-  border-radius: 14px;
+  border-radius: 1rem;
+  padding: 1.4rem 1.7rem 1.5rem;
   box-shadow:
-    0 4px 20px rgba(15, 23, 42, 0.08),
-    0 0 0 1px rgba(148, 163, 184, 0.2);
-  padding: 1.5rem 1.5rem 1rem;
+    0 18px 44px rgba(15, 23, 42, 0.08),
+    0 0 0 1px rgba(148, 163, 184, 0.18);
+  margin-bottom: 1.8rem;
 }
 
-/* Table Header */
+.form-header {
+  margin-bottom: 1rem;
+}
+
+.form-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.form-subtitle {
+  margin: 0.25rem 0 0;
+  font-size: 0.86rem;
+  color: #6b7280;
+}
+
+/* grid layout you already use */
+.project-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.5rem;
+  row-gap: 1rem;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-full {
+  grid-column: 1 / -1;
+}
+
+.field-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.req {
+  color: #ef4444;
+}
+
+/* ===== Angular Material pill look for fields ===== */
+
+.pill-field.mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  border-radius: 999px !important;
+  background-color: #f3f4f6 !important;
+  padding: 0 16px !important;
+  height: 42px;
+  display: flex;
+  align-items: center;
+}
+
+.pill-field .mdc-notched-outline__leading,
+.pill-field .mdc-notched-outline__trailing,
+.pill-field .mdc-notched-outline__notch {
+  border: none !important;
+}
+
+.pill-field .mat-mdc-input-element {
+  font-size: 0.95rem;
+  color: #111827;
+}
+
+/* select darker background so it pops */
+.pill-select .mat-mdc-text-field-wrapper {
+  background-color: #e5e7eb !important;
+}
+
+/* textarea – rounded box */
+.pill-textarea.mat-mdc-form-field .mat-mdc-text-field-wrapper {
+  border-radius: 16px !important;
+  background-color: #f3f4f6 !important;
+  padding: 8px 16px !important;
+  min-height: 90px;
+  align-items: flex-start;
+}
+
+.pill-textarea .mdc-notched-outline__leading,
+.pill-textarea .mdc-notched-outline__trailing,
+.pill-textarea .mdc-notched-outline__notch {
+  border: none !important;
+}
+
+/* form actions */
+.form-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* cancel / save buttons inside form */
+.btn-secondary {
+  text-transform: none !important;
+  border-radius: 999px !important;
+  padding: 0.45rem 1.3rem !important;
+  font-weight: 500 !important;
+  font-size: 0.9rem;
+  border-color: #fecaca !important;
+  color: #b91c1c !important;
+  background: #fef2f2 !important;
+}
+
+.btn-secondary:hover {
+  background: #fee2e2 !important;
+}
+
+.btn-primary {
+  text-transform: none !important;
+  border-radius: 999px !important;
+  padding: 0.5rem 1.5rem !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem;
+  background: linear-gradient(135deg, #16a34a, #22c55e) !important;
+  color: #ffffff !important;
+  box-shadow: 0 10px 22px rgba(34, 197, 94, 0.45);
+}
+
+/* ===========================
+   PROJECT LIST TABLE
+   =========================== */
+
+.table-card {
+  padding: 1.3rem 1.5rem 1.5rem;
+  border-radius: 1rem;
+  background: #ffffff;
+  box-shadow:
+    0 18px 44px rgba(15, 23, 42, 0.08),
+    0 0 0 1px rgba(148, 163, 184, 0.16);
+}
+
 .table-header {
   display: flex;
-  justify-content: space-between;
   align-items: baseline;
-  margin-bottom: 0.75rem;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
 }
 
 .table-title {
   margin: 0;
-  font-size: 1.1rem;
-  font-weight: 600;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: #111827;
 }
 
 .table-subtitle {
   margin: 0.15rem 0 0;
+  font-size: 0.8rem;
   color: #6b7280;
-  font-size: 0.9rem;
 }
 
-/* Table Container */
 .table-container {
-  margin-top: 0.5rem;
-  border-radius: 10px;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(148, 163, 184, 0.45);
   overflow: hidden;
 }
 
-/* Material Table Styling */
+/* ---- mat-table styling ---- */
+
 .custom-table {
   width: 100%;
-  border-collapse: collapse;
-  background-color: #ffffff;
 }
 
-.custom-table .mat-header-cell {
-  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%);
-  color: #ffffff;
-  font-weight: 600;
-  font-size: 0.85rem;
-  padding: 0.8rem 0.95rem;
-  border-bottom: none;
+.custom-table .mat-mdc-header-row {
+  background: linear-gradient(90deg, #eff6ff, #e0f2fe);
 }
 
-.custom-table .mat-cell {
-  padding: 0.8rem 0.95rem;
-  font-size: 0.88rem;
-  color: #374151;
-  border-bottom: 1px solid #e5e7eb;
+.custom-table .mat-mdc-header-cell {
+  padding: 0.7rem 1rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #4b5563;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.6);
 }
 
-.custom-table .data-row:nth-child(even) .mat-cell {
+.custom-table .mat-mdc-row.data-row {
+  transition: background 0.12s ease,
+              transform 0.06s ease,
+              box-shadow 0.08s ease;
+}
+
+.custom-table .mat-mdc-row.data-row:nth-child(even) {
   background-color: #f9fafb;
 }
 
-.custom-table .data-row:hover .mat-cell {
-  background-color: #eef2ff;
+.custom-table .mat-mdc-row.data-row:hover {
+  background: #eef2ff;
+  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(148, 163, 184, 0.4);
 }
 
-/* Project cell (avatar + text) */
+.custom-table .mat-mdc-cell {
+  padding: 0.65rem 1rem;
+  font-size: 0.9rem;
+  color: #111827;
+  border-bottom: 1px solid rgba(229, 231, 235, 0.95);
+}
+
+/* project avatar cell */
 .project-cell {
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.7rem;
 }
 
 .project-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  background: radial-gradient(circle at 30% 20%, #bfdbfe, #1d4ed8);
-  display: flex;
+  width: 2.1rem;
+  height: 2.1rem;
+  border-radius: 0.85rem;
+  background: linear-gradient(135deg, #38bdf8, #6366f1);
+  color: #ffffff;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  color: #eff6ff;
-  font-size: 0.9rem;
   font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 8px 18px rgba(59, 130, 246, 0.55);
 }
 
 .project-name {
   font-weight: 600;
   color: #111827;
+  margin-bottom: 0.05rem;
 }
 
 .project-meta {
@@ -238,115 +309,269 @@
   color: #6b7280;
 }
 
-/* Client chip */
+/* client chip */
 .client-chip {
   display: inline-flex;
   align-items: center;
-  padding: 0.20rem 0.65rem;
+  padding: 0.25rem 0.6rem;
   border-radius: 999px;
-  background-color: #eff6ff;
+  background: rgba(59, 130, 246, 0.08);
   color: #1d4ed8;
   font-size: 0.8rem;
   font-weight: 500;
 }
 
-/* Actions column */
+/* actions column */
 .actions-header {
   text-align: right;
 }
 
 .actions-cell {
-  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.4rem;
+  align-items: center;
 }
 
-.edit-icon-btn,
-.delete-icon-btn {
-  margin-left: 0.15rem;
+/* ===========================
+   EDIT / DELETE BUTTONS
+   =========================== */
+
+.table-btn {
+  border-radius: 999px;
+  padding: 0.25rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-transform: none;
+  border-width: 1px !important;
+  border-style: solid !important;
+  box-shadow: 0 4px 10px rgba(148, 163, 184, 0.25);
 }
 
-.edit-icon-btn {
-  color: #2563eb !important;
+/* blue EDIT */
+.table-btn-edit {
+  background: #e0f2fe !important;
+  border-color: #bae6fd !important;
+  color: #0369a1 !important;
 }
 
-.edit-icon-btn:hover {
-  background-color: rgba(37, 99, 235, 0.08) !important;
+.table-btn-edit:hover {
+  background: #dbeafe !important;
+  color: #1e40af !important;
 }
 
-.delete-icon-btn:hover {
-  background-color: rgba(220, 38, 38, 0.08) !important;
+/* red DELETE */
+.table-btn-delete {
+  background: #fee2e2 !important;
+  border-color: #fecaca !important;
+  color: #b91c1c !important;
 }
 
-/* Empty State */
+.table-btn-delete:hover {
+  background: #fecaca !important;
+}
+
+/* ===========================
+   EMPTY STATE
+   =========================== */
+
 .empty-state {
+  padding: 2.4rem 1.6rem;
   text-align: center;
-  padding: 2.5rem 1.5rem 2rem;
-  color: #4b5563;
+  color: #6b7280;
 }
 
 .empty-icon {
-  font-size: 2.5rem;
-  margin-bottom: 0.75rem;
+  font-size: 2.4rem;
+  margin-bottom: 0.4rem;
 }
 
 .empty-state h4 {
-  margin: 0 0 0.25rem;
-  font-size: 1.1rem;
-  font-weight: 600;
+  margin: 0.15rem 0;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: #111827;
 }
 
 .empty-state p {
   margin: 0 0 1rem;
-  font-size: 0.9rem;
-  color: #6b7280;
+  font-size: 0.86rem;
 }
 
-/* Animations */
-@keyframes slideDown {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* ===========================
+   RESPONSIVE
+   =========================== */
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-/* Responsiveness */
-@media (max-width: 960px) {
+@media (max-width: 900px) {
   .project-master-container {
     padding: 1.5rem;
   }
 
-  .form-grid {
+  .project-form-grid {
     grid-template-columns: 1fr;
   }
+}
+/* ------------ FORM CARD (same look as client/vendor) ------------ */
 
-  .form-actions {
-    justify-content: flex-start;
-    flex-wrap: wrap;
-  }
+.card.project-form-card {
+  background: #ffffff;
+  border-radius: 1rem;
+  padding: 1.3rem 1.6rem 1.5rem;
+  box-shadow:
+    0 18px 44px rgba(15, 23, 42, 0.08),
+    0 0 0 1px rgba(148, 163, 184, 0.16);
+  margin-bottom: 1.8rem;
 }
 
-@media (max-width: 640px) {
-  .project-header-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.9rem;
+}
 
-  .add-project-btn {
-    align-self: stretch;
-    justify-content: center;
-  }
+.card-title {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #111827;
+}
 
-  .table-card {
-    padding: 1.25rem 1rem;
+.card-close {
+  border: none;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 999px;
+  width: 28px;
+  height: 28px;
+  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.card-content {
+  display: block;
+}
+
+/* ------------ GRID LAYOUT ------------ */
+
+.project-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  column-gap: 1.25rem;
+  row-gap: 0.9rem;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.field-full {
+  grid-column: 1 / -1;
+}
+
+/* labels & required star */
+
+.field-label {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.req {
+  color: #ef4444;
+}
+
+/* ------------ INPUTS (same as client/vendor .form-input) ------------ */
+
+.form-input {
+  width: 100%;
+  border-radius: 999px;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+  padding: 0.6rem 0.9rem;
+  font-size: 0.9rem;
+  color: #111827;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.form-input:focus {
+  border-color: #2563eb;
+  background: #ffffff;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.18);
+}
+
+/* textarea version */
+
+.form-input.textarea {
+  border-radius: 14px;
+  resize: vertical;
+  min-height: 90px;
+}
+
+/* ------------ FORM BUTTONS ------------ */
+
+.form-actions {
+  margin-top: 0.6rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.6rem;
+}
+
+.btn {
+  border-radius: 999px;
+  padding: 0.5rem 1.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition:
+    transform 0.05s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+
+/* primary (Save) */
+.btn-primary {
+  background: linear-gradient(135deg, #2563eb, #4f46e5);
+  color: #ffffff;
+  box-shadow: 0 10px 24px rgba(37, 99, 235, 0.4);
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 30px rgba(37, 99, 235, 0.5);
+}
+
+/* secondary (Cancel) */
+.btn-secondary {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.btn-secondary:hover {
+  opacity: 0.95;
+}
+
+/* disabled state */
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: default;
+  box-shadow: none;
+}
+
+/* ------------ RESPONSIVE ------------ */
+
+@media (max-width: 900px) {
+  .project-form-grid {
+    grid-template-columns: 1fr;
   }
 }

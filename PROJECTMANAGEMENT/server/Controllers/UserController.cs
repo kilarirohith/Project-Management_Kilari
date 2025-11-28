@@ -2,6 +2,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using server.Authorization;
 using server.DTOs;
 using server.Services.Interfaces;
 
@@ -41,7 +42,8 @@ namespace server.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("Masters", "Create")]
+         [Authorize]
         public async Task<IActionResult> CreateUser([FromBody] RegisterUserDTO dto)
         {
             if (!ModelState.IsValid) return BadRequest(ModelState);
@@ -57,8 +59,29 @@ namespace server.Controllers
             }
         }
 
+[HttpPost("forgot-password")]
+[AllowAnonymous]
+public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDTO dto)
+{
+    await _userService.RequestPasswordResetAsync(dto.Email);
+    return Ok(new { message = "If email exists, reset link sent" });
+}
+
+[HttpPost("reset-password")]
+[AllowAnonymous]
+public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO dto)
+{
+    var ok = await _userService.ResetPasswordAsync(dto.Token, dto.NewPassword);
+
+    if (!ok) return BadRequest(new { message = "Invalid or expired token" });
+
+    return Ok(new { message = "Password updated successfully" });
+}
+
+
         [HttpGet]
-        [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("Masters", "Read")]
+         [Authorize]
         public async Task<IActionResult> GetAll()
         {
             var users = await _userService.GetAllUsersAsync();
@@ -75,7 +98,7 @@ namespace server.Controllers
         }
 
         [HttpGet("simple")]
-        [Authorize]
+        [Authorize] // any logged-in user can fetch simple user list (for dropdowns etc.)
         public async Task<IActionResult> GetSimpleUsers()
         {
             var users = await _userService.GetAllUsersAsync();
@@ -91,7 +114,8 @@ namespace server.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("Masters", "Read")]
+         [Authorize]
         public async Task<IActionResult> GetById(int id)
         {
             var user = await _userService.GetUserByIdAsync(id);
@@ -107,7 +131,8 @@ namespace server.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("Masters", "Update")]
+         [Authorize]
         public async Task<IActionResult> Update(int id, [FromBody] UpdateUserDTO dto)
         {
             try
@@ -124,7 +149,8 @@ namespace server.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("Masters", "Delete")]
+         [Authorize]
         public async Task<IActionResult> Delete(int id)
         {
             var success = await _userService.DeleteUserAsync(id);

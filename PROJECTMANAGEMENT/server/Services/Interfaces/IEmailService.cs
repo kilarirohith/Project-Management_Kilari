@@ -2,6 +2,6 @@ namespace server.Services.Interfaces
 {
     public interface IEmailService
     {
-        Task SendEmailAsync(string toEmail, string subject, string body, bool isHtml = true);
+        Task SendEmailAsync(string to, string subject, string htmlBody);
     }
 }

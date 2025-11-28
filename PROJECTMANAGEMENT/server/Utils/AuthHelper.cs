@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using server.Models;
+using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -40,6 +42,22 @@ namespace server.Utils
                 new Claim(ClaimTypes.Email, user.Email ?? string.Empty),
                 new Claim(ClaimTypes.Role, user.Role?.Name ?? "User")
             };
+
+            // Permission claims from RolePermissions
+            if (user.Role?.RolePermissions != null)
+            {
+                foreach (var rp in user.Role.RolePermissions)
+                {
+                    if (rp.CanRead)
+                        claims.Add(new Claim("Permission", $"{rp.Module}:Read"));
+                    if (rp.CanCreate)
+                        claims.Add(new Claim("Permission", $"{rp.Module}:Create"));
+                    if (rp.CanUpdate)
+                        claims.Add(new Claim("Permission", $"{rp.Module}:Update"));
+                    if (rp.CanDelete)
+                        claims.Add(new Claim("Permission", $"{rp.Module}:Delete"));
+                }
+            }
 
             var token = new JwtSecurityToken(
                 issuer: issuer,

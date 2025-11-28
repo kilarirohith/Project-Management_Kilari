@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using server.Authorization;
 using server.DTOs;
 using server.Services.Interfaces;
 
@@ -7,6 +8,7 @@ namespace server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize] 
     public class VendorController : ControllerBase
     {
         private readonly IVendorService _vendorService;
@@ -17,7 +19,8 @@ namespace server.Controllers
         }
 
         [HttpGet]
-        [Authorize]
+        [PermissionAuthorize("Masters", "Read")]
+        [Authorize] 
         public async Task<IActionResult> GetVendors()
         {
             var vendors = await _vendorService.GetAllAsync();
@@ -25,7 +28,8 @@ namespace server.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize]
+        [PermissionAuthorize("Masters", "Read")]
+        [Authorize] 
         public async Task<IActionResult> GetVendor(int id)
         {
             var vendor = await _vendorService.GetByIdAsync(id);
@@ -35,7 +39,8 @@ namespace server.Controllers
         }
 
         [HttpPost]
-        [Authorize(Roles = "Admin,Manager")]
+        [PermissionAuthorize("Masters", "Create")]
+        [Authorize] 
         public async Task<IActionResult> CreateVendor([FromBody] CreateVendorDTO dto)
         {
             if (!ModelState.IsValid)
@@ -46,7 +51,8 @@ namespace server.Controllers
         }
 
         [HttpPut("{id}")]
-        [Authorize(Roles = "Admin,Manager")]
+        [PermissionAuthorize("Masters", "Update")]
+        [Authorize] 
         public async Task<IActionResult> UpdateVendor(int id, [FromBody] CreateVendorDTO dto)
         {
             if (!ModelState.IsValid)
@@ -60,7 +66,8 @@ namespace server.Controllers
         }
 
         [HttpDelete("{id}")]
-        [Authorize(Roles = "Admin")]
+        [PermissionAuthorize("Masters", "Delete")]
+        [Authorize] 
         public async Task<IActionResult> DeleteVendor(int id)
         {
             var success = await _vendorService.DeleteAsync(id);

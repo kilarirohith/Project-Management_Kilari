@@ -22,7 +22,6 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IEmailService, EmailService>();
-
 builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IVendorService, VendorService>();
 builder.Services.AddScoped<IMilestoneMasterService, MilestoneMasterService>();
@@ -137,7 +136,7 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 
-    // 🔹 Ensure roles exist (Admin, User, Manager) even if the table is partially filled
+    // 🔹 Ensure roles exist
     Role? adminRole = db.Roles.FirstOrDefault(r => r.Name == "Admin");
 
     if (adminRole == null)
@@ -156,12 +155,23 @@ using (var scope = app.Services.CreateScope())
         db.Roles.Add(new Role { Name = "Manager", Description = "Project Manager" });
     }
 
-    db.SaveChanges(); // ✅ Make sure roles are in DB and Admin has an Id
+    // 🔹 Seed default modules (this MUST be inside the using block)
+    if (!db.AppModules.Any())
+    {
+        db.AppModules.AddRange(
+            new AppModule { Name = "Dashboard" },
+            new AppModule { Name = "Projects" },
+            new AppModule { Name = "Ticket Tracker" },
+            new AppModule { Name = "Task Tracker" },
+            new AppModule { Name = "Masters" }
+        );
+    }
+
+    db.SaveChanges(); // save roles + modules
 
     // 🔹 Ensure default admin user exists
     if (!db.Users.Any(u => u.Email == "admin@admin.com"))
     {
-        // Fetch Admin role again (now guaranteed to exist)
         adminRole = db.Roles.First(r => r.Name == "Admin");
 
         var adminUser = new User
@@ -178,6 +188,8 @@ using (var scope = app.Services.CreateScope())
         db.SaveChanges();
     }
 }
+
+
 
 
 if (app.Environment.IsDevelopment())

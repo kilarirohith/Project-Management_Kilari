@@ -88,3 +88,58 @@
   text-decoration: underline;
   font-weight: 500;
 }
+/* Highlighted forgot password */
+.extra-links {
+  margin-top: 15px;
+}
+
+.forgot-link {
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+/* Glow underline effect */
+.forgot-link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 2px;
+  background: #ffeb3b;
+  box-shadow: 0 0 6px #ffeb3b, 0 0 12px #ffeb3b;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: 0.3s ease-in-out;
+}
+
+/* Hover animation */
+.forgot-link:hover {
+  color: #ffeb3b;
+  text-shadow: 0 0 8px #ffeb3b;
+}
+
+.forgot-link:hover::after {
+  transform: scaleX(1);
+}
+
+/* Pulsing animation (always visible to catch attention) */
+.forgot-link {
+  animation: pulseGlow 2.5s infinite ease-in-out;
+}
+
+@keyframes pulseGlow {
+  0% {
+    text-shadow: 0 0 5px rgba(255, 235, 59, 0.4);
+  }
+  50% {
+    text-shadow: 0 0 15px rgba(255, 235, 59, 1);
+  }
+  100% {
+    text-shadow: 0 0 5px rgba(255, 235, 59, 0.4);
+  }
+}

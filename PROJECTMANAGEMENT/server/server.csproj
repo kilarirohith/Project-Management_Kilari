@@ -9,6 +9,7 @@
   <ItemGroup>
     <!-- Encryption -->
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="MailKit" Version="4.14.1" />
 
     <!-- EF Core (8.x to match net8) -->
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.7" />
